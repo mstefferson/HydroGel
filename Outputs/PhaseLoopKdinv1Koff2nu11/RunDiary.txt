@@ -1,0 +1,12 @@
+KDinv
+        1000
+
+Koff:
+     0   100
+
+nu:
+     0     1     2     3     4     5     6     7     8     9    10
+
+Elapsed time is 50.961793 seconds.
+Finished run
+Elapsed time is 50.966004 seconds.

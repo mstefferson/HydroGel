@@ -1,0 +1,17 @@
+      trial: 1
+     SaveMe: 1
+      NxODE: 1000
+    LboxVec: [1x20 double]
+      BCstr: 'DirVn'
+        Kon: 100000
+       Koff: 10
+      KDinv: 10000
+         nu: 1
+         Bt: 0.0020
+         AL: 2.0000e-04
+         AR: 0
+
+[Warning: Directory already exists.] 
+[> In <a href="matlab:matlab.internal.language.introspective.errorDocCallback('PhaseParamVsBox', '/home/mws/Documents/MATLAB/Research/BH/ReactionDiffusion/PhaseParamVsBox.m', 72)" style="font-weight:bold">PhaseParamVsBox</a> (<a href="matlab: opentoline('/home/mws/Documents/MATLAB/Research/BH/ReactionDiffusion/PhaseParamVsBox.m',72,0)">line 72</a>)] 
+[Warning: Directory already exists.] 
+[> In <a href="matlab:matlab.internal.language.introspective.errorDocCallback('PhaseParamVsBox', '/home/mws/Documents/MATLAB/Research/BH/ReactionDiffusion/PhaseParamVsBox.m', 94)" style="font-weight:bold">PhaseParamVsBox</a> (<a href="matlab: opentoline('/home/mws/Documents/MATLAB/Research/BH/ReactionDiffusion/PhaseParamVsBox.m',94,0)">line 94</a>)] 
