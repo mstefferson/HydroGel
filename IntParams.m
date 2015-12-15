@@ -7,7 +7,7 @@ addpath( genpath( CurrentDir) );
 trial    = 501;
 
 % Turn things on
-NLcoup  = 1
+NLcoup  = 1;
 RunMe              = 1;
 ChemOnEndPts       = 1;
 SaveMe             = 1;
@@ -18,7 +18,7 @@ TrackAccumFromFluxPlot = 0;
 PlotMeMovAccum         = 0;
 PlotMeLastConcAccum    = 0;
 PlotMeLastConc         = 0;
-QuickMovie             = 0;
+QuickMovie             = 1;
 CheckConservDen        = 0;
 PlotMeRightRes         = 0;
 ShowRunTime            = 1;
@@ -27,15 +27,15 @@ ShowRunTime            = 1;
 Lbox  = 1;             % Gel length
 Nx    = floor(128*Lbox); %Internal gridpoints. Does not include endpoints
 % Lr        = Lbox * LrMult;   % Reservior length
-Lr = 64;
+Lr = 1;
 
 %Non Dimensional and Concentration
 KDinv = 1e4;           % Binding affinity
 Koff  = 1e1;           % scaled koff
 Kon   = KDinv * Koff;  % scaled kon
-% Kon   = 1e4;        % scaled kon
-% Koff  = 1e1;        % scaled koff
-nu    = 0.1;        % Dc/Da
+% Kon   = 0;        % scaled kon
+% Koff  = 0;        % scaled koff
+nu    = 0;        % Dc/Da
 Dnl   = 1;      % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
 Bt    = 2e-3;     % molar (old: 1e-2) (new: 1e-3)
 AL    = 2e-4;     % molar 2e-5
@@ -49,7 +49,7 @@ ss_epsilon  = 1e-12;   % steady state condition
 NumPlots    = 10;      % For the accumulation plot subroutine
 
 % Boudary conditions: 'Dir', 'VN', 'Res','PBC'
-A_BC = 'VN';
+A_BC = 'Dir';
 C_BC = 'VN';
 
 fprintf('trial:%d A_BC: %s C_BC: %s\n', trial,A_BC, C_BC)
