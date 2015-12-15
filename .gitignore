@@ -10,5 +10,5 @@
 *.avi
 
 # Directories
-./Outputs/
-./Outputs/*
+Outputs/
+Outputs/*
