@@ -45,9 +45,9 @@ end
 
 %Build operators and matrices
 if ParamObj.ChemOnEndPts
-    [Lop] = LopMakerRdAResCvnChemOnEnd(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,1,ParamObj.nu,ParamObj.Lr);
+    [Lop] = LopMakerRdAResCvnChemOnEnd(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,Params.DA,ParamObj.nu,ParamObj.Lr);
 else
-    [Lop] = LopMakerRdAResCvnChemOffEnd(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,1,ParamObj.nu,ParamObj.Lr);
+    [Lop] = LopMakerRdAResCvnChemOffEnd(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,Params.DA,ParamObj.nu,ParamObj.Lr);
 end
 [LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nx );
 

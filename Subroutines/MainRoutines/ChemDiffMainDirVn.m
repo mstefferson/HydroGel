@@ -1,6 +1,6 @@
 % ChemDiffMainDirVn
 % A bc Dir C bc VN
-function [A,C,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObj,TimeObj,AnalysisObj)
+function [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObj,TimeObj,AnalysisObj)
 % Define commonly used variables
 DidIBreak = 0;
 Nx = ParamObj.Nx;
@@ -50,7 +50,7 @@ else
 end
 
 %Build operators and matrices
-[Lop]    = LopMakerRdDirVn(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,1,ParamObj.nu);
+[Lop]    = LopMakerRdDirVn(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,ParamObj.DA,ParamObj.nu);
 [LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nx );
 % keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0

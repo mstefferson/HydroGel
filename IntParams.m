@@ -35,6 +35,7 @@ Koff  = 1e1;           % scaled koff
 Kon   = KDinv * Koff;  % scaled kon
 % Kon   = 0;        % scaled kon
 % Koff  = 0;        % scaled koff
+DA    = 1;
 nu    = 0;        % Dc/Da
 Dnl   = 1;      % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
 Bt    = 2e-3;     % molar (old: 1e-2) (new: 1e-3)
@@ -58,7 +59,7 @@ KDinv = Kon/Koff; %Binding affinity
 
 % keyboard
 % Build Objects
-[ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,nu,Dnl,...
+[ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,DA,nu,Dnl,...
     NLcoup,Bt,AL,AR,trial);
 [TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 [AnalysisObj] = AnalysisObjMakerRD(TrackAccumFromFlux,...
@@ -83,16 +84,16 @@ if RunMe == 1
 
 fprintf('Starting run \n')
 if strcmp(A_BC,'Dir') && strcmp(C_BC,'VN')
-[A,C,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObj,TimeObj,AnalysisObj);
+[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObj,TimeObj,AnalysisObj);
 elseif strcmp(A_BC,'Dir') && strcmp(C_BC,'Dir')
-[A,C,DidIBreak,SteadyState] = ChemDiffMainDir(ParamObj,TimeObj,AnalysisObj);
+[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDir(ParamObj,TimeObj,AnalysisObj);
 elseif strcmp(A_BC,'VN') && strcmp(C_BC,'VN')
-[A,C,DidIBreak,SteadyState] = ChemDiffMainVn(ParamObj,TimeObj,AnalysisObj);
+[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainVn(ParamObj,TimeObj,AnalysisObj);
 elseif strcmp(A_BC,'Res') && strcmp(C_BC,'VN')
-[A,C,DidIBreak,SteadyState] = ChemDiffMainResVn(ParamObj,TimeObj,AnalysisObj);
+[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainResVn(ParamObj,TimeObj,AnalysisObj);
 elseif strcmp(A_BC,'PBC') && strcmp(C_BC,'PBC')
 ParamObj.Nlcoup = 1; % Currently, Nl coup turns on all chem    
-[A,C,DidIBreak,SteadyState] = ChemDiffMainPBCft(ParamObj,TimeObj,AnalysisObj);
+[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainPBCft(ParamObj,TimeObj,AnalysisObj);
 end
 fprintf('Finished run\n')
 

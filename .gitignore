@@ -12,3 +12,5 @@
 # Directories
 Outputs/
 Outputs/*
+data/
+data/*

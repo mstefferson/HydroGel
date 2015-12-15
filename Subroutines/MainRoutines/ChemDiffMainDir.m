@@ -48,7 +48,7 @@ if AnalysisObj.TrackAccumFromFlux
 end
 % keyboard
 %Build operators and matrices
-[Lop]    = LopMakerRdDir(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,1,ParamObj.nu);
+[Lop]    = LopMakerRdDir(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,Params.DA,ParamObj.nu);
 [LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nxp2 );
 % keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0

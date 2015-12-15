@@ -10,7 +10,7 @@ trial    = 501;
 NLcoup             = 1;
 RunMe              = 1;
 ChemOnEndPts       = 1;
-SaveMe             = 0;
+SaveMe             = 1;
 
 % "Analysis" subroutines
 TrackAccumFromFlux     = 0;
@@ -121,7 +121,7 @@ fprintf('trial:%d A_BC: %s C_BC: %s\n', trial,A_BC, C_BC)
     TrackAccumFromFluxPlot, PlotMeMovAccum, PlotMeLastConcAccum,...
     PlotMeLastConc,QuickMovie,CheckConservDen,PlotMeRightRes,ShowRunTime);
 
-FileDir = sprintf('Red01A%sC%st%d',A_BC,C_BC,trial);
+FileDir = sprintf('Green01A%sC%st%d',A_BC,C_BC,trial);
 Where2SavePath    = sprintf('%s/%s/%s',pwd,'Outputs',FileDir);
 % disp( max(dt * (Nx/Lbox)^2,nu * dt * (Nx/Lbox)^2) )
 
@@ -175,10 +175,11 @@ ScaleStr = sprintf('Scaling & Box\n tau = %.2e [s]\n L = %.2e [m]\n Inlet Ind = 
     tau, L,xDiS,xDiE);
 
 figure()
-% keyboard
+
 %%
 for i = 1:TimeObj.N_rec;
  
+%     keyboard
     if i <= (NtEx)
     h1 = plot(xMod,Mod_rec(i,:),'-',...
         xExp, Exp_rec(1,:),'--' );
@@ -230,6 +231,7 @@ close(Mov);
       mkdir(Where2SavePath)
       movefile('*.mat', Where2SavePath)
       movefile('*.txt', Where2SavePath)
+      movefile('*.avi', Where2SavePath)
     end
     toc
     fprintf('Break = %d Steady = %d\n',DidIBreak,SteadyState)
