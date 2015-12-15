@@ -14,6 +14,7 @@ trial  = 1;
 KDinv = 1e4 ;
 Koff  = 1e1;
 Kon  = KDinv * Koff;
+DA  = 1;
 nu  = 0.1;
 AL  = 2e-4;
 AR  = 0;
@@ -86,11 +87,14 @@ CheckConservDen = 0; PlotMeRightRes = 0; ShowRunTime = 1;
 %%%%% Non Linear
 NLcoup = 1;
 
-[ParamObjTemp] = ParamObjMakerRD(SaveMeTemp,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,nu,Dnl,...
+[ParamObjTemp] = ParamObjMakerRD(SaveMeTemp,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,DA,nu,Dnl,...
     NLcoup,Bt,AL,AR,trial);
 
 if strcmp(A_BC,'Dir') && strcmp(C_BC,'VN')
-[A,C,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+A = A_rec(:,end);
+C = C_rec(:,end);
+
 else
     fprintf('Not running non-linear pde steady state\n')
 end
@@ -101,7 +105,10 @@ if SteadyState == 1
 else 
     fprintf('I did not reach steady state. Trying again\n')
     [TimeObj] = TimeObjMakerRD(dt,2*t_tot,t_rec,ss_epsilon,NumPlots);
-    [A,C,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+    [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+    A = A_rec(:,end);
+    C = C_rec(:,end);
+
     if SteadyState == 1
     AnlPde = A';
     CnlPde = C';
@@ -115,12 +122,16 @@ fprintf('NL PDE method done\n');
 %%%%% Linear
 NLcoup = 0;
 
-[ParamObjTemp] = ParamObjMakerRD(SaveMeTemp,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,nu,Dnl,...
+[ParamObjTemp] = ParamObjMakerRD(SaveMeTemp,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,DA,nu,Dnl,...
     NLcoup,Bt,AL,AR,trial);
+
 
 if strcmp(A_BC,'Dir') && strcmp(C_BC,'VN')
     [x,dx]  = Gridmaker1DVn(ParamObj.Lbox,Nx);
-[A,C,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+    [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+    A = A_rec(:,end);
+    C = C_rec(:,end);
+
 else
     fprintf('Not running linear pde steady state\n')
 end
@@ -132,7 +143,10 @@ if SteadyState == 1
 else 
     fprintf('I did not reach steady state. Trying again\n')
     [TimeObj] = TimeObjMakerRD(dt,2*t_tot,t_rec,ss_epsilon,NumPlots);
-    [A,C,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+    [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMainDirVn(ParamObjTemp,TimeObj,AnalysisObj);
+    A = A_rec(:,end);
+    C = C_rec(:,end);
+
     if SteadyState == 1
     AlinPde = A';
     ClinPde = C';    
