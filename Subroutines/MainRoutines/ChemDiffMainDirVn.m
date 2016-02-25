@@ -20,6 +20,7 @@ Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\nDnl=%.1e',...
 Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
     ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
+
 %Inital Densisy
 [A,~,C,~,~,~] = ...
     IntConcMaker(ParamObj.AL, ParamObj.AR, ParamObj.Bt, ...
@@ -27,6 +28,12 @@ Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
 % C(1) = CL; C(end) = CR;
 C(1) = 0; C(end) = 0;
 % keyboard
+
+% Blur Density check
+if ParamObj.BindSiteDistFlag == 1
+   [ParamObj.Bt] = BinitGelSquareBlur(ParamObj.Bt, ParamObj.sigma, x);
+end
+   
 v = [A';C'];
 
 % Concentration records
@@ -187,8 +194,11 @@ if ~SteadyState
 else
     TimeObj.N_rec = j_record;
 end
+
+fprintf('Sim Time Ran = %.2f\n', TimeRec(end) );
 % Total B
-B_rec = ParamObj.Bt - C_rec;
+% B_rec = ParamObj.Bt - C_rec;
+B_rec = 0;
 
 % RecObj
 RecObj = struct('A_rec', A_rec,'B_rec',B_rec,'C_rec',C_rec,...
@@ -202,8 +212,14 @@ RecObj = struct('A_rec', A_rec,'B_rec',B_rec,'C_rec',C_rec,...
 if ParamObj.SaveMe
     saveStr = sprintf('ConsDirVnNL%d_t%d',ParamObj.NLcoup,ParamObj.trial);
     save(saveStr,'ParamObj','GridObj','TimeObj','AnalysisObj','RecObj')
+    
+    ConcenMovieMakerTgthr1DAvi(A_rec, C_rec,...
+        x,TimeRec,TimeObj.N_rec,ParamObj.Kon,ParamObj.Koff,...
+        ParamObj.Dnl,ParamObj.nu,ParamObj.Bt,ParamObj.KDinv);
+    
 %     movefile('*.mat', OutputDir)
 end
+
 
 if AnalysisObj.QuickMovie
     MAll = ConcenMovieMakerTgthr1D(A_rec, C_rec,...

@@ -1,7 +1,7 @@
 % Builds the parameter object for the reaction diffusion equation
 
 function [ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff, DA,nu,...
-Dnl,NLcoup,Bt,AL,AR,trial)
+Dnl,NLcoup,Bt,AL,AR,trial,BindSiteDistFlag,sigma)
 
 % Put Parameters in a structure
 ParamObj   = struct('trial',trial,'SaveMe',SaveMe, 'ChemOnEndPts',ChemOnEndPts,...
@@ -9,6 +9,6 @@ ParamObj   = struct('trial',trial,'SaveMe',SaveMe, 'ChemOnEndPts',ChemOnEndPts,.
 'A_BC',A_BC,'C_BC',C_BC,...
 'Kon', Kon, 'Koff', Koff,'KDinv',Kon/Koff,'DA',DA,...
     'nu',nu,'Dnl',Dnl,'NLcoup',NLcoup,...
-    'Bt',Bt,'AL',AL,'AR',AR);
+    'Bt',Bt,'AL',AL,'AR',AR,'BindSiteDistFlag',BindSiteDistFlag,'sigma',sigma);
 end
 
