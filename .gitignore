@@ -8,9 +8,11 @@
 *.txt
 *.swp
 *.avi
+*~
 
 # Directories
 Outputs/
 Outputs/*
 data/
 data/*
+dataInf/
