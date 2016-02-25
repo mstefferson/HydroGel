@@ -1,18 +1,13 @@
-function [M_All] = ...
-    ConcenMovieMakerTgthr1D(A_rec, C_rec,...
-    x,TimeRec,nFrames,N,Kon,Koff,Dnl,nu,Bt,KDinv)
+function  ConcenMovieMakerTgthr1DAvi(A_rec, C_rec,...
+    x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,KDinv)
 
 
-%Initialize the movie structure array
-M_All(nFrames)  = struct('cdata',zeros(N,N,3,'int8'), 'colormap',[]);
+% Video Write stuff
+Mov = VideoWriter('HydroGRD.avi');
+Mov.FrameRate = 4;
+open(Mov);
 
-% Set up figure
-% h = figure('Position', [100 100 840 630]);
-% keyboard
 
-if length(Bt) == 1
-    Bt = Bt * ones(1, length(Bt) );
-end
 
 % Set up figure
 Fig = figure();
@@ -23,12 +18,17 @@ set(ax2, 'nextplot','replacechildren')
 MinT = min( min( A_rec + C_rec ) );
 MaxT = max( max( A_rec + C_rec ) );
 
-set(gcf,'renderer','zbuffer')
+set(Fig,'renderer','zbuffer')
 % keyboard
 %     keyboard
 %Titles
 TitlStr1 = sprintf('[A]+[C]');
 TitlStr2 = sprintf('Bt');
+
+% If Bt is constant, have it a vec for plotting
+if length(Bt) == 1
+    Bt = Bt * ones(1, length(Bt) );
+end
 
 for ii = 1:nFrames
     subplot(ax1)
@@ -36,7 +36,6 @@ for ii = 1:nFrames
     LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2; LinObj(3).LineWidth = 2;
     title(TitlStr1)
     xlabel('x');ylabel('Concentration');
-
     set(gca,'YLim', [MinT MaxT] )
     legend('A','C','A+C')
 %         keyboard
@@ -51,11 +50,13 @@ for ii = 1:nFrames
         TimeRec(ii),KDinv,nu,Dnl,Kon, Koff );
     title(TitlStr2)
     xlabel('x');ylabel('Concentration');
-%     hold off
     textbp(ParamStr)
 %     keyboard
-    M_All(ii) = getframe(gcf); %Store the frame
+    Fr = getframe(Fig); %Store the frame
+    writeVideo(Mov,Fr);
+    
 end
 
 % keyboard
 % close all
+close(Mov)
