@@ -15,8 +15,8 @@ Gridstr = sprintf('Nx=%d\nLbox=%.1f',...
     GridObj.Nx,GridObj.Lbox);
 % Strings
 BCstr    = sprintf('A_BC: %s \nC_BC = %s',ParamObj.A_BC,ParamObj.C_BC);
-Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\nDnl=%.1e',...
-    ParamObj.Kon,ParamObj.Koff,ParamObj.nu,ParamObj.Dnl);
+Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nDc=%.2e\nDnl=%.1e',...
+    ParamObj.Kon,ParamObj.Koff,ParamObj.Dc,ParamObj.Dnl);
 Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
     ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
@@ -57,7 +57,7 @@ else
 end
 
 %Build operators and matrices
-[Lop]    = LopMakerRdDirVn(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,ParamObj.DA,ParamObj.nu);
+[Lop]    = LopMakerRdDirVn(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,ParamObj.DA,ParamObj.Dc);
 [LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nx );
 % keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0
@@ -110,7 +110,7 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     end
     if ParamObj.Dnl ~= 1
         [NLdiff] = ConcDepDiffCalcNd1stOrd(v,ParamObj.Dnl,ParamObj.Bt,Nx,dx);
-NLdiff(1) = (Dnl - 1) / Bt * ...
+    NLdiff(1) = (Dnl - 1) / Bt * ...
         (v(Nx+1) + v(Nx+2) ) .* (v(2) - v(1) ) / ( dx^2 );
     NLdiff(Nx) = (Dnl - 1) / Bt * ...
         (v(2*Nx-1) + v(2*Nx) ) .* (v(Nx-1) - v(Nx) ) / ( dx^2 );
@@ -205,9 +205,13 @@ RecObj = struct('A_rec', A_rec,'B_rec',B_rec,'C_rec',C_rec,...
     'FluxAccum_rec',FluxAccum_rec,'Flux2ResR_rec',Flux2ResR_rec,...
     'TimeRec',TimeRec,'SteadyState',SteadyState);
 
-%Check for negative densities
-[DidIBreak] =  NegDenChecker(A_rec,C_rec,B_rec,ParamObj.trial);
 
+if DidIBreak == 1
+    A_rec = A_rec(:,1:j_record);
+    C_rec = C_rec(:,1:j_record);
+    TimeObj.N_rec = j_record;
+    keyboard
+end
 % keyboard
 if ParamObj.SaveMe
     saveStr = sprintf('ConsDirVnNL%d_t%d',ParamObj.NLcoup,ParamObj.trial);
@@ -215,7 +219,7 @@ if ParamObj.SaveMe
     
     ConcenMovieMakerTgthr1DAvi(A_rec, C_rec,...
         x,TimeRec,TimeObj.N_rec,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.nu,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
     
 %     movefile('*.mat', OutputDir)
 end
@@ -224,13 +228,13 @@ end
 if AnalysisObj.QuickMovie
     MAll = ConcenMovieMakerTgthr1D(A_rec, C_rec,...
         x,TimeRec,TimeObj.N_rec,Nx,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.nu,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
 end
 
 if AnalysisObj.TrackAccumFromFluxPlot
     AccumMax = 4.5e-3;
     FluxA2resDirPlotter(...
-        ParamObj.AL,ParamObj.Bt,ParamObj.AR,v,Nx,ParamObj.nu,...
+        ParamObj.AL,ParamObj.Bt,ParamObj.AR,v,Nx,ParamObj.Dc,...
         ParamObj.Lbox,dx,AccumMax,Flux2ResR,TimeRec,...
         FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
 end
@@ -249,7 +253,7 @@ end
 
 if AnalysisObj.PlotMeMovAccum
     WavefrontAndAccumPlotter(A_rec,C_rec,x,TimeRec,TimeObj.N_rec,TimeObj.NumPlots,...
-        ParamObj.Kon,ParamObj.Koff,ParamObj.nu,ParamObj.Dnl,...
+        ParamObj.Kon,ParamObj.Koff,ParamObj.Dc,ParamObj.Dnl,...
         ParamObj.AL,ParamObj.Bt)
 end
 
