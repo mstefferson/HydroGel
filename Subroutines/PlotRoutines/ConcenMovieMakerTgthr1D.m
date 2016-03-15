@@ -11,7 +11,7 @@ M_All(nFrames)  = struct('cdata',zeros(N,N,3,'int8'), 'colormap',[]);
 % keyboard
 
 if length(Bt) == 1
-    Bt = Bt * ones(1, length(Bt) );
+    Bt = Bt * ones(1, length(x) );
 end
 
 % Set up figure
@@ -39,7 +39,7 @@ for ii = 1:nFrames
 
     set(gca,'YLim', [MinT MaxT] )
     legend('A','C','A+C')
-%         keyboard
+        keyboard
 
     subplot(ax2)
 %     cla
