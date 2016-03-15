@@ -1,3 +1,4 @@
+% N is suppose to not include the endpoints.
 function [x,x_trim,dx] = Gridmaker1DDir(Lbox,N)
 % Spatial grid Dir
 dx     = Lbox/(N+1);

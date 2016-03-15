@@ -3,7 +3,6 @@
 % Nx: Number of internal gridpoints
 function [Lop] = LopMakerRdDir(N,dx,Bt,kon,koff,Da,Dc)
 
-N = N+2;
 % Build Diffusion
 LopDiff = sparse(2*N,2*N);
 % Coupling

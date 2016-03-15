@@ -38,4 +38,4 @@ Flux           = -NlDiffCoeff .* dAdx;
 % Take gradient
 NL(2:N-1)      = ( Flux(1:N-2) - Flux(2:N-1) ) ./ dx; % -dFlux/dx
 
-end
+nd
