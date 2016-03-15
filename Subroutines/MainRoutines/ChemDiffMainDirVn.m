@@ -210,7 +210,6 @@ if DidIBreak == 1
     A_rec = A_rec(:,1:j_record);
     C_rec = C_rec(:,1:j_record);
     TimeObj.N_rec = j_record;
-    keyboard
 end
 % keyboard
 if ParamObj.SaveMe
