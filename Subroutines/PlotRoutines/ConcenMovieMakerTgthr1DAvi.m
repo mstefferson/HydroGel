@@ -8,9 +8,13 @@ Mov.FrameRate = 4;
 open(Mov);
 
 
-
+% Set up figure
 % Set up figure
 Fig = figure();
+set(Fig, 'WindowStyle', 'normal');
+PosVec = [680 558 1200 800];
+Fig.Position = PosVec;
+
 ax1 = subplot(1,2,1);
 set(ax1, 'nextplot','replacechildren')
 ax2 = subplot(1,2,2);
@@ -20,14 +24,14 @@ MaxT = max( max( A_rec + C_rec ) );
 
 set(Fig,'renderer','zbuffer')
 % keyboard
-%     keyboard
+%     kedyboard
 %Titles
 TitlStr1 = sprintf('[A]+[C]');
 TitlStr2 = sprintf('Bt');
 
 % If Bt is constant, have it a vec for plotting
 if length(Bt) == 1
-    Bt = Bt * ones(1, length(Bt) );
+    Bt = Bt * ones(1, length(x) );
 end
 
 for ii = 1:nFrames
@@ -52,7 +56,7 @@ for ii = 1:nFrames
     xlabel('x');ylabel('Concentration');
     textbp(ParamStr)
 %     keyboard
-    Fr = getframe(Fig); %Store the frame
+    Fr = getframe(Fig,[0 0 PosVec(3) PosVec(4)]);
     writeVideo(Mov,Fr);
     
 end
