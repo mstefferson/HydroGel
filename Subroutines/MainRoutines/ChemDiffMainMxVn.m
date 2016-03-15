@@ -81,7 +81,7 @@ NL(1) = 0;
 
 % Step
 [vNext] = FuncStepperCnAb1(v,RMcn,LMcn,NL,TimeObj.dt);
-vNext(1) = ParamObj.AL; vNext(Nx) = ParamObj.AR;
+vNext(1) = ParamObj.AL; 
 
 if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
     Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
@@ -116,7 +116,7 @@ NLdiff(1) = (Dnl - 1) / Bt * ...
         (v(2*Nx-1) + v(2*Nx) ) .* (v(Nx-1) - v(Nx) ) / ( dx^2 );
     end
     NL  = NLdiff + NLchem;
-    NL(1) = 0; NL(Nx) = 0;
+    NL(1) = 0; 
     % Step
     [vNext] = FuncStepperCnAb2(v,RMcn,LMcn,NL,NLprev,TimeObj.dt);
     vNext(1) = ParamObj.AL; 

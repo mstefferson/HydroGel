@@ -25,7 +25,8 @@ ShowRunTime            = 1;
 
 %Spatial grid
 Lbox  = 1;             % Gel length
-Nx    = floor(8*Lbox); %Internal gridpoints. Does not include endpoints
+Nx    = 128;
+Nx    = floor(Nx*Lbox); %Internal gridpoints. Does not include endpoints
 % Lr        = Lbox * LrMult;   % Reservior length
 Lr = 1;
 
@@ -42,30 +43,30 @@ end
 
 
 %Non Dimensional and Concentration
-KDinv = 1e5;           % Binding affinity
+KDinv = 1e4;           % Binding affinity
 Koff  = 1e2;           % scaled koff
 % KDinv = 0;           % Binding affinity
 % Koff  = 0;           % scaled koff
 Kon   = KDinv * Koff;  % scaled kon
 % Kon   = 0;        % scaled kon
 % Koff  = 0;        % scaled koff
-DA    = 0.01;
-Dc    = 0.1;        % Dc/Da
+DA    = 1;
+Dc    = 1;        % Dc/Da
 Dnl   = 1;      % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
 Bt    = 2e-3;     % molar (old: 1e-2) (new: 1e-3)
 AL    = 2e-4;     % molar 2e-5
 AR    = 0;
 
 % time
-tfac        = 0.1;
+tfac        = 1;
 dt          = tfac*(Lbox/(Nx-1))^2;   % time step
-t_tot       = 0.1 * tfac * Lbox^2 /  DA;      % total time
+t_tot       = 1 * tfac * Lbox^2 /  DA;      % total time
 t_rec       = t_tot / 100;  % time interval for recording dynamics
 ss_epsilon  = 1e-12;   % steady state condition
 NumPlots    = 10;      % For the accumulation plot subroutine
 
 % Boudary conditions: 'Dir', 'Vn', 'Res','PBC', 'Mx'
-A_BC = 'Dir';
+A_BC = 'Mx';
 C_BC = 'Vn';
 
 fprintf('trial:%d A_BC: %s C_BC: %s\n', trial,A_BC, C_BC)
