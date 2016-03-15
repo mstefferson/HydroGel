@@ -9,6 +9,7 @@
 *.swp
 *.avi
 *~
+*.mat
 
 # Directories
 Outputs/

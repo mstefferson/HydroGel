@@ -54,7 +54,7 @@ for ii = 1:nFrames
         TimeRec(ii),KDinv,nu,Dnl,Kon, Koff );
     title(TitlStr2)
     xlabel('x');ylabel('Concentration');
-    textbp(ParamStr)
+%     textbp(ParamStr)
 %     keyboard
     Fr = getframe(Fig,[0 0 PosVec(3) PosVec(4)]);
     writeVideo(Mov,Fr);

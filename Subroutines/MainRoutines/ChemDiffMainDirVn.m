@@ -16,7 +16,7 @@ Gridstr = sprintf('Nx=%d\nLbox=%.1f',...
 % Strings
 BCstr    = sprintf('A_BC: %s \nC_BC = %s',ParamObj.A_BC,ParamObj.C_BC);
 Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nDc=%.2e\nDnl=%.1e',...
-    ParamObj.Kon,ParamObj.Koff,ParamObj.Dc,ParamObj.Dnl);
+    ParamObj.Kon,ParamObj.Koff,ParamObj.DC,ParamObj.Dnl);
 Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
     ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
@@ -57,7 +57,7 @@ else
 end
 
 %Build operators and matrices
-[Lop]    = LopMakerRdDirVn(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,ParamObj.DA,ParamObj.Dc);
+[Lop]    = LopMakerRdDirVn(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,ParamObj.DA,ParamObj.DC);
 [LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nx );
 % keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0
@@ -218,7 +218,7 @@ if ParamObj.SaveMe
     
     ConcenMovieMakerTgthr1DAvi(A_rec, C_rec,...
         x,TimeRec,TimeObj.N_rec,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.DC,ParamObj.Bt,ParamObj.KDinv);
     
 %     movefile('*.mat', OutputDir)
 end
@@ -227,13 +227,13 @@ end
 if AnalysisObj.QuickMovie
     MAll = ConcenMovieMakerTgthr1D(A_rec, C_rec,...
         x,TimeRec,TimeObj.N_rec,Nx,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.DC,ParamObj.Bt,ParamObj.KDinv);
 end
 
 if AnalysisObj.TrackAccumFromFluxPlot
     AccumMax = 4.5e-3;
     FluxA2resDirPlotter(...
-        ParamObj.AL,ParamObj.Bt,ParamObj.AR,v,Nx,ParamObj.Dc,...
+        ParamObj.AL,ParamObj.Bt,ParamObj.AR,v,Nx,ParamObj.DC,...
         ParamObj.Lbox,dx,AccumMax,Flux2ResR,TimeRec,...
         FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
 end
@@ -252,7 +252,7 @@ end
 
 if AnalysisObj.PlotMeMovAccum
     WavefrontAndAccumPlotter(A_rec,C_rec,x,TimeRec,TimeObj.N_rec,TimeObj.NumPlots,...
-        ParamObj.Kon,ParamObj.Koff,ParamObj.Dc,ParamObj.Dnl,...
+        ParamObj.Kon,ParamObj.Koff,ParamObj.DC,ParamObj.Dnl,...
         ParamObj.AL,ParamObj.Bt)
 end
 

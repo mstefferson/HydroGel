@@ -30,16 +30,7 @@ Nx    = floor(Nx*Lbox); %Internal gridpoints. Does not include endpoints
 % Lr        = Lbox * LrMult;   % Reservior length
 Lr = 1;
 
-% Binding flag 0: constant. 1: Square blurr
- 
-BindSiteDistFlag = 0;
-alpha  = 0.1;
 
-if BindSiteDistFlag ~= 0
-    sigma  = alpha * Lbox ;
-else
-    sigma = 0;
-end
 
 
 %Non Dimensional and Concentration
@@ -56,6 +47,21 @@ Dnl   = 1;      % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
 Bt    = 2e-3;     % molar (old: 1e-2) (new: 1e-3)
 AL    = 2e-4;     % molar 2e-5
 AR    = 0;
+
+% Binding flag 0: constant. 1: Square blurr
+ 
+BindSiteDistFlag = 1;
+alpha  = 0.1;
+
+BtDepDiff  = 1;
+Btc   = Bt;
+
+if BindSiteDistFlag ~= 0
+    sigma  = alpha * Lbox ;
+else
+    BtDepDiff = 0;
+    sigma = 0;
+end
 
 % time
 tfac        = 1;
@@ -76,7 +82,7 @@ KDinv = Kon/Koff; %Binding affinity
 % keyboard
 % Build Objects
 [ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,DA,Dc,Dnl,...
-    NLcoup,Bt,AL,AR,trial,BindSiteDistFlag,sigma);
+    NLcoup,Bt,Btc, AL,AR,trial,BindSiteDistFlag,BtDepDiff,sigma);
 [TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 [AnalysisObj] = AnalysisObjMakerRD(TrackAccumFromFlux,...
     TrackAccumFromFluxPlot, PlotMeMovAccum, PlotMeLastConcAccum,...
