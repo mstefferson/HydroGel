@@ -1,6 +1,6 @@
 % Doesn't account for spatially varying Bt. Currently this isn't implimented...
 
-function [Nldiff1 NldiffN] = NlDiffBcFixer(A_BC,C_BC, Dnl, Bt, v, dx, )
+function [Nldiff1, NldiffN] = NlDiffBcFixer(A_BC,C_BC, Dnl, Bt, v, dx)
 
 if strcmp(A_BC,'Dir') && strcmp(C_BC,'Vn')
     NLdiff1 = 0; 

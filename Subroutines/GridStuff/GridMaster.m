@@ -1,4 +1,4 @@
-function [x,dx] = GridMaster(Abc,Cbc,Lbox,N)
+function [x,dx] = GridMaster(A_BC,C_BC,Lbox,N)
 
 if strcmp(A_BC,'PBC') && strcmp(C_BC,'PBC')
   [x,dx] =  Gridmaker1DPBC(Lbox,N);

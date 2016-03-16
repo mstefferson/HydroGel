@@ -8,7 +8,7 @@ Nx = ParamObj.Nx;
 A_BC = ParamObj.A_BC;
 C_BC = ParamObj.C_BC;
 % Fix LR
-[ParamObj.Lr] = LrMaster(A_BC, C_BC);
+[ParamObj.Lr] = LrMaster(A_BC, ParamObj.Lr);
 
 %Spatial grid
 [x,dx]  = GridMaster(A_BC, C_BC,ParamObj.Lbox,Nx);
@@ -23,24 +23,24 @@ Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
     ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
 %Inital Densisy
-[A,~,C,~,~,~] = ...
+[A,~,C,~,CL,CR] = ...
     IntConcMaker(ParamObj.AL, ParamObj.AR, ParamObj.Bt, ...
-   ParamObj.KDinv, ParamObj.Lbox, x,ParamObj.NLcoup);% A = Alin;
+    ParamObj.KDinv, ParamObj.Lbox, x,ParamObj.NLcoup);% A = Alin;
 % C(1) = CL; C(end) = CR;
 C(1) = 0; C(end) = 0;
 % keyboard
 
 % Blur Density check
 if ParamObj.BindSiteDistFlag == 1
-   [ParamObj.Bt] = BinitGelSquareBlur(ParamObj.Bt, ParamObj.sigma, x);
+    [ParamObj.Bt] = BinitGelSquareBlur(ParamObj.Bt, ParamObj.sigma, x);
 end
 
 % Blur Density check
 if ParamObj.BtDepDiff == 1
-   [ParamObj.Da,ParamObj.Dc] = BtDepDiffBuilder(ParamObj.Bt, ParamObj.Btc, ...
-       ParamObj.Da,ParamObj.Dc);
+    [ParamObj.Da,ParamObj.Dc] = BtDepDiffBuilder(ParamObj.Bt, ParamObj.Btc, ...
+        ParamObj.Da,ParamObj.Dc);
 end
-   
+
 v = [A';C'];
 
 % Concentration records
@@ -66,7 +66,7 @@ end
 % keyboard
 %Build operators and matrices
 [Lop]    =  LopMakerMaster(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,...
-    ParamObj.Da,ParamObj.Dc, A_BC,C_BC);
+    ParamObj.Da,ParamObj.Dc, ParamObj.Lr, A_BC,C_BC);
 [LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nx );
 % keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0
@@ -78,19 +78,21 @@ end
 
 if ParamObj.Dnl ~= 1
     [NLdiff]   = ConcDepDiffCalcNd1stOrd(v,ParamObj.Dnl,ParamObj.Bt,Nx,dx);
-    [NLdiff(1) NLdiff(Nx) ] =  NlDiffBcFixer(A_BC,C_BC, ParamObj.Dnl, ParamObj.Bt, v, dx, )
+    [NLdiff(1), NLdiff(Nx) ] =  ...
+        NlDiffBcFixer(A_BC,C_BC, ParamObj.Dnl, ParamObj.Bt, v, dx);
 else
     NLdiff     = zeros(2*Nx,1);
 end
+
 NL  = NLdiff + NLchem;
 [NL(1), NL(Nx), NL(Nx+1), NL(2*Nx)] = ...
-  NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
+    NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
 
 % Step
 [vNext] = FuncStepperCnAb1(v,RMcn,LMcn,NL,TimeObj.dt);
 [vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx)] = ...
-    NlBcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx),
-    ParamObj.AL, ParamObj.AR, ParamObj.CL, ParamObj.CR);
+    BcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx), ...
+    ParamObj.AL, ParamObj.AR, CL, CR);
 
 if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
     Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
@@ -119,17 +121,21 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     end
     if ParamObj.Dnl ~= 1
         [NLdiff] = ConcDepDiffCalcNd1stOrd(v,ParamObj.Dnl,ParamObj.Bt,Nx,dx);
-    [NLdiff(1) NLdiff(Nx) ] =  NlDiffBcFixer(A_BC,C_BC, ParamObj.Dnl, ParamObj.Bt, v, dx, )
+        [NLdiff(1), NLdiff(Nx) ] =  ...
+            NlDiffBcFixer(A_BC,C_BC, ParamObj.Dnl, ParamObj.Bt, v, dx);
     end
+    
     NL  = NLdiff + NLchem;
     [NL(1), NL(Nx), NL(Nx+1), NL(2*Nx)] = ...
-    NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
-
+        NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
+    
+        
     % Step
+%     keyboard
     [vNext] = FuncStepperCnAb2(v,RMcn,LMcn,NL,NLprev,TimeObj.dt);
     [vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx)] = ...
-    NlBcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx),
-    ParamObj.AL, ParamObj.AR, ParamObj.CL, ParamObj.CR);
+        BcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx),...
+    ParamObj.AL, ParamObj.AR, CL, CR);
     
     % Save stuff
     if (mod(t,TimeObj.N_count)== 0)
@@ -172,7 +178,7 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
         
     end % save stuff
 end % time loop
-keyboard
+% keyboard
 if AnalysisObj.ShowRunTime; toc; end
 % Last step
 t = t+1;
@@ -231,7 +237,7 @@ if ParamObj.SaveMe
         x,TimeRec,TimeObj.N_rec,ParamObj.Kon,ParamObj.Koff,...
         ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
     
-%     movefile('*.mat', OutputDir)
+    %     movefile('*.mat', OutputDir)
 end
 
 
