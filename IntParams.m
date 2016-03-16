@@ -97,10 +97,6 @@ end
 % keyboard
 if RunMe == 1
     tic
-%     keyboard
- %     ChemDiffMainAResVn
-%     ChemDiffMainDir
-%     ChemDiffMainVn
 
 fprintf('Starting run \n')
 [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj);

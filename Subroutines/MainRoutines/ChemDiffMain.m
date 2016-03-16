@@ -1,12 +1,39 @@
-% ChemDiffMainDirVn
-% A bc Dir C bc VN
-function [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj)
+% ChemDiffMain
+% Handles all BCs
+
+function [A,C,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj)
+
+% Global variables
+global Nx;
+global v;
+global vNext;
+global A_rec;
+global C_rec;
+global j_record;
+
 
 % Define commonly used variables
 DidIBreak = 0;
-Nx = ParamObj.Nx;
+SteadyState = 0;
+TrackFlux = AnalysisObj.TrackAccumFromFlux;
 A_BC = ParamObj.A_BC;
 C_BC = ParamObj.C_BC;
+
+% Init global
+Nx     = ParamObj.Nx;
+A_rec   = zeros(Nx,TimeObj.N_rec);
+C_rec   = zeros(Nx,TimeObj.N_rec);
+
+% Other recs
+if (AnalysisObj.TrackAccumFromFlux)
+    FluxAccum_rec = zeros(1,TimeObj.N_rec);
+    Flux2ResR_rec = zeros(1,TimeObj.N_rec);
+else
+    FluxAccum_rec  = 0;
+    Flux2ResR_rec  = 0;
+end
+
+
 % Fix LR
 [ParamObj.Lr] = LrMaster(A_BC, ParamObj.Lr);
 
@@ -44,23 +71,16 @@ end
 v = [A';C'];
 
 % Concentration records
-A_rec   = zeros(Nx,TimeObj.N_rec);
-C_rec   = zeros(Nx,TimeObj.N_rec);
 A_rec(:,1)   = A;
 C_rec(:,1)   = C;
 j_record = 2;
 
 % Store the "accumulation" from the flux
 if AnalysisObj.TrackAccumFromFlux
-    FluxAccum_rec = zeros(1,TimeObj.N_rec);
-    Flux2ResR_rec = zeros(1,TimeObj.N_rec);
     Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
-    FluxAccum  = v(Nx);
+    FluxAccum   = 0;
     Flux2ResR_rec(1) = Flux2ResR;
     FluxAccum_rec(1) =  FluxAccum;
-else
-    FluxAccum_rec = 0;
-    Flux2ResR_rec = 0;
 end
 
 % keyboard
@@ -94,14 +114,14 @@ NL  = NLdiff + NLchem;
     BcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx), ...
     ParamObj.AL, ParamObj.AR, CL, CR);
 
-if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
+if TrackFlux % Just do Euler stepping for now
     Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
     FluxAccumNext  = ParamObj.AR + TimeObj.dt * Flux2ResR;
 end
 
 % Time loop
-SteadyState = 0;
 if AnalysisObj.ShowRunTime; tic; end
+
 for t = 1: TimeObj.N_time - 1 % t * dt  = time
     
     % Update
@@ -110,7 +130,7 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     v     = vNext;
     
     %     keyboard
-    if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
+    if TrackFlux  % Just do Euler stepping for now
         FluxAccum     = FluxAccumNext;
         Flux2ResR     = (v(Nx-1) - v(Nx) ) / dx;
         FluxAccumNext = FluxAccum + TimeObj.dt * Flux2ResR;
@@ -129,82 +149,72 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     [NL(1), NL(Nx), NL(Nx+1), NL(2*Nx)] = ...
         NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
     
-        
+    
     % Step
-%     keyboard
+    %     keyboard
     [vNext] = FuncStepperCnAb2(v,RMcn,LMcn,NL,NLprev,TimeObj.dt);
     [vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx)] = ...
         BcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx),...
-    ParamObj.AL, ParamObj.AR, CL, CR);
+        ParamObj.AL, ParamObj.AR, CL, CR);
     
     % Save stuff
     if (mod(t,TimeObj.N_count)== 0)
-        if min(v) < 0
-            fprintf('Something went negative\n')
-            AnalysisObj.QuickMovie = 0; SaveMe = 0;
-            DidIBreak = 1;
-            break
-        end
-        if find(~isfinite(v)) ~= 0
-            fprintf('Something blew up\n')
-            QuickMovie = 0; SaveMe = 0;
-            DidIBreak = 1;
-            break
-        end
-        
-        A_rec(:,j_record)   = v(1:Nx);
-        C_rec(:,j_record)   = v(Nx+1:end);
-        if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
+        if  TrackFlux % Just do Euler stepping for now
             Flux2ResR_rec(j_record) = Flux2ResR;
             FluxAccum_rec(j_record) = FluxAccum;
         end
-        % Check for steady state. max() is ok with NaN
-        if max( abs( (v-vNext)./v ) ) < TimeObj.ss_epsilon
+        
+        A_rec(:,j_record)   = v(1:Nx);
+        C_rec(:,j_record)   = v(Nx+1:2*Nx);
+        
+        [DidIBreak, SteadyState] = BrokenSteadyTrack(TimeObj.ss_epsilon);
+        
+        if (DidIBreak == 1); break; end;
+        if (SteadyState == 1)
+            TimeRec = TimeObj.t_rec .* (0:j_record-1);
+            fprintf('Steady State time = %.1f\n',TimeObj.dt*t);
             A_rec = A_rec(:,1:j_record);
             C_rec = C_rec(:,1:j_record);
-            if AnalysisObj.TrackAccumFromFlux
+            if  TrackFlux
                 Flux2ResR_rec = Flux2ResR_rec(1:j_record);
                 FluxAccum_rec = FluxAccum_rec(1:j_record);
             end
-            SteadyState = 1;
-            TimeRec = TimeObj.t_rec .* [0:j_record-1];
-            fprintf('Steady State time = %.1f\n',TimeObj.dt*t)
-            %             keyboard
-            break
+            
+            break;
         end
-        
         j_record = j_record + 1;
         % Check steady state
-        
     end % save stuff
 end % time loop
+
+% keyboard
 % keyboard
 if AnalysisObj.ShowRunTime; toc; end
+
 % Last step
 t = t+1;
-if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
+
+if TrackFlux % Just do Euler stepping for now
     FluxAccum     = FluxAccumNext;
     Flux2ResR     = (v(Nx-1) - v(Nx) ) / dx;
-    FluxAccumNext = FluxAccum + TimeObj.dt * Flux2ResR;
-    FluxMeasuredEnd = Flux2ResR;
 end
 
 if (mod(t,TimeObj.N_count)==0)
     v     = vNext;
-    A_rec(:,j_record)   = v(1:Nx);
-    C_rec(:,j_record)   = v(Nx+1:end);
-    if AnalysisObj.TrackAccumFromFlux % Just do Euler stepping for now
-        FluxAccum     = FluxAccumNext;
-        Flux2ResR     = (v(Nx-1) - v(Nx) ) / dx;
+    if TrackFlux % Just do Euler stepping for now
         Flux2ResR_rec(j_record) = Flux2ResR;
         FluxAccum_rec(j_record) = FluxAccum;
     end
+    A_rec(:,j_record)   = v(1:Nx);
+    C_rec(:,j_record)   = v(Nx+1:2*Nx);
+    
 end
 % Save A and C
 A = v(1:Nx);
 C = v(Nx+1:end);
 
 % Store the total concentrations
+% keyboard
 if ~SteadyState
     TimeRec = TimeObj.t_rec .* [0:TimeObj.N_rec-1];
 else
