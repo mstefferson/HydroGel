@@ -10,7 +10,8 @@ global vNext;
 global A_rec;
 global C_rec;
 global j_record;
-
+global Flux2ResR_rec;
+global FluxAccum_rec;
 
 % Define commonly used variables
 DidIBreak = 0;
@@ -32,7 +33,6 @@ else
     FluxAccum_rec  = 0;
     Flux2ResR_rec  = 0;
 end
-
 
 % Fix LR
 [ParamObj.Lr] = LrMaster(A_BC, ParamObj.Lr);
@@ -149,7 +149,6 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     [NL(1), NL(Nx), NL(Nx+1), NL(2*Nx)] = ...
         NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
     
-    
     % Step
     %     keyboard
     [vNext] = FuncStepperCnAb2(v,RMcn,LMcn,NL,NLprev,TimeObj.dt);
@@ -173,13 +172,6 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
         if (SteadyState == 1)
             TimeRec = TimeObj.t_rec .* (0:j_record-1);
             fprintf('Steady State time = %.1f\n',TimeObj.dt*t);
-            A_rec = A_rec(:,1:j_record);
-            C_rec = C_rec(:,1:j_record);
-            if  TrackFlux
-                Flux2ResR_rec = Flux2ResR_rec(1:j_record);
-                FluxAccum_rec = FluxAccum_rec(1:j_record);
-            end
-            
             break;
         end
         j_record = j_record + 1;
@@ -217,80 +209,24 @@ C = v(Nx+1:end);
 % keyboard
 if ~SteadyState
     TimeRec = TimeObj.t_rec .* [0:TimeObj.N_rec-1];
-else
-    TimeObj.N_rec = j_record;
 end
 
 fprintf('Sim Time Ran = %.2f\n', TimeRec(end) );
-% Total B
-% B_rec = ParamObj.Bt - C_rec;
-B_rec = 0;
-
-% RecObj
-RecObj = struct('A_rec', A_rec,'B_rec',B_rec,'C_rec',C_rec,...
-    'FluxAccum_rec',FluxAccum_rec,'Flux2ResR_rec',Flux2ResR_rec,...
-    'TimeRec',TimeRec,'SteadyState',SteadyState);
 
 %Check for negative densities
-if DidIBreak == 1
+if DidIBreak == 1 || SteadyState == 1;
     A_rec = A_rec(:,1:j_record);
     C_rec = C_rec(:,1:j_record);
+     if  TrackFlux
+        Flux2ResR_rec = Flux2ResR_rec(1:j_record);
+        FluxAccum_rec = FluxAccum_rec(1:j_record);
+     end
     TimeObj.N_rec = j_record;
 end
 
-% keyboard
-if ParamObj.SaveMe
-    saveStr = sprintf('ConsDirVnNL%d_t%d',ParamObj.NLcoup,ParamObj.trial);
-    save(saveStr,'ParamObj','GridObj','TimeObj','AnalysisObj','RecObj')
-    
-    ConcenMovieMakerTgthr1DAvi(A_rec, C_rec,...
-        x,TimeRec,TimeObj.N_rec,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
-    
-    %     movefile('*.mat', OutputDir)
+% Run analysis
+AnalysisMaster( ParamObj.SaveMe, SteadyState, DidIBreak,...
+    AnalysisObj,ParamObj,TimeRec, TimeObj,GridObj,...
+    x,Paramstr,Gridstr,Concstr)
+
 end
-
-
-if AnalysisObj.QuickMovie
-    MAll = ConcenMovieMakerTgthr1D(A_rec, C_rec,...
-        x,TimeRec,TimeObj.N_rec,Nx,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
-end
-
-if AnalysisObj.TrackAccumFromFluxPlot
-    AccumMax = 4.5e-3;
-    FluxA2resDirPlotter(...
-        ParamObj.AL,ParamObj.Bt,ParamObj.AR,v,Nx,ParamObj.Dc,...
-        ParamObj.Lbox,dx,AccumMax,Flux2ResR,TimeRec,...
-        FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
-end
-
-if AnalysisObj.CheckConservDen
-    ConservCheckerAres(x,A_rec,C_rec,TimeRec,ParamObj.Lr)
-end
-
-if AnalysisObj.PlotMeRightRes
-    figure()
-    %    ReservConcVsTimePlotter(TimeRec,A_rec,AllParamVec,trial)
-    plot(TimeRec,A_rec(end,:)/ParamObj.AL )
-    titstr = sprintf('Nx = %d Lbox = %.1f',Nx,ParamObj.Lbox);
-    title(titstr)
-end
-
-if AnalysisObj.PlotMeMovAccum
-    WavefrontAndAccumPlotter(A_rec,C_rec,x,TimeRec,TimeObj.N_rec,TimeObj.NumPlots,...
-        ParamObj.Kon,ParamObj.Koff,ParamObj.Dc,ParamObj.Dnl,...
-        ParamObj.AL,ParamObj.Bt)
-end
-
-if AnalysisObj.PlotMeLastConcAccum
-    PlotLastConcAndAccum(...
-        A_rec,C_rec,x,Paramstr,Gridstr,Concstr,TimeRec,ParamObj.trial)
-end
-
-if AnalysisObj.PlotMeLastConc
-    PlotLastConc(...
-        A_rec(:,end),C_rec(:,end),x,Paramstr,Gridstr,Concstr,ParamObj.trial)
-end
-
-
