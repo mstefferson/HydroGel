@@ -4,7 +4,7 @@ clc
 CurrentDir = pwd;
 addpath( genpath( CurrentDir) );
 
-trial    = 505;
+trial    = 1;
 
 % Turn things on
 NLcoup        = 1;
@@ -27,29 +27,23 @@ ShowRunTime            = 1;
 Lbox  = 1;             % Gel length
 Nx    = 128;
 Nx    = floor(Nx*Lbox); %Internal gridpoints. Does not include endpoints
-% Lr        = Lbox * LrMult;   % Reservior length
 Lr = 10;
 
 
 %Non Dimensional and Concentration
 KDinv = 1e4;           % Binding affinity
 Koff  = 1e2;           % scaled koff
-% KDinv = 0;           % Binding affinity
-% Koff  = 0;           % scaled koff
 Kon   = KDinv * Koff;  % scaled kon
-% Kon   = 0;        % scaled kon
-% Koff  = 0;        % scaled koff
-Da    = 1;
-Dc    = 1;        % Dc/Da
-Dnl   = 1;      % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
-Bt    = 2e-3;     % molar (old: 1e-2) (new: 1e-3)
-AL    = 2e-4;     % molar 2e-5
-AR    = 0;
+Da    = 1;             % Diffusion of species A (unbound)
+Dc    = 1;             % Dc/Da
+Dnl   = 1;             % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
+Bt    = 2e-3;          % molar (old: 1e-2) (new: 1e-3)
+AL    = 2e-4;          % concentration of inlet
+AR    = 0;             % concentration of outlet
 
 % Binding flag 0: constant. 1: Square blurr
- 
-BindSiteDistFlag = 0;
-alpha  = 0.1;
+BindSiteDistFlag = 1; % flag turn on spatially varying binding sites
+alpha  = 0.1;         % length scale (frac of box) where binding sites change
 
 BtDepDiff  = 0;
 Btc   = Bt;
@@ -69,15 +63,14 @@ t_rec       = t_tot / 100;  % time interval for recording dynamics
 ss_epsilon  = 1e-12;   % steady state condition
 NumPlots    = 10;      % For the accumulation plot subroutine
 
-% Boudary conditions: 'Dir', 'Vn', 'Res','PBC', 'Mx'
+% Boundary conditions: 'Dir', 'Vn', 'Res','PBC', 'Mx'
 A_BC = 'Dir';
-C_BC = 'Dir';
+C_BC = 'Vn';
 
 fprintf('trial:%d A_BC: %s C_BC: %s\n', trial,A_BC, C_BC)
 % Calculate other parameters
 KDinv = Kon/Koff; %Binding affinity
 
-% keyboard
 % Build Objects
 [ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,Da,Dc,Dnl,...
     NLcoup,Bt,Btc, AL,AR,trial,BindSiteDistFlag,BtDepDiff,sigma);
