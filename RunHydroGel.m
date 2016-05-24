@@ -4,6 +4,7 @@
 
 % Add paths and see where we are
 addpath('./Subroutines');
+if ~exist('./Outputs','dir'); mkdir('Outputs'); end;
 Time = datestr(now);
 currentdir=pwd;
 fprintf('In dir %s\n',currentdir);
