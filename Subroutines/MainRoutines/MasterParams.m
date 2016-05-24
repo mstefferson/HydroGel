@@ -1,5 +1,5 @@
-clear
-clc
+% Master Parameter template. Tracked by git. Don't edit unless 
+% adding a parameter.
 
 CurrentDir = pwd;
 addpath( genpath( CurrentDir) );
@@ -17,11 +17,11 @@ ParamObj.ChemOnEndPts  = 1;
 AnalysisObj.QuickMovie             = 1;  % Time evolv. Movie
 AnalysisObj.TrackAccumFromFlux     = 1;  % Track the flux into outlet
 AnalysisObj.TrackAccumFromFluxPlot = 1;  % Plot flux vs time
-AnalysisObj.PlotMeLastConc         = 1;  % Concentration at end time
-AnalysisObj.PlotMeAccum            = 1;  % Concentration at Outlet vs time
-AnalysisObj.PlotMeWaveFrontAccum   = 1;  % Wavefront and accum
-AnalysisObj.PlotMeLastConcAccum    = 1;  % Conc at end time and accum
-AnalysisObj.CheckConservDen        = 1;  % Check if density is conserved
+AnalysisObj.PlotMeLastConc         = 0;  % Concentration at end time
+AnalysisObj.PlotMeAccum            = 0;  % Concentration at Outlet vs time
+AnalysisObj.PlotMeWaveFrontAccum   = 0;  % Wavefront and accum
+AnalysisObj.PlotMeLastConcAccum    = 0;  % Conc at end time and accum
+AnalysisObj.CheckConservDen        = 0;  % Check if density is conserved
 AnalysisObj.ShowRunTime            = 1;  % Display run time
 
 %Spatial grid
@@ -72,43 +72,6 @@ NumPlots    = 10; % For the accumulation plot subroutine
 % 'Mx': Fixed Concenctration on left and no flux right
 ParamObj.A_BC = 'Dir';
 ParamObj.C_BC = 'Vn';
-fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
-  ParamObj.trial,ParamObj.A_BC, ParamObj.C_BC)
-
-% Fix Time issues and build object
-[TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
-
-FileDir = sprintf('RdNx%dA%sC%st%d',...
-  ParamObj.Nx,ParamObj.A_BC,ParamObj.C_BC,ParamObj.trial);
-Where2SavePath    = sprintf('%s/%s/%s',pwd,'Outputs',FileDir);
-% disp( max(dt * (Nx/Lbox)^2,nu * dt * (Nx/Lbox)^2) )
-
-if ParamObj.SaveMe
-  diary('RunDiary.txt')
-end
-
-% Display everything
-  disp(ParamObj); disp(AnalysisObj); disp(TimeObj);
-% Run the jewels
-if RunMe == 1
-  tic
-  fprintf('Starting run \n')
-  [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj);
-  fprintf('Finished run\n')
-  
-  % Move things to Outputs
-  if ParamObj.SaveMe
-    diary off
-    mkdir(Where2SavePath)
-    movefile('*.mat', Where2SavePath)
-    movefile('*.txt', Where2SavePath)
-    movefile('*.avi', Where2SavePath)
-  end
-  toc
-  fprintf('Break = %d Steady = %d\n',DidIBreak,SteadyState)
-  %     cd /home/mws/Documents/MATLAB/Research/BG/DDFT/HRddft/Drive/IsoDiffCube
-end
-
 
 
 

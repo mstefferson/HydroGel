@@ -17,3 +17,6 @@ Outputs/*
 data/
 data/*
 dataInf/
+
+# Params files
+InitParams.m
