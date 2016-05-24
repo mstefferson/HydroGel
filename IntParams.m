@@ -14,14 +14,14 @@ ParamObj.ChemOnEndPts  = 1;
 
 
 % "Analysis" subroutines
-AnalysisObj.TrackAccumFromFlux     = 0;  % Track the flux into outlet
-AnalysisObj.TrackAccumFromFluxPlot = 0;  % Plot flux vs time
-AnalysisObj.PlotMeMovAccum         = 0;
-AnalysisObj.PlotMeLastConcAccum    = 0;
-AnalysisObj.PlotMeLastConc         = 0;
 AnalysisObj.QuickMovie             = 1;  % Time evolv. Movie
-AnalysisObj.CheckConservDen        = 0;  % Check if density is conserved
-AnalysisObj.PlotMeRightRes         = 0;
+AnalysisObj.TrackAccumFromFlux     = 1;  % Track the flux into outlet
+AnalysisObj.TrackAccumFromFluxPlot = 1;  % Plot flux vs time
+AnalysisObj.PlotMeLastConc         = 1;  % Concentration at end time
+AnalysisObj.PlotMeAccum            = 1;  % Concentration at Outlet vs time
+AnalysisObj.PlotMeWaveFrontAccum   = 1;  % Wavefront and accum
+AnalysisObj.PlotMeLastConcAccum    = 1;  % Conc at end time and accum
+AnalysisObj.CheckConservDen        = 1;  % Check if density is conserved
 AnalysisObj.ShowRunTime            = 1;  % Display run time
 
 %Spatial grid
@@ -29,7 +29,7 @@ ParamObj.Lbox  = 1; % Gel length
 Nx    = 128;  % Internal gridpoints
 ParamObj.Nx    = floor(Nx*ParamObj.Lbox); % Scale by box. Careful!!!
 ParamObj.Lr = 10; % Reservoir length if there is one
-% Build Objects
+
 
 %Non Dimensional and Concentration
 ParamObj.KDinv = 1e4; % Binding affinity
@@ -70,7 +70,7 @@ NumPlots    = 10; % For the accumulation plot subroutine
 % 'Res': Reservoirs
 % 'PBC': Periodic. Don't think this works
 % 'Mx': Fixed Concenctration on left and no flux right
-ParamObj.A_BC = 'Mx';
+ParamObj.A_BC = 'Dir';
 ParamObj.C_BC = 'Vn';
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   ParamObj.trial,ParamObj.A_BC, ParamObj.C_BC)

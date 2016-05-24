@@ -13,12 +13,21 @@ titstr =  sprintf('Concentration at last time point trial %d', trial);
 title(titstr)
 textbp(Paramstr)
 pause(0.1)
-textbp(Concstr)
+try
+  textbp(Concstr)
+catch
+  fprintf('Issues with textbp\n');
+end
 
 %Plot accumulation
 subplot(1,2,2)
 plot( TimeRec, A_rec(end,:)/max(max(A_rec)) )
 xlabel('t');ylabel('A/A_{max}'); title('Accumulation')
 set(gca,'xLim',[0,TimeRec(end)])
-textbp(Gridstr)
+try
+  textbp(Gridstr)
+catch
+  fprintf('Issues with textbp\n');
+end
+
 end

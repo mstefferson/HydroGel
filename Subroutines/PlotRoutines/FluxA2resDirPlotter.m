@@ -2,39 +2,45 @@
 % acuumulation would be from that flux vs. time
 
 function FluxA2resDirPlotter(...
-    AL,Bt,AR,v,Nx,nu,Lbox,dx,AccumMax,Flux2ResR,TimeRec,...
+    AL,Bt,AR,A_tend,C_tend, nu,Lbox,dx, TimeRec,...
     FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
 
-    FluxMax = (AL + Bt - AR) / Lbox;
-    FluxC   = ( v(2*Nx-1) - v(2*Nx) ) ./ dx;
-%     AccumMax = (AL + Bt - AR) / Lbox .* t*dt; 
+    % Calculate some fluxes
+    FluxMax = (AL + Bt(1) - AR) / Lbox; % Max possible flux
+    FluxC   = ( C_tend(end-1) - C_tend(end) ) ./ dx; % Flux from C
 
-    FluxMeasured = Flux2ResR;
+    FluxMeasured = Flux2ResR_rec(end);
+    % If nu = 1,0 we know what the flux should be
     if nu == 1
-        FluxCalculate = ( (v(1) + v(Nx+1) ) - (v(Nx) + v(2*Nx) ) ) / Lbox;
+        FluxCalculate = ...
+        ( (A_tend(1) + C_tend(1) ) - ( A_tend(end) + C_tend(end) ) ) / Lbox;
         
-        FluxStr = sprintf('steady state\njA Meas =%.3e\n jC Meas =%.3e \n jA Calc=%.3e',...
+        FluxStr = sprintf('steady state \n jA Meas =%.3e \n jC Meas =%.3e \n jA Calc=%.3e',...
             FluxMeasured,FluxC,FluxCalculate);
   
     elseif nu == 0
-        FluxCalculate = ( v(1) - v(Nx) ) / Lbox;
-        FluxStr = sprintf('steady state\njA Measured=%.3e\n jA Calc=%.3e',...
+        FluxCalculate = ( A_tend(1) - A_tend(end) ) / Lbox;
+        FluxStr = sprintf('steady state \n jA Measured=%.3e \n jA Calc=%.3e',...
             FluxMeasured,FluxCalculate);
     else
-        FluxStr = sprintf('j Measured=%.3e\n S.S. ?? flux\n',FluxMeasured);
+        FluxStr = sprintf('j Measured=%.3e \n S.S. ?? flux\n',FluxMeasured);
     end
     
-    
+    % Plot
     figure
-    [AX,H1,H2] = plotyy(TimeRec,FluxAccum_rec,TimeRec,Flux2ResR_rec);
+    [AX,~,~] = plotyy(TimeRec,FluxAccum_rec,TimeRec,Flux2ResR_rec);
     ylabel(AX(1),'Accumluation');ylabel(AX(2),'Flux');xlabel('Time')
     title('Flux and "Accumulation" into Outlet (Dir BC on A)')
-    YfluxTick =  0:FluxMax/10:FluxMax;
-    YAccumTick =  0:AccumMax/10:AccumMax;
-    set(AX(2),'YLim',[0 FluxMax],'YTick',YfluxTick)
-    set(AX(1),'YLim',[0 AccumMax],'YTick',YAccumTick)
+%     YfluxTick =  0:FluxMax/10:FluxMax;
+%     YAccumTick =  0:AccumMax/10:AccumMax;
+%     set(AX(2),'YLim',[0 FluxMax],'YTick',YfluxTick)
+%     set(AX(1),'YLim',[0 AccumMax],'YTick',YAccumTick)
+try
     textbp(FluxStr)
     textbp(Paramstr)
     textbp(Gridstr)
+catch
+  fprintf('Issues with textbp, no parameter strings\n');
+end
     
 end

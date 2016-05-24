@@ -39,7 +39,6 @@ for ii = 1:nFrames
 
     set(gca,'YLim', [MinT MaxT] )
     legend('A','C','A+C')
-        keyboard
 
     subplot(ax2)
 %     cla

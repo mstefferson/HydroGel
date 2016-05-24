@@ -27,6 +27,10 @@ pause(0.1)
 ParamStr = sprintf(...
        ' Kon = %.1e \n Koff = %.1e \n nu = %.1e \n Dnl = %.1e \n  Bt = %.1e \n AL = %.1e \n ', ...
          Kon,Koff,nu,Dnl,Bt,AL);
-textbp(ParamStr)
+try
+  textbp(ParamStr)
+catch
+  fprintf('Issues with textbp, no parameter strings\n');
+end
 % keyboard
 end
