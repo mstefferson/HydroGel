@@ -44,6 +44,9 @@ if AnalysisObj.TrackAccumFromFluxPlot
     ParamObj.AL,ParamObj.Bt,ParamObj.AR,A_rec(:,end),C_rec(:,end),ParamObj.Dc,...
     ParamObj.Lbox,GridObj.dx,TimeRec,...
     FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
+    if SaveMe
+      savefig(gcf,'FluxAndAccum.fig')
+    end
   
 end
 
