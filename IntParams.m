@@ -4,110 +4,111 @@ clc
 CurrentDir = pwd;
 addpath( genpath( CurrentDir) );
 
-trial    = 1;
+RunMe           = 1;
+ParamObj.trial  = 1;
+ParamObj.SaveMe = 0;
 
 % Turn things on
-NLcoup        = 1;
-RunMe         = 1;
-ChemOnEndPts  = 1;
-SaveMe        = 1;
+ParamObj.NLcoup        = 1;
+ParamObj.ChemOnEndPts  = 1;
+
 
 % "Analysis" subroutines
-TrackAccumFromFlux     = 0;
-TrackAccumFromFluxPlot = 0;
-PlotMeMovAccum         = 0;
-PlotMeLastConcAccum    = 0;
-PlotMeLastConc         = 0;
-QuickMovie             = 0;
-CheckConservDen        = 0;
-PlotMeRightRes         = 0;
-ShowRunTime            = 1;
+AnalysisObj.TrackAccumFromFlux     = 0;  % Track the flux into outlet
+AnalysisObj.TrackAccumFromFluxPlot = 0;  % Plot flux vs time
+AnalysisObj.PlotMeMovAccum         = 0;
+AnalysisObj.PlotMeLastConcAccum    = 0;
+AnalysisObj.PlotMeLastConc         = 0;
+AnalysisObj.QuickMovie             = 1;  % Time evolv. Movie
+AnalysisObj.CheckConservDen        = 0;  % Check if density is conserved
+AnalysisObj.PlotMeRightRes         = 0;
+AnalysisObj.ShowRunTime            = 1;  % Display run time
 
 %Spatial grid
-Lbox  = 1;             % Gel length
-Nx    = 128;
-Nx    = floor(Nx*Lbox); %Internal gridpoints. Does not include endpoints
-Lr = 10;
-
+ParamObj.Lbox  = 1; % Gel length
+Nx    = 128;  % Internal gridpoints
+ParamObj.Nx    = floor(Nx*ParamObj.Lbox); % Scale by box. Careful!!!
+ParamObj.Lr = 10; % Reservoir length if there is one
+% Build Objects
 
 %Non Dimensional and Concentration
-KDinv = 1e4;           % Binding affinity
-Koff  = 1e2;           % scaled koff
-Kon   = KDinv * Koff;  % scaled kon
-Da    = 1;             % Diffusion of species A (unbound)
-Dc    = 1;             % Dc/Da
-Dnl   = 1;             % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
-Bt    = 2e-3;          % molar (old: 1e-2) (new: 1e-3)
-AL    = 2e-4;          % concentration of inlet
-AR    = 0;             % concentration of outlet
+ParamObj.KDinv = 1e4; % Binding affinity
+ParamObj.Koff  = 1e2; % scaled koff
+ParamObj.Kon   = ParamObj.KDinv * ParamObj.Koff;  % scaled kon
+ParamObj.Da    = 1; % Diffusion of species A (unbound)
+ParamObj.Dc    = 1; % Dc/Da
+ParamObj.Dnl   = 1; % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
+ParamObj.Bt    = 2e-3;  % molar (old: 1e-2) (new: 1e-3)
+ParamObj.AL    = 2e-4;  % concentration of inlet
+ParamObj.AR    = 0; % concentration of outlet
 
 % Binding flag 0: constant. 1: Square blurr
-BindSiteDistFlag = 1; % flag turn on spatially varying binding sites
-alpha  = 0.1;         % length scale (frac of box) where binding sites change
-
-BtDepDiff  = 0;
-Btc   = Bt;
-
-if BindSiteDistFlag ~= 0
-    sigma  = alpha * Lbox ;
+ParamObj.BindSiteDistFlag = 1; % flag turn on spatially varying binding sites
+ParamObj.alpha  = 0.1;  % length scale (frac of box) where binding sites change
+% Turn on if diffusion depends on Bt. If Bt varies spatially,
+% Diff_A = 0, Diff_C = Max when Bt(x) = Btc.
+ParamObj.BtDepDiff  = 0;  % Turn on if diffusion depends on Bt.
+ParamObj.Btc   = ParamObj.Bt; % Critial Bt
+if ParamObj.BindSiteDistFlag ~= 0
+  ParamObj.sigma  = ParamObj.alpha * ParamObj.Lbox ;
 else
-    BtDepDiff = 0;
-    sigma = 0;
+  ParamObj.BtDepDiff = 0;
+  ParamObj.sigma = 0;
 end
 
 % time
 tfac        = 1;
-dt          = tfac*(Lbox/(Nx-1))^2;   % time step
-t_tot       = 1 * tfac * Lbox^2 /  Da;      % total time
+dt          = tfac*(ParamObj.Lbox/(ParamObj.Nx-1))^2; % time step
+t_tot       = 1 * tfac * ParamObj.Lbox^2 /  ParamObj.Da;  % total time
 t_rec       = t_tot / 100;  % time interval for recording dynamics
-ss_epsilon  = 1e-12;   % steady state condition
-NumPlots    = 10;      % For the accumulation plot subroutine
+ss_epsilon  = 1e-12;  % steady state condition
+NumPlots    = 10; % For the accumulation plot subroutine
 
 % Boundary conditions: 'Dir', 'Vn', 'Res','PBC', 'Mx'
-A_BC = 'Dir';
-C_BC = 'Vn';
+% 'Dir': Fixed Concenctration on left and right
+% 'Vn': No flux on left and right
+% 'Res': Reservoirs
+% 'PBC': Periodic. Don't think this works
+% 'Mx': Fixed Concenctration on left and no flux right
+ParamObj.A_BC = 'Mx';
+ParamObj.C_BC = 'Vn';
+fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
+  ParamObj.trial,ParamObj.A_BC, ParamObj.C_BC)
 
-fprintf('trial:%d A_BC: %s C_BC: %s\n', trial,A_BC, C_BC)
-% Calculate other parameters
-KDinv = Kon/Koff; %Binding affinity
-
-% Build Objects
-[ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,Nx,Lbox,Lr,A_BC,C_BC,Kon,Koff,Da,Dc,Dnl,...
-    NLcoup,Bt,Btc, AL,AR,trial,BindSiteDistFlag,BtDepDiff,sigma);
+% Fix Time issues and build object
 [TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
-[AnalysisObj] = AnalysisObjMakerRD(TrackAccumFromFlux,...
-    TrackAccumFromFluxPlot, PlotMeMovAccum, PlotMeLastConcAccum,...
-    PlotMeLastConc,QuickMovie,CheckConservDen,PlotMeRightRes,ShowRunTime);
 
-FileDir = sprintf('RdNx%dA%sC%st%d',Nx,A_BC,C_BC,trial);
+FileDir = sprintf('RdNx%dA%sC%st%d',...
+  ParamObj.Nx,ParamObj.A_BC,ParamObj.C_BC,ParamObj.trial);
 Where2SavePath    = sprintf('%s/%s/%s',pwd,'Outputs',FileDir);
-% disp( max(dt * (Nx/Lbox)^2,nu * dt * (Nx/Lbox)^2) ) 
+% disp( max(dt * (Nx/Lbox)^2,nu * dt * (Nx/Lbox)^2) )
 
-if SaveMe
-    diary('RunDiary.txt')
-    disp(ParamObj)
+if ParamObj.SaveMe
+  diary('RunDiary.txt')
 end
-% keyboard
+
+% Display everything
+  disp(ParamObj); disp(AnalysisObj); disp(TimeObj);
+% Run the jewels
 if RunMe == 1
-    tic
-
-fprintf('Starting run \n')
-[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj);
-fprintf('Finished run\n')
-
-% ChemDiffMainPBCft
-    if SaveMe 
-      diary off
-      mkdir(Where2SavePath)
-      movefile('*.mat', Where2SavePath)
-      movefile('*.txt', Where2SavePath)
-      movefile('*.avi', Where2SavePath)
-    end
-    toc
-    fprintf('Break = %d Steady = %d\n',DidIBreak,SteadyState)
-%     cd /home/mws/Documents/MATLAB/Research/BG/DDFT/HRddft/Drive/IsoDiffCube
+  tic
+  fprintf('Starting run \n')
+  [A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj);
+  fprintf('Finished run\n')
+  
+  % Move things to Outputs
+  if ParamObj.SaveMe
+    diary off
+    mkdir(Where2SavePath)
+    movefile('*.mat', Where2SavePath)
+    movefile('*.txt', Where2SavePath)
+    movefile('*.avi', Where2SavePath)
+  end
+  toc
+  fprintf('Break = %d Steady = %d\n',DidIBreak,SteadyState)
+  %     cd /home/mws/Documents/MATLAB/Research/BG/DDFT/HRddft/Drive/IsoDiffCube
 end
 
 
 
-    
+
