@@ -4,9 +4,8 @@
 CurrentDir = pwd;
 addpath( genpath( CurrentDir) );
 
-RunMe           = 1;
 ParamObj.trial  = 1;
-ParamObj.SaveMe = 0;
+ParamObj.SaveMe = 1;
 
 % Turn things on
 ParamObj.NLcoup        = 1;
