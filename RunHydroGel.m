@@ -39,7 +39,7 @@ disp(ParamObj); disp(AnalysisObj); disp(TimeObj);
 
 tic
 fprintf('Starting run \n')
-[A_rec,C_rec,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj);
+[A,C,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj);
 fprintf('Finished run\n')
 
 % Move things to Outputs

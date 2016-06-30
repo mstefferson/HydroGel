@@ -10,6 +10,8 @@
 *.avi
 *~
 *.mat
+*.jpg
+*.fig
 
 # Directories
 Outputs/
