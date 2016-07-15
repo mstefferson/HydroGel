@@ -55,9 +55,11 @@ Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
   ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
 %Inital Densisy
-[A,~,C,~,CL,CR] = ...
+[A,Alin,C,Clin,CL,CR] = ...
   IntConcMaker(ParamObj.AL, ParamObj.AR, ParamObj.Bt, ...
   ParamObj.KDinv, ParamObj.Lbox, x,ParamObj.NLcoup);% A = Alin;
+% A= Alin;
+% C= Clin;
 % C(1) = CL; C(end) = CR;
 C(1) = 0; C(end) = 0;
 % keyboard
@@ -125,7 +127,7 @@ if TrackFlux % Just do Euler stepping for now
 end
 
 % Time loop
-if AnalysisObj.ShowRunTime; tic; end
+if AnalysisObj.ShowRunTime; RunTimeID = tic; end
 
 for t = 1: TimeObj.N_time - 1 % t * dt  = time
   
@@ -173,20 +175,20 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     
     [DidIBreak, SteadyState] = BrokenSteadyTrack(TimeObj.ss_epsilon);
     
-    if (DidIBreak == 1); break; end;
+    if (DidIBreak == 1);
+      fprintf('I broke time = %f jrec= %d \n',TimeObj.dt*t,j_record)
+      TimeRec = TimeObj.t_rec .* (0:j_record-1);
+      break;
+    end;
     if (SteadyState == 1)
       TimeRec = TimeObj.t_rec .* (0:j_record-1);
-      fprintf('Steady State time = %.1f\n',TimeObj.dt*t);
+      fprintf('Steady State time = %.1f jrec =%d\n',TimeObj.dt*t,j_record);
       break;
     end
     j_record = j_record + 1;
     % Check steady state
   end % save stuff
 end % time loop
-
-% keyboard
-% keyboard
-if AnalysisObj.ShowRunTime; toc; end
 
 % Last step
 t = t+1;
@@ -196,16 +198,19 @@ if TrackFlux % Just do Euler stepping for now
   Flux2ResR     = ParamObj.Da * (v(Nx-1) - v(Nx) ) / dx;
 end
 
-if (mod(t,TimeObj.N_count)==0)
-  v     = vNext;
-  if TrackFlux % Just do Euler stepping for now
-    Flux2ResR_rec(j_record) = Flux2ResR;
-    FluxAccum_rec(j_record) = FluxAccum;
+if ~SteadyState || ~DidIBreak
+  if (mod(t,TimeObj.N_count)==0)
+    v     = vNext;
+    if TrackFlux % Just do Euler stepping for now
+      Flux2ResR_rec(j_record) = Flux2ResR;
+      FluxAccum_rec(j_record) = FluxAccum;
+    end
+    A_rec(:,j_record)   = v(1:Nx);
+    C_rec(:,j_record)   = v(Nx+1:2*Nx);
+    
   end
-  A_rec(:,j_record)   = v(1:Nx);
-  C_rec(:,j_record)   = v(Nx+1:2*Nx);
-  
 end
+
 % Save A and C
 A = v(1:Nx);
 C = v(Nx+1:end);
@@ -215,8 +220,6 @@ C = v(Nx+1:end);
 if ~SteadyState
   TimeRec = TimeObj.t_rec .* [0:TimeObj.N_rec-1];
 end
-
-fprintf('Sim Time Ran = %.2f\n', TimeRec(end) );
 
 %Check for negative densities
 if DidIBreak == 1 || SteadyState == 1;
@@ -228,6 +231,14 @@ if DidIBreak == 1 || SteadyState == 1;
   end
   TimeObj.N_rec = j_record;
 end
+
+% Show run time
+if AnalysisObj.ShowRunTime; 
+  RunTime = toc(RunTimeID); 
+  fprintf('Run time %.2g min\n', RunTime / 60);
+  fprintf('Sim Time Ran = %.4f\n', TimeRec(end) );
+end
+
 
 % Run analysis
 AnalysisMaster( ParamObj.SaveMe, SteadyState,...

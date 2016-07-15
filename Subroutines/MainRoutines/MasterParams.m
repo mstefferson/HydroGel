@@ -57,8 +57,9 @@ end
 
 % time
 tfac        = 1;
-dt          = tfac*(ParamObj.Lbox/(ParamObj.Nx-1))^2; % time step
-t_tot       = 1 * tfac * ParamObj.Lbox^2 /  ParamObj.Da;  % total time
+dtfac       = 1;
+dt          = dtfac *(ParamObj.Lbox/(ParamObj.Nx))^2; % time step
+t_tot       = tfac * ParamObj.Lbox^2 /  ParamObj.Da;  % total time
 t_rec       = t_tot / 100;  % time interval for recording dynamics
 ss_epsilon  = 1e-12;  % steady state condition
 NumPlots    = 10; % For the accumulation plot subroutine
