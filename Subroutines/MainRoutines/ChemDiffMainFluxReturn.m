@@ -1,13 +1,14 @@
 % ChemDiffMain
 % Handles all BCs
 
-function [A,C,DidIBreak,SteadyState,fluxTimeHm, fluxSlopeHm] = ...
-  ChemDiffMainFluxBreak(ParamObj,TimeObj,AnalysisObj, fluxStop, Koff, Kon, dt)
+function [A,C,DidIBreak,SteadyState,Flux2ResR_rec, FluxAccum_rec] = ...
+  ChemDiffMainFluxReturn(ParamObj,TimeObj,AnalysisObj, Koff, Kon, dt)
 
   [TimeObj] = TimeObjMakerRD(dt,TimeObj.t_tot,TimeObj.t_rec,...
     TimeObj.ss_epsilon,TimeObj.NumPlots);
   ParamObj.Koff = Koff;
   ParamObj.Kon = Kon;
+
 % Global variables
 global Nx;
 global v;
@@ -15,20 +16,12 @@ global vNext;
 global A_rec;
 global C_rec;
 global j_record;
-global Flux2ResR_rec;
-global FluxAccum_rec;
 
 
 % Define commonly used variables
-fluxTimeHm  = 0; % t at flux stop 
-fluxSlopeHm = 0; % dj/dt at flux stop 
 DidIBreak = 0;
 SteadyState = 0;
-if AnalysisObj.TrackAccumFromFlux || AnalysisObj.TrackAccumFromFluxPlot
-  TrackFlux = 1;
-else
-  TrackFlux = 0;
-end
+TrackFlux = 1;
 
 A_BC = ParamObj.A_BC;
 C_BC = ParamObj.C_BC;
@@ -39,12 +32,9 @@ A_rec   = zeros(Nx,TimeObj.N_rec);
 C_rec   = zeros(Nx,TimeObj.N_rec);
 
 % Other recs
-if (AnalysisObj.TrackAccumFromFlux)
+if TrackFlux
   FluxAccum_rec = zeros(1,TimeObj.N_rec);
   Flux2ResR_rec = zeros(1,TimeObj.N_rec);
-else
-  FluxAccum_rec  = 0;
-  Flux2ResR_rec  = 0;
 end
 
 % Fix LR
@@ -176,11 +166,6 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     if  TrackFlux % Just do Euler stepping for now
       Flux2ResR_rec(j_record) = Flux2ResR;
       FluxAccum_rec(j_record) = FluxAccum;
-      if Flux2ResR > fluxStop
-        fluxTimeHm = j_record * TimeObj.t_rec;
-        fluxSlopeHm = ( Flux2ResR_rec(j_record) - Flux2ResR_rec(j_record-1) ) / TimeObj.t_rec;
-        break
-      end
     end
     
     A_rec(:,j_record)   = v(1:Nx);
@@ -195,7 +180,9 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     end;
     if (SteadyState == 1)
       TimeRec = TimeObj.t_rec .* (0:j_record-1);
-      fprintf('Steady State time = %.1f jrec =%d\n',TimeObj.dt*t,j_record);
+      if AnalysisObj.ShowRunTime;
+        fprintf('Steady State time = %.1f jrec =%d\n',TimeObj.dt*t,j_record);
+      end
       break;
     end
     j_record = j_record + 1;
@@ -239,18 +226,27 @@ if DidIBreak == 1 || SteadyState == 1;
   A_rec = A_rec(:,1:j_record);
   C_rec = C_rec(:,1:j_record);
   if  TrackFlux
-    Flux2ResR_rec = Flux2ResR_rec(1:j_record);
-    FluxAccum_rec = FluxAccum_rec(1:j_record);
-  end
+
+     % Force it to take up at the space. So ugly :-(
+      Flux2ResR_rec(j_record +1:end) = Flux2ResR_rec(j_record);
+      FluxAccum_rec(j_record+ 1:end) = ...
+      FluxAccum_rec(j_record) + Flux2ResR_rec(j_record) * ...
+      TimeObj.t_rec .* (1: TimeObj.N_rec - j_record) ;
+ end
   TimeObj.N_rec = j_record;
 end
 
-keyboard
 % Show run time
 if AnalysisObj.ShowRunTime; 
   RunTime = toc(RunTimeID); 
   fprintf('Run time %.2g min\n', RunTime / 60);
   fprintf('Sim Time Ran = %.4f\n', TimeRec(end) );
 end
+
+
+%% Run analysis
+%AnalysisMaster( ParamObj.SaveMe, SteadyState,...
+  %AnalysisObj,ParamObj,TimeRec, TimeObj,GridObj,...
+  %x,Paramstr,Gridstr,Concstr)
 
 end

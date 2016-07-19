@@ -11,8 +11,8 @@ nuVec  = [0 1 10];
 % KoffVec = [ 1e-1 1e0 1e1 1e2 1e3 ];
 % KDinvVec = [0 logspace(3,4.5,12) ];
 % KoffVec = [ logspace(2,4,12) ];
-KDinvVec = [0 logspace(3,5.5,40) ];
-KoffVec = [ logspace(1,5.5,40) ];
+KDinvVec = [0 logspace(3,5.0,10) ];
+KoffVec = [ logspace(1,5.0,10) ];
 savestr_fa = ['flxss'];
 
 % Non-loopable parameters

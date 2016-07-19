@@ -5,17 +5,17 @@ save_me = 1;
 
 % Looped parameters
 % Kon calculated in loop
-nuVec  = [0 1 10];
+nuVec  = [0 1];
 % KDinvVec = [0 1e2 1e3 1e4 1e5 ];
 % KoffVec = [ 1e-1 1e0 1e1 1e2 1e3 ];
 % KDinvVec = [0 logspace(3,4,2) ];
 % KoffVec = [ logspace(1,2,2) ];
-KDinvVec = [0 logspace(3,4.5,40) ];
-KoffVec = [ logspace(1,4,40) ];
+KDinvVec = [0 logspace(3,4.5,2) ];
+KoffVec = [ logspace(1,4,2) ];
 
 % Non-loopable parameters
 linearEqn = 0;
-dt_fac = 0.1;
+dt_fac = 0.2;
 t_fac   = 4;
 BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
 Da  = 1;
@@ -55,8 +55,8 @@ AnalysisObj.PlotMeLastConcAccum=0; AnalysisObj.CheckConservDen=0;
 AnalysisObj.ShowRunTime=0;
 
 % Build TimeObj
-dt = dt * dt_fac;
 t_tot = t_tot * t_fac;
+dtSave = dt;
 [TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 
 % Flux matrix
@@ -116,8 +116,10 @@ for i = 1:length(nuVec)
     KDinv = KDinvVec(j);
     if KDinv == 0
       fluxStop = fluxSsRec( i, j, 1 ) / 2;
+      Koff = 0;
+      Kon = 0;
       [A,C,DidIBreak,SteadyState,fluxTimeHm, fluxSlopeHm] = ...
-        ChemDiffMainFluxBreak(ParamObj,TimeObj,AnalysisObj,fluxStop);
+        ChemDiffMainFluxBreak(ParamObj,TimeObj,AnalysisObj,fluxStop, Koff, Kon, dt);
       fluxTimeHmRec( i, j, : ) = fluxTimeHm;
       fluxSlopeHmRec( i, j, : ) = fluxSlopeHm;
     else
@@ -126,13 +128,21 @@ for i = 1:length(nuVec)
         Kon  = Koff * KDinv;
         fluxStop = fluxSsRec( i, j, k ) / 2;
         
+        if Kon > 1e7
+          dt = dtSave * dt_fac;
+        else
+          dt = dtSave;
+        end
+        
         [A,C,DidIBreak,SteadyState,fluxTimeHm, fluxSlopeHm] = ...
-          ChemDiffMainFluxBreak(ParamObj,TimeObj,AnalysisObj,fluxStop);
+          ChemDiffMainFluxBreak(ParamObj,TimeObj,AnalysisObj,fluxStop, Koff, Kon, dt);
         
         if fluxTimeHm ~= 0
           fluxTimeHmRec( i, j, k ) = fluxTimeHm;
         else
-          error('Never made it!');
+          fprintf('(%d,%d,%d) KDinv = %g nu = %g Koff =%g\n', ...
+            i,j,k,KDinv, nu, Koff);
+          fprintf('Never made it!\n');
         end
         fluxSlopeHmRec( i, j, k ) = fluxSlopeHm;
       end % loop Koff
@@ -140,9 +150,10 @@ for i = 1:length(nuVec)
   end % loop Kdinv
 end % loop nu
 
+fprintf('Finished flux slope and time \n');
 if save_me
   save('FluxMaxFluxRate.mat','fluxSlopeHmRec','fluxTimeHmRec','fluxSsRec',...
-      'nuVec','KDinvVec','KoffVec');
+    'nuVec','KDinvVec','KoffVec');
 end
 %%% Surface plot
 %if plotmap_flag
