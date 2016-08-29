@@ -11,7 +11,6 @@ ParamObj.SaveMe = 1;
 ParamObj.NLcoup        = 1;
 ParamObj.ChemOnEndPts  = 1;
 
-
 % "Analysis" subroutines
 AnalysisObj.QuickMovie             = 1;  % Time evolv. Movie
 AnalysisObj.TrackAccumFromFlux     = 1;  % Track the flux into outlet
@@ -28,7 +27,6 @@ ParamObj.Lbox  = 1; % Gel length
 Nx    = 128;  % Internal gridpoints
 ParamObj.Nx    = floor(Nx*ParamObj.Lbox); % Scale by box. Careful!!!
 ParamObj.Lr = 10; % Reservoir length if there is one
-
 
 %Non Dimensional and Concentration
 ParamObj.KDinv = 1e4; % Binding affinity
@@ -61,7 +59,7 @@ dtfac       = 1;
 dt          = dtfac *(ParamObj.Lbox/(ParamObj.Nx))^2; % time step
 t_tot       = tfac * ParamObj.Lbox^2 /  ParamObj.Da;  % total time
 t_rec       = t_tot / 100;  % time interval for recording dynamics
-ss_epsilon  = 1e-12;  % steady state condition
+ss_epsilon  = 1e-8;  % steady state condition
 NumPlots    = 10; % For the accumulation plot subroutine
 
 % Boundary conditions: 'Dir', 'Vn', 'Res','PBC', 'Mx'
@@ -72,6 +70,3 @@ NumPlots    = 10; % For the accumulation plot subroutine
 % 'Mx': Fixed Concenctration on left and no flux right
 ParamObj.A_BC = 'Dir';
 ParamObj.C_BC = 'Vn';
-
-
-

@@ -1,17 +1,13 @@
 % ChemDiffMain
 % Handles all BCs
 
-function [A,C,DidIBreak,SteadyState] = ChemDiffMain(ParamObj,TimeObj,AnalysisObj)
+function [RecObj] = ChemDiffMain( filename, ParamObj,TimeObj, AnalysisObj, pVec )
 
-% Global variables
-global Nx;
-global v;
-global vNext;
-global A_rec;
-global C_rec;
-global j_record;
-global Flux2ResR_rec;
-global FluxAccum_rec;
+ParamObj.Kon = pVec(1);
+ParamObj.Koff = pVec(2);
+ParamObj.Bt = pVec(3);
+ParamObj.Dc = pVec(4) * ParamObj.Da;
+ParamObj.Kdinv = ParamObj.Kon / ParamObj.Koff;
 
 % Define commonly used variables
 DidIBreak = 0;
@@ -55,14 +51,13 @@ Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
   ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
 %Inital Densisy
-[A,Alin,C,Clin,CL,CR] = ...
+[A,~,C,~,CL,CR] = ...
   IntConcMaker(ParamObj.AL, ParamObj.AR, ParamObj.Bt, ...
   ParamObj.KDinv, ParamObj.Lbox, x,ParamObj.NLcoup);% A = Alin;
 % A= Alin;
 % C= Clin;
 % C(1) = CL; C(end) = CR;
 C(1) = 0; C(end) = 0;
-% keyboard
 
 % Blur Density check
 if ParamObj.BindSiteDistFlag == 1
@@ -132,7 +127,6 @@ if AnalysisObj.ShowRunTime; RunTimeID = tic; end
 for t = 1: TimeObj.N_time - 1 % t * dt  = time
   
   % Update
-  vPrev = v;
   NLprev = NL;
   v     = vNext;
   
@@ -211,12 +205,10 @@ if ~SteadyState || ~DidIBreak
   end
 end
 
-% Save A and C
-A = v(1:Nx);
-C = v(Nx+1:end);
+fprintf('Finished time loop\n');
 
 % Store the total concentrations
-% keyboard
+
 if ~SteadyState
   TimeRec = TimeObj.t_rec .* [0:TimeObj.N_rec-1];
 end
@@ -228,6 +220,9 @@ if DidIBreak == 1 || SteadyState == 1;
   if  TrackFlux
     Flux2ResR_rec = Flux2ResR_rec(1:j_record);
     FluxAccum_rec = FluxAccum_rec(1:j_record);
+  else
+    Flux2ResR_rec = [];
+    FluxAccum_rec = [];
   end
   TimeObj.N_rec = j_record;
 end
@@ -239,10 +234,11 @@ if AnalysisObj.ShowRunTime;
   fprintf('Sim Time Ran = %.4f\n', TimeRec(end) );
 end
 
-
 % Run analysis
-AnalysisMaster( ParamObj.SaveMe, SteadyState,...
-  AnalysisObj,ParamObj,TimeRec, TimeObj,GridObj,...
-  x,Paramstr,Gridstr,Concstr)
+[RecObj] = AnalysisMaster( filename, SteadyState, DidIBreak,...
+  Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
+  AnalysisObj ,ParamObj, TimeRec, TimeObj,GridObj,...
+  Paramstr,Gridstr,Concstr);
+fprintf('Finished run \n');
 
 end

@@ -1,9 +1,9 @@
-function  ConcenMovieMakerTgthr1DAvi(A_rec, C_rec,...
+function  ConcenMovieMakerTgthr1DAvi(videoName,A_rec, C_rec,...
     x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,KDinv)
 
 
 % Video Write stuff
-Mov = VideoWriter('HydroGRD.avi');
+Mov = VideoWriter(videoName);
 Mov.FrameRate = 4;
 open(Mov);
 
