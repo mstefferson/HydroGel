@@ -5,8 +5,8 @@
 
 saveMe     = 0;
 nuVec       = [1];
-KonBtVec    = [  logspace(1,5,5) ];
-KoffVec     = [  logspace(1,5,5)  ];
+KonBtVec    = [  logspace(1,3,2) ];
+KoffVec     = [  logspace(1,3,2)  ];
 dt_fac   = 0.5;
 savestr_vt = 'flxvst';
 savestr_fm = ['flxmapSs'];
@@ -62,47 +62,44 @@ disp(ParamObj); disp(AnalysisObj); disp(TimeObj);
 FluxVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), TimeObj.N_rec );
 AccumVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), TimeObj.N_rec );
 
-FluxVsTDiff  = zeros( 1, TimeObj.N_rec );
-AccumVsTDiff = zeros( 1, TimeObj.N_rec );
-
 % Run Diff first
 Koff = 0;
 Kon = 0;
 dt = dtSave;
 
-[A,C,DidIBreak,SteadyState,Flux2ResR_rec,FluxAccum_rec] = ...
-  ChemDiffMainFluxReturn(ParamObj,TimeObj,AnalysisObj, Koff, Kon, dt);
-% keyboard
-% temp = repmat( reshape( Flux2ResR_rec, [1 1 1 length(Flux2ResR_rec) ] ) , ...
-%   [1 length(nuVec) length(KoffVec) 1] );
-FluxVsTDiff = Flux2ResR_rec;
-AccumVsTDiff = FluxAccum_rec;
+pVec(1) = 0;
+pVec(2) = 0; 
+pVec(3) = ParamObj.Bt;
+pVec(4) = 0;
+
+[RecObj] = ChemDiffMain('', ParamObj,TimeObj,AnalysisObj, pVec );
+FluxVsTDiff = RecObj.Flux2ResR_rec;
+AccumVsTDiff = RecObj.FluxAccum_rec;
+
+% Hold Bt Steady
+Bt = ParamObj.Bt;
 
 for ii = 1:length(nuVec)
   ParamObj.Dc  = nuVec(ii);
+  nu = ParamObj.Dc;
   fprintf('\n\n Starting nu = %g \n\n', ParamObj.Dc );
   for jj = 1:length(KonBtVec)
     Kon = KonBtVec(jj) / ParamObj.Bt;
+    pVec(1) = Kon;
     fprintf('\n\n Starting Kon Bt = %f \n\n', KonBtVec(jj) );
     parfor kk = 1:length(KoffVec)
       Koff = KoffVec(kk);
-      
-      if Kon > 1e8
-        dt = dtSave / 10;
-      else
-        dt = dtSave;
-      end
-      
+     
       fprintf( 'Koff = %f Kon = %f\n',Koff,Kon );
-      [A,C,DidIBreak,SteadyState,Flux2ResR_rec,FluxAccum_rec] = ...
-        ChemDiffMainFluxReturn(ParamObj,TimeObj,AnalysisObj, Koff, Kon, dt);
+      [RecObj] = ...
+        ChemDiffMain('',ParamObj,TimeObj,AnalysisObj, [Kon Koff Bt nu]);
       
-      if DidIBreak == 1 || SteadyState == 0
-        fprintf('B = %d S = %d\n',DidIBreak,SteadyState)
+      if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
+        fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
       end
       
-      FluxVsT(ii,jj,kk,:) = Flux2ResR_rec;
-      AccumVsT(ii,jj,kk,:) = FluxAccum_rec;
+      FluxVsT(ii,jj,kk,:) = RecObj.Flux2ResR_rec;
+      AccumVsT(ii,jj,kk,:) = RecObj.FluxAccum_rec;
     end
   end
 end
@@ -189,8 +186,8 @@ end
 if plotmap_flag
   
   deltaTick = 2;
-  xstr = ' K_{off} / \tau ';
-  ystr = ' K_{on}B_{t} / \tau ';
+  xstr = ' K_{off}  \tau ';
+  ystr = ' K_{on}B_{t} \tau ';
   for ii = 1:length(nuVec)
     
     
