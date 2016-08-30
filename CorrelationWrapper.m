@@ -8,7 +8,7 @@ plotNu = 1;
 plotKdInv = 1;
 plotKoff = 1;
 
-KdInvInd = 1:length(KDinvVec);
+KdInvInd = 1:length(KaVec);
 nuInd = 1:length(nuVec);
 KoffInd = 1:length*KoffInd;;
 
@@ -67,7 +67,7 @@ end
 
 %% Kdinv
 if plotKdInv
-  textstr = ' KDinv color';
+  textstr = ' Ka color';
   % Set-up figs
   H4 = figure(4);
   clf(H4)

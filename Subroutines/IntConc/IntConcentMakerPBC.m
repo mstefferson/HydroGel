@@ -1,6 +1,6 @@
 
 function [A,C,A_FT,C_FT] = ...
-    IntConcentMakerPBC( Bt, KDinv, x,linear,N,L_box)
+    IntConcentMakerPBC( Bt, Ka, x,linear,N,L_box)
 
 Norm = 1;
 
@@ -10,7 +10,7 @@ Norm = 1;
 
 %[A,Ass,Ap,ApFT] = IntConcAcalcStep(AL, AR, L_box,x);
 % keyboard
-[C] = IntConcCcalcEqlPBC(A,Bt,KDinv,linear);
+[C] = IntConcCcalcEqlPBC(A,Bt,Ka,linear);
 
 A_FT = fftshift( fft( A ) );
 C_FT = fftshift( fft( C ) );

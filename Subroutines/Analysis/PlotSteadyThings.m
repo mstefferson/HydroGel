@@ -1,11 +1,11 @@
  %%
  nu = ParamVec(2);
- KDinv = 1/ParamVec(1);
+ Ka = 1/ParamVec(1);
 Adiff = ( [ AL A(1:end-1) ] - 2 * A + [A(2:end) AR] ) ;
 Cdiff = nu * ( [ CL C(1:end-1) ] - 2 * C + [C(2:end) CR] ) ;
 
-Achem = -KDinv .* (A .* (Bt - C) ) + C;
-Cchem =  KDinv .* (A .* (Bt - C) ) - C;
+Achem = -Ka .* (A .* (Bt - C) ) + C;
+Cchem =  Ka .* (A .* (Bt - C) ) - C;
 
  figure()
     subplot(4,1,1)
@@ -24,8 +24,8 @@ Cchem =  KDinv .* (A .* (Bt - C) ) - C;
  Adiff = ( [ AL A(1:end-1) ] - 2 * A + [A(2:end) AR] ) ;
 Cdiff = nu * ( [ CL C(1:end-1) ] - 2 * C + [C(2:end) CR] ) ;
 
-Achem = -KDinv .* (A .* (Bt - C) ) + C;
-Cchem =  KDinv .* (A .* (Bt - C) ) - C;
+Achem = -Ka .* (A .* (Bt - C) ) + C;
+Cchem =  Ka .* (A .* (Bt - C) ) - C;
 
         figure()
     subplot(4,1,1)
@@ -64,11 +64,11 @@ Cchem =  KDinv .* (A .* (Bt - C) ) - C;
     title('B')
  
     subplot(2,1,2)
-    plot(x_trim, KDinv .* B.*A, x_trim,C)
+    plot(x_trim, Ka .* B.*A, x_trim,C)
     title('C')
 
     figure
-    plot(x_trim, B - (KD .* C ./ A),x_trim, C- (KDinv .* B.*A))
+    plot(x_trim, B - (KD .* C ./ A),x_trim, C- (Ka .* B.*A))
     legend('delta B','delta C')
     title('delta')
     %%

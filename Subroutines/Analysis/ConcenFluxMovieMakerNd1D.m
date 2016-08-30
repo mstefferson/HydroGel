@@ -89,7 +89,7 @@ for ii = 1:nFrames
     subplot(2,2,4)
     cla
     hold off
-    ParamStr = sprintf(' t = %.1e \n KDinv = %.1e \n nu = %.1e \n Bt = %.1e \n', ...
+    ParamStr = sprintf(' t = %.1e \n Ka = %.1e \n nu = %.1e \n Bt = %.1e \n', ...
         TimeRec(ii),ParamVec(1), ParamVec(2),Bt );
     text(0.4,0.4,0.4,ParamStr)
     %     keyboard

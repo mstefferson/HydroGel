@@ -11,9 +11,9 @@ BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
 trial  = 1;
 %Parameter you can edit
 
-KDinv = 1e4 ;
+Ka = 1e4 ;
 Koff  = 1e1;
-Kon  = KDinv * Koff;
+Kon  = Ka * Koff;
 DA  = 1;
 nu  = 0.1;
 AL  = 2e-4;
@@ -33,7 +33,7 @@ Gridstr = sprintf('NxODE = %d\nNxPDE = %d',...
 ParamObj   = struct('trial',trial,'SaveMe',SaveMe,...
     'NxODE',NxODE,'NxPDE',NxPDE,'Lbox',Lbox,...
     'BCstr',BCstr,...
-    'Kon', Kon, 'Koff', Koff,'KDinv',Kon/Koff,...
+    'Kon', Kon, 'Koff', Koff,'Ka',Kon/Koff,...
     'nu',nu,'Bt',Bt,'AL',AL,'AR',AR);
 if SaveMe
     diary('RunDiary.txt')

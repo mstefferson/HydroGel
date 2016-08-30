@@ -1,16 +1,16 @@
 % Find the flux at steady state for various parameter configurations
-% Loops over KDinv, koff, nu
+% Loops over Ka, koff, nu
 
 save_me = 1;
 
 % Looped parameters
 % Kon calculated in loop
 nuVec  = [0 1];
-% KDinvVec = [0 1e2 1e3 1e4 1e5 ];
+% KaVec = [0 1e2 1e3 1e4 1e5 ];
 % KoffVec = [ 1e-1 1e0 1e1 1e2 1e3 ];
-% KDinvVec = [0 logspace(3,4,2) ];
+% KaVec = [0 logspace(3,4,2) ];
 % KoffVec = [ logspace(1,2,2) ];
-KDinvVec = [0 logspace(3,4.5,2) ];
+KaVec = [0 logspace(3,4.5,2) ];
 KoffVec = [ logspace(1,4,2) ];
 
 % Non-loopable parameters
@@ -60,11 +60,11 @@ dtSave = dt;
 [TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 
 % Flux matrix
-fluxSsRec = zeros( length( nuVec ), length(KDinvVec), length( KoffVec ) );
+fluxSsRec = zeros( length( nuVec ), length(KaVec), length( KoffVec ) );
 % dj/dt at j =  j_steady / 2
-fluxSlopeHmRec = zeros( length( nuVec ), length(KDinvVec), length( KoffVec ) );
+fluxSlopeHmRec = zeros( length( nuVec ), length(KaVec), length( KoffVec ) );
 % time at j =  j_steady / 2
-fluxTimeHmRec = zeros( length( nuVec ), length(KDinvVec), length( KoffVec ) );
+fluxTimeHmRec = zeros( length( nuVec ), length(KaVec), length( KoffVec ) );
 
 % Calculated things
 x = linspace(0, Lbox, NxODE) ;
@@ -82,9 +82,9 @@ for i = 1:length(nuVec)
     fluxSs  = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
     fluxSsRec( i, :, : ) = fluxSs;
   else
-    for j = 1:length(KDinvVec)
-      KDinv = KDinvVec(j);
-      if KDinv == 0
+    for j = 1:length(KaVec)
+      Ka = KaVec(j);
+      if Ka == 0
         x = linspace(0, Lbox, NxODE) ;
         dx = x(2) - x(1);
         AnlOde = (AR - AL) * x / Lbox + AL;
@@ -94,7 +94,7 @@ for i = 1:length(nuVec)
       else
         parfor k = 1:length(KoffVec)
           Koff = KoffVec(k);
-          Kon  = Koff * KDinv;
+          Kon  = Koff * Ka;
           
           [AnlOde,CnlOde,x] = RdSsSolverMatBvFunc(...
             Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,NxODE,linearEqn);
@@ -112,9 +112,9 @@ fprintf('Finished finding steady state\n');
 for i = 1:length(nuVec)
   nu = nuVec(i);
   ParamObj.Dc    = nu; % Dc/Da
-  for j = 1:length(KDinvVec)
-    KDinv = KDinvVec(j);
-    if KDinv == 0
+  for j = 1:length(KaVec)
+    Ka = KaVec(j);
+    if Ka == 0
       fluxStop = fluxSsRec( i, j, 1 ) / 2;
       Koff = 0;
       Kon = 0;
@@ -125,7 +125,7 @@ for i = 1:length(nuVec)
     else
       parfor k = 1:length(KoffVec)
         Koff = KoffVec(k);
-        Kon  = Koff * KDinv;
+        Kon  = Koff * Ka;
         fluxStop = fluxSsRec( i, j, k ) / 2;
         
         if Kon > 1e7
@@ -140,8 +140,8 @@ for i = 1:length(nuVec)
         if fluxTimeHm ~= 0
           fluxTimeHmRec( i, j, k ) = fluxTimeHm;
         else
-          fprintf('(%d,%d,%d) KDinv = %g nu = %g Koff =%g\n', ...
-            i,j,k,KDinv, nu, Koff);
+          fprintf('(%d,%d,%d) Ka = %g nu = %g Koff =%g\n', ...
+            i,j,k,Ka, nu, Koff);
           fprintf('Never made it!\n');
         end
         fluxSlopeHmRec( i, j, k ) = fluxSlopeHm;
@@ -153,7 +153,7 @@ end % loop nu
 fprintf('Finished flux slope and time \n');
 if save_me
   save('FluxMaxFluxRate.mat','fluxSlopeHmRec','fluxTimeHmRec','fluxSsRec',...
-    'nuVec','KDinvVec','KoffVec');
+    'nuVec','KaVec','KoffVec');
 end
 %%% Surface plot
 %if plotmap_flag
@@ -162,12 +162,12 @@ end
 %figure()
 
 %% Flux
-%imagesc( 1:length(KoffVec), 1:length(KDinvVec), ...
-%reshape( fluxSSrec(i,:,:), [length(KDinvVec) length(KoffVec) ] ) );
+%imagesc( 1:length(KoffVec), 1:length(KaVec), ...
+%reshape( fluxSSrec(i,:,:), [length(KaVec) length(KoffVec) ] ) );
 %xlabel( 'Koff'); ylabel('KdInv');
 %Ax = gca;
-%Ax.YTick = 1:length(KDinvVec);
-%Ax.YTickLabel = num2cell( KDinvVec );
+%Ax.YTick = 1:length(KaVec);
+%Ax.YTickLabel = num2cell( KaVec );
 %Ax.XTick = 1: 2: length(KoffVec) ;
 %Ax.XTickLabel = num2cell( round (KoffVec (1:2:end) ) );
 %titstr = sprintf( 'Max Flux nu = %g', nuVec(i) );
@@ -181,7 +181,7 @@ end
 %num2str( nuVec(i) ) '.fig'] );
 %saveas( gcf, [ savestr_fa '_nu'...
 %num2str( nuVec(i) ) ], 'jpg' );
-%save('FluxAtSS.mat', fluxSSrec, nuVec, KDinvVec, KoffVec )
+%save('FluxAtSS.mat', fluxSSrec, nuVec, KaVec, KoffVec )
 %end
 %end
 %end

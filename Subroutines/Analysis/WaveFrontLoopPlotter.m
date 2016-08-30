@@ -41,12 +41,12 @@ for i = 1:N_trial
         
     end % end if trial
     % Track the wave front
-    KDinvtemp = 1/ParamVec(1);
+    Katemp = 1/ParamVec(1);
     nu     = ParamVec(2);
-    if KDinvtemp <= 1
+    if Katemp <= 1
         LegStrTemp = sprintf('NoChem nu=%.1e',nu);
     else
-        LegStrTemp = sprintf('Kdinv=%.1e nu=%.1e',KDinvtemp,nu);
+        LegStrTemp = sprintf('Kdinv=%.1e nu=%.1e',Katemp,nu);
     end
     
     LegendCell{i} = LegStrTemp;

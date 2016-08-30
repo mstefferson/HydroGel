@@ -3,7 +3,7 @@
 % unlabeled.
 
 function [ALab,ALablin,AuLab,CLab,CLablin,CLabL,CLabR,CuLab] = ...
-    IntConcMakerLuL(ALabL, ALabR, AuLi,Bt, KDinv, Lbox, x,linearEq)
+    IntConcMakerLuL(ALabL, ALabR, AuLi,Bt, Ka, Lbox, x,linearEq)
 
 % [A,Ass,Ap,ApFT] = IntConcAcalcExp(AL, AR, L_box,x,lambda);
 % [A,Ass,Ap,ApFT] = IntConcAtanhStep(AL, AR, L_box,x,lambda);
@@ -12,10 +12,10 @@ function [ALab,ALablin,AuLab,CLab,CLablin,CLabL,CLabR,CuLab] = ...
 % keyboard
 
 [CLab,CLablin,CLabL,CLabR] = ...
-    IntConcCcalcEql(ALab,ALabL,ALabR,Bt,KDinv,linearEq,Lbox,x);
+    IntConcCcalcEql(ALab,ALabL,ALabR,Bt,Ka,linearEq,Lbox,x);
 CLab(1) = 0; CLab(end) = 0;
 
 [CuLab,~,~,~] = ...
-    IntConcCcalcEql(AuLab,AuLi,AuLi,Bt,KDinv,linearEq,Lbox,x);
+    IntConcCcalcEql(AuLab,AuLi,AuLi,Bt,Ka,linearEq,Lbox,x);
 
 end

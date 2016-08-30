@@ -1,5 +1,5 @@
 function  ConcenMovieMakerTgthr1DAvi(videoName,A_rec, C_rec,...
-    x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,KDinv)
+    x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,Ka)
 
 
 % Video Write stuff
@@ -50,8 +50,8 @@ for ii = 1:nFrames
     LinObj.LineWidth = 2;
 %     hold off
     ParamStr = sprintf(...
-       ' t = %.1e \n KDinv = %.1e \n nu = %.1e \n beta = %.1e \n Kon = %.1e \n Koff = %.1e \n ', ...
-        TimeRec(ii),KDinv,nu,Dnl,Kon, Koff );
+       ' t = %.1e \n Ka = %.1e \n nu = %.1e \n beta = %.1e \n Kon = %.1e \n Koff = %.1e \n ', ...
+        TimeRec(ii),Ka,nu,Dnl,Kon, Koff );
     title(TitlStr2)
     xlabel('x');ylabel('Concentration');
 %     textbp(ParamStr)

@@ -29,9 +29,9 @@ ParamObj.Nx    = floor(Nx*ParamObj.Lbox); % Scale by box. Careful!!!
 ParamObj.Lr = 10; % Reservoir length if there is one
 
 %Non Dimensional and Concentration
-ParamObj.KDinv = 1e4; % Binding affinity
+ParamObj.Ka = 1e4; % Binding affinity
 ParamObj.Koff  = 1e2; % scaled koff
-ParamObj.Kon   = ParamObj.KDinv * ParamObj.Koff;  % scaled kon
+ParamObj.Kon   = ParamObj.Ka * ParamObj.Koff;  % scaled kon
 ParamObj.Da    = 1; % Diffusion of species A (unbound)
 ParamObj.Dc    = 1; % Dc/Da
 ParamObj.Dnl   = 1; % Dsat/DA. Only used for nonlinear diffusion beta  > 1?

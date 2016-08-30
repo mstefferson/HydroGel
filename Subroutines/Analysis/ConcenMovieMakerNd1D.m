@@ -8,7 +8,7 @@ Koff = AllParamVec(2);
 beta = AllParamVec(3);
 nu = AllParamVec(4);
 Bt = AllParamVec(6);
-KDinv = Kon/Koff;
+Ka = Kon/Koff;
 
 %Initialize the movie structure array
 M_All(nFrames)  = struct('cdata',zeros(N,N,3,'int8'), 'colormap',[]);
@@ -73,8 +73,8 @@ for ii = 1:nFrames
     cla
     hold off
    ParamStr = sprintf(...
-       ' t = %.1e \n KDinv = %.1e \n nu = %.1e \n beta = %.1e \n Bt = %.1e \n Kon = %.1e \n Koff = %.1e \n ', ...
-        TimeRec(ii),KDinv,nu,beta,Bt,Kon, Koff );
+       ' t = %.1e \n Ka = %.1e \n nu = %.1e \n beta = %.1e \n Bt = %.1e \n Kon = %.1e \n Koff = %.1e \n ', ...
+        TimeRec(ii),Ka,nu,beta,Bt,Kon, Koff );
     text(0.4,0.4,0.4,ParamStr)
 %     keyboard
     M_All(ii) = getframe(gcf); %Store the frame

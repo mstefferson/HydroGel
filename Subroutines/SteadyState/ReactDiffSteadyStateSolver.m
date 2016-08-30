@@ -2,14 +2,14 @@
 function ReactDiffSteadyStateSolver
 clear
 close all
-global nu AL AR CL CR Bt Kon Koff KDinv linear xa xb BCstr
+global nu AL AR CL CR Bt Kon Koff Ka linear xa xb BCstr
 
 BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
 
 linear = 0;  %If 1, solve the linear case. keep 0
 %Parameter you can edit
 
-KDinv = 1e4;
+Ka = 1e4;
 Koff  = 1e1;
 nu  = 1;
 AL  = 2e-4;
@@ -22,13 +22,13 @@ xb = 1;
 Nx = 1000;
 
 % Calculate other stuff
-Kon  = KDinv*Koff;
+Kon  = Ka*Koff;
 x = linspace(xa,xb,Nx);
 
 % Calculated parameters/linear solutions
 % CL and CR are the values based on chemical equilibrium
-CL  = KDinv .* (AL * Bt) ./ (1 + KDinv .* AL);
-CR  = KDinv .* (AR * Bt) ./ (1 + KDinv .* AR);
+CL  = Ka .* (AL * Bt) ./ (1 + Ka .* AL);
+CR  = Ka .* (AR * Bt) ./ (1 + Ka .* AR);
 
 Alin  = (AR - AL) ./ xb .* x + AL;
 Clin  = (CR - CL) ./ xb .* x + CL;
@@ -36,7 +36,7 @@ Clin  = (CR - CL) ./ xb .* x + CL;
 % keyboard
 if nu == 0
     Ass = Alin;
-    Css = KDinv .* (Ass .* Bt) ./ (1 + KDinv .* Ass);
+    Css = Ka .* (Ass .* Bt) ./ (1 + Ka .* Ass);
 else %solve the coupled ODE
     
     % y = [A dA/dx C dC/dx]

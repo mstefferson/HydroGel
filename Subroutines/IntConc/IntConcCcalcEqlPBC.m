@@ -1,9 +1,9 @@
-function [C] = IntConcCcalcEqlPBC(A,Bt,KDinv,linear)
+function [C] = IntConcCcalcEqlPBC(A,Bt,Ka,linear)
 
 if linear
-    C   = KDinv .* (A * Bt) ;
+    C   = Ka .* (A * Bt) ;
 else
-    C   = KDinv .* (A * Bt)  ./ (1 + KDinv .* A);  
+    C   = Ka .* (A * Bt)  ./ (1 + Ka .* A);  
 end
 
 % keyboard

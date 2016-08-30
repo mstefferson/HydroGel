@@ -178,7 +178,7 @@ end
 if AnalysisObj.QuickMovie
     MAll = ConcenMovieMakerTgthr1D(A_rec, C_rec,...
         x,TimeRec,TimeObj.N_rec,Nx,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.nu,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.nu,ParamObj.Bt,ParamObj.Ka);
 end
 
 if AnalysisObj.CheckConservDen

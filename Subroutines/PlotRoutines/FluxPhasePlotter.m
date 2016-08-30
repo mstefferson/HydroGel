@@ -23,20 +23,20 @@ loadStr = sprintf('PPKoffVaryKD1e%dNx2500Nu%dKoff%dSSode',Kd4load,nuNum,KoffNum)
 load(loadStr)
 % Lbox = 1;
 if SteadyStateODE 
-    titstr = sprintf('j/j_{diff} KDinv = %.1e Nx = %d S.S. ODE',...
-        KDinv,Nx);
+    titstr = sprintf('j/j_{diff} Ka = %.1e Nx = %d S.S. ODE',...
+        Ka,Nx);
         savestr = sprintf('PPKoffVaryKD1e%dNx%dnu%dKoff%dSSode',...
-                log10(KDinv),Nx,nuNum,KoffNum);
+                log10(Ka),Nx,nuNum,KoffNum);
 elseif SteadyStateKdFix
-    titstr = sprintf('j/j_{diff} KDinv = %.1e Nx = %d S.S.',...
-        KDinv,Nx);
+    titstr = sprintf('j/j_{diff} Ka = %.1e Nx = %d S.S.',...
+        Ka,Nx);
     savestr = sprintf('PPKoffVaryKD1e%dNx%dnu%dKoff%dSS',...
-        log10(KDinv),Nx,nuNum,KoffNum);
+        log10(Ka),Nx,nuNum,KoffNum);
 else
-    titstr = sprintf('j/j_{diff} KDinv = %.1e Nx = %d t_{run} = %d',...
-        KDinv,Nx,t_tot);
+    titstr = sprintf('j/j_{diff} Ka = %.1e Nx = %d t_{run} = %d',...
+        Ka,Nx,t_tot);
     savestr = sprintf('PPKoffVaryKD1e%dNx%dnu%dKoff%dt%d',...
-        log10(KDinv),Nx,nuNum,KoffNum,t_tot);
+        log10(Ka),Nx,nuNum,KoffNum,t_tot);
 end
 
 % MaxPhaseParam = 10;
@@ -95,20 +95,20 @@ if PlotVal
     end
     
    if SteadyStateODE 
-    titstr = sprintf('j/j_{diff} KDinv = %.1e Nx = %d S.S. ODE',...
-        KDinv,Nx);
+    titstr = sprintf('j/j_{diff} Ka = %.1e Nx = %d S.S. ODE',...
+        Ka,Nx);
         savestr = sprintf('PhaseNumKoffVaryKD1e%dNx%dnu%dKoff%dSSode',...
-                log10(KDinv),Nx,nuNum,KoffNum);
+                log10(Ka),Nx,nuNum,KoffNum);
 elseif SteadyStateKdFix
-    titstr = sprintf('j/j_{diff} KDinv = %.1e Nx = %d S.S.',...
-        KDinv,Nx);
+    titstr = sprintf('j/j_{diff} Ka = %.1e Nx = %d S.S.',...
+        Ka,Nx);
     savestr = sprintf('PhaseNumKoffVaryKD1e%dNx%dnu%dKoff%dSS',...
-        log10(KDinv),Nx,nuNum,KoffNum);
+        log10(Ka),Nx,nuNum,KoffNum);
 else
-    titstr = sprintf('j/j_{diff} KDinv = %.1e Nx = %d t_{run} = %d',...
-        KDinv,Nx,t_tot);
+    titstr = sprintf('j/j_{diff} Ka = %.1e Nx = %d t_{run} = %d',...
+        Ka,Nx,t_tot);
     savestr = sprintf('PhaseNumeKoffVaryKD1e%dNx%dnu%dKoff%dt%d',...
-        log10(KDinv),Nx,nuNum,KoffNum,t_tot);
+        log10(Ka),Nx,nuNum,KoffNum,t_tot);
    end
 
     xlabel('nu');title(h(1),titstr);

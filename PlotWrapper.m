@@ -14,7 +14,7 @@ legcell = cell( length(KoffVec) + 1, 1 );
 legcell{end} = 'No binding';
 for ii = 1:length(nuVec)
   
-  for jj = 2:length(KDinvVec)
+  for jj = 2:length(KaVec)
     figure();
     % Plot it
     axis square
@@ -30,13 +30,13 @@ for ii = 1:length(nuVec)
     ylabel('flux');
     %   AH1.YLim = [ 0 1e-3 ]; AH2.YLim = [ 0 5e-4 ];
     % Titles
-    titstr = sprintf('Kd^{-1} = %g (BA) Dc/Da = %g', KDinvVec(jj), nuVec(ii)  );
+    titstr = sprintf('Kd^{-1} = %g (BA) Dc/Da = %g', KaVec(jj), nuVec(ii)  );
     title(titstr);
     
     legend(legcell,'location','best');
 
     % Save stuff
-    savestr_vts = [savestr_vt '_Kdinv' num2str(round(KDinvVec(jj)))...
+    savestr_vts = [savestr_vt '_Kdinv' num2str(round(KaVec(jj)))...
       '_nu' num2str(nuVec(ii)) ];
     savefig( gcf, [savestr_vts '.fig'] );
     saveas( gcf, savestr_vts, 'jpg' );
@@ -50,12 +50,12 @@ for ii = 1:length(nuVec)
   figure()
   
   % Flux Max
-  imagesc( 1:length(KoffVec), 1:length(KDinvVec), ...
-    reshape( jMax(ii,:,:), [length(KDinvVec) length(KoffVec) ] ) );
+  imagesc( 1:length(KoffVec), 1:length(KaVec), ...
+    reshape( jMax(ii,:,:), [length(KaVec) length(KoffVec) ] ) );
   xlabel( 'Koff'); ylabel('KdInv');
   Ax = gca;
-  Ax.YTick = 1:deltaTick:length(KDinvVec);
-  Ax.YTickLabel = num2cell( round( KDinvVec(1:deltaTick:end) ) );
+  Ax.YTick = 1:deltaTick:length(KaVec);
+  Ax.YTickLabel = num2cell( round( KaVec(1:deltaTick:end) ) );
   Ax.XTick = 1:deltaTick: length(KoffVec) ;
   Ax.XTickLabel = num2cell( round (KoffVec (1:deltaTick:end) ) );
 %   Ax.CLim = [ min(min(min(jMax))) max(max(max(jMax)))];
@@ -72,12 +72,12 @@ for ii = 1:length(nuVec)
   
   figure()
   % Slope at half max
-  imagesc( 1:length(KoffVec), 1:length(KDinvVec), ...
-    reshape( djdtHm(ii,:,:), [length(KDinvVec) length(KoffVec) ] ) );
+  imagesc( 1:length(KoffVec), 1:length(KaVec), ...
+    reshape( djdtHm(ii,:,:), [length(KaVec) length(KoffVec) ] ) );
   xlabel( 'Koff'); ylabel('KdInv');
   Ax = gca;
-  Ax.YTick = 1:deltaTick:length(KDinvVec);
-  Ax.YTickLabel = num2cell( round( KDinvVec(1:deltaTick:end) ) );
+  Ax.YTick = 1:deltaTick:length(KaVec);
+  Ax.YTickLabel = num2cell( round( KaVec(1:deltaTick:end) ) );
   Ax.XTick = 1:deltaTick: length(KoffVec) ;
   Ax.XTickLabel = num2cell( round (KoffVec (1:deltaTick:end) ) );
 %   Ax.CLim = [ min(min(min(djdtHm))) max(max(max(djdtHm)))];
@@ -94,12 +94,12 @@ for ii = 1:length(nuVec)
   
   figure()
   % Time at half max
-  imagesc( 1:length(KoffVec), 1:length(KDinvVec), ...
-    reshape( tHm(ii,:,:), [length(KDinvVec) length(KoffVec) ] ) );
+  imagesc( 1:length(KoffVec), 1:length(KaVec), ...
+    reshape( tHm(ii,:,:), [length(KaVec) length(KoffVec) ] ) );
   xlabel( 'Koff'); ylabel('KdInv');
   Ax = gca;
-  Ax.YTick = 1:deltaTick:length(KDinvVec);
-  Ax.YTickLabel = num2cell( round( KDinvVec(1:deltaTick:end) ) );
+  Ax.YTick = 1:deltaTick:length(KaVec);
+  Ax.YTickLabel = num2cell( round( KaVec(1:deltaTick:end) ) );
   Ax.XTick = 1:deltaTick: length(KoffVec) ;
   Ax.XTickLabel = num2cell( round (KoffVec (1:deltaTick:end) ) );
 %   Ax.CLim = [0 max(max(max(tHm)))];

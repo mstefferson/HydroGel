@@ -2,7 +2,7 @@
 function [Ass,Css,x] = RdSsSolverMatBvFunc(...
     KonVal,KoffVal,nuVal,ALval,ARval,Btval,Lboxval,BCstrVal,Nx,linearEqn)
 
-global nu AL AR CL CR Bt Kon Koff KDinv xa xb BCstr
+global nu AL AR CL CR Bt Kon Koff Ka xa xb BCstr
 
 % keyboard
 % Make sure linear eqn is zero or one
@@ -24,22 +24,22 @@ xa = 0;
 xb = Lboxval;
 
 % Calculate other stuff
-KDinv  = Kon/Koff;
+Ka  = Kon/Koff;
 x = linspace(xa,xb,Nx);
 
 
 % keyboard
 % Calculated parameters/linear solutions
 % CL and CR are the values based on chemical equilibrium
-CL  = KDinv .* (AL * Bt) ./ (1 + KDinv .* AL);
-CR  = KDinv .* (AR * Bt) ./ (1 + KDinv .* AR);
+CL  = Ka .* (AL * Bt) ./ (1 + Ka .* AL);
+CR  = Ka .* (AR * Bt) ./ (1 + Ka .* AR);
 % keyboard
 
 % keyboard
 if nu == 0
     Alin  = (AR - AL) ./ xb .* x + AL;
     Ass = Alin;   
-    Css = KDinv .* (Ass .* Bt) ./ (1 + KDinv .* Ass);
+    Css = Ka .* (Ass .* Bt) ./ (1 + Ka .* Ass);
   
 else %solve the coupled ODE
     

@@ -1,7 +1,7 @@
 % Description :  returns the coupled chemistry operator for dirichlet BC
 % Linear chemistry terms are included
 
-function [Lop] = LopMakerRdNdDir(N,dx,Bt,KDinv,nu)
+function [Lop] = LopMakerRdNdDir(N,dx,Bt,Ka,nu)
 
 % Build Diffusion
 LopDiff = sparse(2*N,2*N);
@@ -10,10 +10,10 @@ Lcoup   = sparse(2*N,2*N);
 %
 
 
-if KDinv ~= 0 % Chem
+if Ka ~= 0 % Chem
     % Diagonal
     %A Diag
-    LopDiff(1 : 2*N+1 : 2*N*N) = -KDinv * Bt -2/dx^2;
+    LopDiff(1 : 2*N+1 : 2*N*N) = -Ka * Bt -2/dx^2;
     LopDiff(1,1) = 0; LopDiff(N,N) = 0;
     % C Diag
     LopDiff( (2*N)*N + N+1 : 2*N+1 : (2*N )*(2*N) ) = ...
@@ -37,7 +37,7 @@ if KDinv ~= 0 % Chem
         nu/dx^2;
     LopDiff(N+1,N+2) = 0;
     Lcoup( (N+1)*(2*N)+2  : 2*N +1 : (2*N) * (2*N-1)-N  ) = 1;
-    Lcoup( 2*N + N + 2 : 2*N +1 : 2*(N-1) * N ) = KDinv*Bt;
+    Lcoup( 2*N + N + 2 : 2*N +1 : 2*(N-1) * N ) = Ka*Bt;
     
 else % No chem
     

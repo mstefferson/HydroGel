@@ -25,11 +25,11 @@ try
       videoName = ['concMov_' filename '.avi'];
       ConcenMovieMakerTgthr1DAvi(videoName,A_rec, C_rec,...
         GridObj.x,TimeRec,TimeObj.N_rec,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.Ka);
     else
       ConcenMovieMakerTgthr1D(A_rec, C_rec,...
         GridObj.x,TimeRec,TimeObj.N_rec,ParamObj.Nx,ParamObj.Kon,ParamObj.Koff,...
-        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.KDinv);
+        ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.Ka);
     end   
   end
 catch

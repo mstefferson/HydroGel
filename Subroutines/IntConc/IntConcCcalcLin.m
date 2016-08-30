@@ -1,17 +1,17 @@
-function [C,Css,Cp,CpFT,CL,CR] = IntConcCcalcLin(A,AL,AR,Ass,Bt,L_box,x,KDinv,linear)
+function [C,Css,Cp,CpFT,CL,CR] = IntConcCcalcLin(A,AL,AR,Ass,Bt,L_box,x,Ka,linear)
 
-CL  = KDinv .* (AL * Bt) ./ (1 + KDinv .* AL);
-CR  = KDinv .* (AR * Bt) ./ (1 + KDinv .* AR);
+CL  = Ka .* (AL * Bt) ./ (1 + Ka .* AL);
+CR  = Ka .* (AR * Bt) ./ (1 + Ka .* AR);
  
 if linear
-    C   = KDinv .* (A * Bt) ;
-    CL  = KDinv .* (AL * Bt) ;
-    CR  = KDinv .* (AR * Bt) ;
+    C   = Ka .* (A * Bt) ;
+    CL  = Ka .* (AL * Bt) ;
+    CR  = Ka .* (AR * Bt) ;
    
 else
-    C   = KDinv .* (A * Bt)  ./ (1 + KDinv .* A);
-    CL  = KDinv .* (AL * Bt) ./ (1 + KDinv .* AL);
-    CR  = KDinv .* (AR * Bt) ./ (1 + KDinv .* AR);
+    C   = Ka .* (A * Bt)  ./ (1 + Ka .* A);
+    CL  = Ka .* (AL * Bt) ./ (1 + Ka .* AL);
+    CR  = Ka .* (AR * Bt) ./ (1 + Ka .* AR);
 
 end
 

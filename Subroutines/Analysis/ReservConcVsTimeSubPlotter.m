@@ -1,7 +1,7 @@
 function ReservConcVsTimeSubPlotter(TimeRec,A_rec,AllParamVec,trial)
    
 maxA = max(max(A_rec));
-ParamStr = sprintf('KDinv = %.2e nu = %.2e  AL = %.2e Bt = %.2e t%d',...
+ParamStr = sprintf('Ka = %.2e nu = %.2e  AL = %.2e Bt = %.2e t%d',...
         AllParamVec(1),AllParamVec(2),AllParamVec(3),AllParamVec(4),trial);
    
     

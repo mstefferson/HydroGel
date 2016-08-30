@@ -11,9 +11,9 @@ BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
 trial  = 1;
 %Parameter you can edit
 
-KDinv = 1e4;
+Ka = 1e4;
 Koff  = 1e1;
-Kon  = KDinv * Koff;
+Kon  = Ka * Koff;
 nu  = 1;
 AL  = 2e-4;
 AR  = 0;
@@ -28,7 +28,7 @@ LboxVec = logspace(0,2,20);
 ParamObj   = struct('trial',trial,'SaveMe',SaveMe,...
     'NxODE',NxODE,'LboxVec',LboxVec,...
     'BCstr',BCstr,...
-    'Kon', Kon, 'Koff', Koff,'KDinv',Kon/Koff,...
+    'Kon', Kon, 'Koff', Koff,'Ka',Kon/Koff,...
     'nu',nu,'Bt',Bt,'AL',AL,'AR',AR);
 Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\n',...
     ParamObj.Kon,ParamObj.Koff,ParamObj.nu);

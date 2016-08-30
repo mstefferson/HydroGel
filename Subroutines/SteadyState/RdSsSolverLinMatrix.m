@@ -32,5 +32,5 @@ if nu ~= 0
     
 else
     AlinMat = (AR-AL)./Lbox .* x + AL;
-    ClinMat = KDinv .* Bt .* Alin;
+    ClinMat = Ka .* Bt .* Alin;
 end
