@@ -42,13 +42,6 @@ end
 [x,dx]  = GridMaster(A_BC, C_BC,ParamObj.Lbox,Nx);
 GridObj = struct('Nx',Nx, 'Lbox',ParamObj.Lbox,'Lr', ParamObj.Lr,...
   'dx', dx, 'x', x,'VNcoef', TimeObj.dt/dx^2);
-Gridstr = sprintf('Nx=%d\nLbox=%.1f',GridObj.Nx,GridObj.Lbox);
-% Strings
-BCstr    = sprintf('A_BC: %s \nC_BC = %s',A_BC,C_BC);
-Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\nDnl=%.1e',...
-  ParamObj.Kon,ParamObj.Koff,ParamObj.Dc / ParamObj.Da,ParamObj.Dnl);
-Concstr = sprintf('ParamObj.ParamObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
-  ParamObj.Bt,ParamObj.AL,ParamObj.AR);
 
 %Inital Densisy
 [A,~,C,~,CL,CR] = ...
@@ -237,8 +230,7 @@ end
 % Run analysis
 [RecObj] = AnalysisMaster( filename, SteadyState, DidIBreak,...
   Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
-  AnalysisObj ,ParamObj, TimeRec, TimeObj,GridObj,...
-  Paramstr,Gridstr,Concstr);
+  AnalysisObj ,ParamObj, TimeRec, TimeObj,GridObj);
 fprintf('Finished run \n');
 
 end

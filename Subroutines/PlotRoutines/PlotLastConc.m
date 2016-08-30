@@ -1,8 +1,6 @@
 function PlotLastConc(...
     Ass,Css,x,Paramstr,Gridstr,Concstr,trial)
-
-
-%Parameter strings
+  
 %Plot Concentration at final time step
 
 figure()

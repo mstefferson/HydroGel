@@ -1,14 +1,11 @@
 function  ConcenMovieMakerTgthr1DAvi(videoName,A_rec, C_rec,...
-    x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,Ka)
-
+  x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,Ka)
 
 % Video Write stuff
 Mov = VideoWriter(videoName);
 Mov.FrameRate = 4;
 open(Mov);
 
-
-% Set up figure
 % Set up figure
 Fig = figure();
 set(Fig, 'WindowStyle', 'normal');
@@ -19,46 +16,52 @@ ax1 = subplot(1,2,1);
 set(ax1, 'nextplot','replacechildren')
 ax2 = subplot(1,2,2);
 set(ax2, 'nextplot','replacechildren')
-MinT = min( min( A_rec + C_rec ) );
-MaxT = max( max( A_rec + C_rec ) );
+
+% Plot limits
+lLimF1 = min( min( A_rec + C_rec ) );
+uLimF1 = max( max( A_rec + C_rec ) );
+
+lLimF2 = 0;
+uLimF2 = max(Bt) + max(Bt) / 10;
 
 set(Fig,'renderer','zbuffer')
-% keyboard
-%     kedyboard
+
 %Titles
 TitlStr1 = sprintf('[A]+[C]');
-TitlStr2 = sprintf('Bt');
+TitlStr2 = sprintf('B');
 
 % If Bt is constant, have it a vec for plotting
 if length(Bt) == 1
-    Bt = Bt * ones(1, length(x) );
+  Bt = Bt * ones(1, length(x) );
 end
 
 for ii = 1:nFrames
-    subplot(ax1)
-    LinObj = plot(x, [A_rec(:,ii)'; C_rec(:,ii)'; A_rec(:,ii)' + C_rec(:,ii)']  );
-    LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2; LinObj(3).LineWidth = 2;
-    title(TitlStr1)
-    xlabel('x');ylabel('Concentration');
-    set(gca,'YLim', [MinT MaxT] )
-    legend('A','C','A+C')
-%         keyboard
-
-    subplot(ax2)
-%     cla
-    LinObj = plot(x,Bt);
-    LinObj.LineWidth = 2;
-%     hold off
-    ParamStr = sprintf(...
-       ' t = %.1e \n Ka = %.1e \n nu = %.1e \n beta = %.1e \n Kon = %.1e \n Koff = %.1e \n ', ...
-        TimeRec(ii),Ka,nu,Dnl,Kon, Koff );
-    title(TitlStr2)
-    xlabel('x');ylabel('Concentration');
-%     textbp(ParamStr)
-%     keyboard
-    Fr = getframe(Fig,[0 0 PosVec(3) PosVec(4)]);
-    writeVideo(Mov,Fr);
-    
+  subplot(ax1)
+  LinObj = plot(x, ...
+    [A_rec(:,ii)'; C_rec(:,ii)'; A_rec(:,ii)' + C_rec(:,ii)' ]  );
+  LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2; LinObj(3).LineWidth = 2;
+  title(TitlStr1)
+  xlabel('x');ylabel('Concentration');
+  set(gca,'YLim', [lLimF1 uLimF1] )
+  legend('A','C','A+C')
+  
+  subplot(ax2)
+  LinObj = plot(x, [Bt;  ( Bt' - C_rec(:,ii) )' ] );
+  LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2;
+  ParamStr = sprintf(...
+    ' t = %.1g \n Bt = %.1g \n Ka = %.1g \n nu = %.1g \n beta = %.1g \n Kon = %.1g \n Koff = %.1g \n ', ...
+    TimeRec(ii), max(Bt), Ka, nu, Dnl,Kon, Koff );
+  textbp(ParamStr)
+  title(TitlStr2)
+  xlabel('x');ylabel('Concentration');
+  legend('Bt','B_{free}')
+  set(gca,'YLim', [lLimF2 uLimF2] )
+  
+  pause( 0.01 ); drawnow;
+  
+  Fr = getframe(Fig,[0 0 PosVec(3) PosVec(4)]);
+  writeVideo(Mov,Fr);
+  
 end
 
 % keyboard

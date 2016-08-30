@@ -1,7 +1,13 @@
 function [RecObj] = AnalysisMaster( filename, SteadyState,  ...
- DidIBreak, Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
-  AnalysisObj, ParamObj, TimeRec, TimeObj, GridObj,...
-  Paramstr,Gridstr,Concstr)
+  DidIBreak, Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
+  AnalysisObj, ParamObj, TimeRec, TimeObj, GridObj)
+
+% Strings
+Paramstr = sprintf(' Kon=%.1g\n Koff=%.1g\n Bt = %.1g\n nu=%.2g\n',...
+  ParamObj.Kon,ParamObj.Koff,ParamObj.Bt,ParamObj.Dc / ParamObj.Da);
+Concstr = sprintf('Bt=%.1g\nAL=%.1g\nAR=%.2g',...
+  ParamObj.Bt,ParamObj.AL,ParamObj.AR);
+Gridstr = sprintf('Nx=%d\nLbox=%.1f',GridObj.Nx,GridObj.Lbox);
 
 % RecObj
 RecObj.A_rec = A_rec;
@@ -30,7 +36,7 @@ try
       ConcenMovieMakerTgthr1D(A_rec, C_rec,...
         GridObj.x,TimeRec,TimeObj.N_rec,ParamObj.Nx,ParamObj.Kon,ParamObj.Koff,...
         ParamObj.Dnl,ParamObj.Dc,ParamObj.Bt,ParamObj.Ka);
-    end   
+    end
   end
 catch
   fprintf('Error running movies. There is some box size error I do not get\n')
@@ -45,9 +51,9 @@ if AnalysisObj.TrackAccumFromFluxPlot
     ParamObj.AL,ParamObj.Bt,ParamObj.AR,A_rec(:,end),C_rec(:,end),ParamObj.Dc,...
     ParamObj.Lbox,GridObj.dx,TimeRec,...
     FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
-    if ParamObj.SaveMe
-      savefig(gcf, ['FluxAndAccum_' filename '.fig'])
-    end
+  if ParamObj.SaveMe
+    savefig(gcf, ['FluxAndAccum_' filename '.fig'])
+  end
   
 end
 
