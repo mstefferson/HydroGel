@@ -5,19 +5,19 @@ plotmap_flag = 1;
 
 % Looped parameters
 % Kon calculated in loop
-nuVec  = [0 1];
-KonBtVec = [0 logspace(3,4.0,2) ];
-KoffVec = [ logspace(1,4.0,2) ];
+nuVec  = [1 2 10];
+KonBtVec = [0 logspace(3,4.0,4) ];
+KoffVec = [ logspace(1,4.0,4) ];
 savestr_fa = ['flxss'];
 
 % Non-loopable parameters
-linearEqn = 0;
+linearEqn = 1;
 BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
 DA  = 1;
 AL  = 2e-4;
 AR  = 0;
 Bt  = 2e-3;
-Nx  = 100;
+Nx  = 1000;
 Lbox = 1;
 
 % Flux matrix
@@ -76,6 +76,7 @@ if plotmap_flag
     Ax = gca;
     Ax.YTick = 1:4:length(KonBtVec);
     Ax.YTickLabel = num2cell( round( KonBtVec(1:4:end) ) );
+    Ax.YDir = 'normal';
     Ax.XTick = 1: 4: length(KoffVec) ;
     Ax.XTickLabel = num2cell( round (KoffVec (1:4:end) ) );
     titstr = sprintf( 'Max Flux nu = %g', nuVec(i) );
