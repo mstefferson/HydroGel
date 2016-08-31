@@ -1,7 +1,12 @@
 %% CorrelationWrapper
 %
 % Make Correlation plots ( maxFlux, slope, time to half max ) from a saved matlab file 
-load fluxStuff.mat
+% Used with a saved .mat that include 'FluxVsT', 'jMax', ...
+% 'djdtHm','tHm', 'nuVec','KonBtVec','KoffVec','TimeVec'FluxvsT, jMax
+
+function correlPlotter(fluxMat)
+
+load( fluxMat );
 saveMe = 0;
 
 plotNu = 1;
@@ -59,7 +64,7 @@ if plotNu
     scatter(Ax3,djdtHmVec, 1./ tHmVec,36,colplot);
   end
 
-  if saveMe; savefig( H1, ['corr_time_jmax' '_nuc' '.fig'] ); end
+  if saveMe; savefig( H1, ['corr_time_jmax' '_nuc' '.fi'] ); end
   if saveMe; savefig( H2, ['corr_slope_jmax' '_nuc' '.fig'] ); end
   if saveMe; savefig( H3, ['corr_slope_time' '_nuc' '.fig'] ); end
 

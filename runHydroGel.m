@@ -1,5 +1,5 @@
 % RunHydroGel 
-% Description: Executable. Runs InitParams then main rountine.
+% Description: Executable. Runs initParams then main rountine.
 % Fix Time issues and build object
 
 % Add paths and see where we are
@@ -13,11 +13,11 @@ fprintf('Starting RunHydroGel: %s\n', Time)
 
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'InitParams.m','file'); 
-  InitParams;
+if exist( 'initParams.m','file'); 
+  initParams;
 else
   cpParams
-  InitParams
+  initParams
 end
 
 % Build TimeObj

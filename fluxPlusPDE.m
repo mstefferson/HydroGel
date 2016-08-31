@@ -33,11 +33,11 @@ fprintf('Starting Flux Loop: %s\n', Time)
 
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'InitParams.m','file');
-  InitParams;
+if exist( 'initParams.m','file');
+  initParams;
 else
   cpParams
-  InitParams
+  initParams
 end
 
 % "Analysis" subroutines

@@ -1,6 +1,5 @@
 function [Lop]    =  LopMakerMaster(N,dx,Bt,kon,koff, Da, Dc, Lr,A_BC,C_BC)
 
-
 if strcmp(A_BC,'Dir') && strcmp(C_BC,'Vn')
 [Lop] = LopMakerRdDirVn(N,dx,Bt,kon,koff,Da,Dc);
 elseif strcmp(A_BC,'Mx') && strcmp(C_BC,'Vn')
