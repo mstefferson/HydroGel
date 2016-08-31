@@ -10,6 +10,8 @@ ParamObj.SaveMe = 1;
 % Turn things on
 ParamObj.NLcoup        = 1;
 ParamObj.ChemOnEndPts  = 1;
+ParamObj.BindSiteDistFlag = 1; % flag turn on spatially varying binding sites
+ParamObj.BtDepDiff  = 0;  % Turn on if diffusion depends on Bt.
 
 % "Analysis" subroutines
 AnalysisObj.QuickMovie             = 1;  % Time evolv. Movie
@@ -40,11 +42,9 @@ ParamObj.AL    = 2e-4;  % concentration of inlet
 ParamObj.AR    = 0; % concentration of outlet
 
 % Binding flag 0: constant. 1: Square blurr
-ParamObj.BindSiteDistFlag = 1; % flag turn on spatially varying binding sites
 ParamObj.alpha  = 0.1;  % length scale (frac of box) where binding sites change
 % Turn on if diffusion depends on Bt. If Bt varies spatially,
 % Diff_A = 0, Diff_C = Max when Bt(x) = Btc.
-ParamObj.BtDepDiff  = 0;  % Turn on if diffusion depends on Bt.
 ParamObj.Btc   = ParamObj.Bt; % Critial Bt
 if ParamObj.BindSiteDistFlag ~= 0
   ParamObj.sigma  = ParamObj.alpha * ParamObj.Lbox ;
