@@ -1,10 +1,10 @@
 % LoopParamsFlux
-% 
-% Loops over parameter Kon*Bt (Bt fixed) and KoffVec 
+%
+% Loops over parameter Kon*Bt (Bt fixed) and KoffVec
 % and calculates the max flux, slope, and time to half max
 
 saveMe     = 0;
-nuVec       = [1];
+nuVec       = [0 1 10];
 KonBtVec    = [  logspace(1,3,2) ];
 KoffVec     = [  logspace(1,3,2)  ];
 dt_fac   = 0.5;
@@ -68,7 +68,7 @@ Kon = 0;
 dt = dtSave;
 
 pVec(1) = 0;
-pVec(2) = 0; 
+pVec(2) = 0;
 pVec(3) = ParamObj.Bt;
 pVec(4) = 0;
 
@@ -89,7 +89,7 @@ for ii = 1:length(nuVec)
     fprintf('\n\n Starting Kon Bt = %f \n\n', KonBtVec(jj) );
     parfor kk = 1:length(KoffVec)
       Koff = KoffVec(kk);
-     
+      
       fprintf( 'Koff = %f Kon = %f\n',Koff,Kon );
       [RecObj] = ...
         ChemDiffMain('',ParamObj,TimeObj,AnalysisObj, [Kon Koff Bt nu]);
@@ -184,88 +184,31 @@ end
 
 %% Surface plot
 if plotmap_flag
-  
-  deltaTick = 2;
-  xstr = ' K_{off}  \tau ';
-  ystr = ' K_{on}B_{t} \tau ';
-  for ii = 1:length(nuVec)
-    
-    
-    % Flux Max
-    if plotmap_max_flag == 1
-      figure()
-      imagesc( 1:length(KoffVec), 1:length(KonBtVec), ...
-        reshape( jMax(ii,:,:), [length(KonBtVec) length(KoffVec) ] ) );
-      xlabel( xstr ); ylabel( ystr );
-      Ax = gca;
-      Ax.YTick = 1:deltaTick:length(KonBtVec);
-      Ax.YTickLabel = num2cell( round( KonBtVec(1:deltaTick:end) ) );
-      Ax.XTick = 1:deltaTick: length(KoffVec) ;
-      Ax.XTickLabel = num2cell( round (KoffVec (1:deltaTick:end) ) );
-      Ax.YDir = 'normal';
-      titstr = sprintf( 'Max Flux nu = %g', nuVec(ii) );
-      title(titstr)
-      colorbar
-      axis square
-      if saveMe   ;
-        savefig( gcf, [savestr_fm '_max' '_nu'...
-          num2str( nuVec(ii) ) '.fig'] );
-        saveas( gcf, [ savestr_fm '_max' '_nu'...
-          num2str( nuVec(ii) ) ], 'jpg' );
-      end
-    end
-    
-    if plotmap_slope_flag == 1
-      figure()
-      % Slope at half max
-      imagesc( 1:length(KoffVec), 1:length(KonBtVec), ...
-        reshape( djdtHm(ii,:,:), [length(KonBtVec) length(KoffVec) ] ) );
-      xlabel( xstr ); ylabel(  ystr );
-      Ax = gca;
-      Ax.YTick = 1:deltaTick:length(KonBtVec);
-      Ax.YTickLabel = num2cell( round( KonBtVec(1:deltaTick:end) ) );
-      Ax.XTick = 1:deltaTick: length(KoffVec) ;
-      Ax.XTickLabel = num2cell( round (KoffVec (1:deltaTick:end) ) );
-      Ax.YDir = 'normal';
-      titstr = sprintf( 'Slope, dj/dt, at Half Max Flux nu = %g', nuVec(ii) );
-      title(titstr)
-      colorbar
-      axis square
-      if saveMe   ;
-        savefig( gcf, [savestr_fm '_slopeHm'  '_nu'...
-          num2str( nuVec(ii) ) '.fig'] );
-        saveas( gcf, [ savestr_fm '_slopeHm' '_nu'...
-          num2str( nuVec(ii) ) ], 'jpg' );
-      end
-    end
-    
-    if plotmap_time_flag == 1
-      figure()
-      % Time at half max
-      imagesc( 1:length(KoffVec), 1:length(KonBtVec), ...
-        reshape( tHm(ii,:,:), [length(KonBtVec) length(KoffVec) ] ) );
-      xlabel( xstr ); ylabel( ystr );
-      Ax = gca;
-      Ax.YTick = 1:deltaTick:length(KonBtVec);
-      Ax.YTickLabel = num2cell( round( KonBtVec(1:deltaTick:end) ) );
-      Ax.XTick = 1:deltaTick: length(KoffVec) ;
-      Ax.XTickLabel = num2cell( round (KoffVec (1:deltaTick:end) ) );
-      Ax.YDir = 'normal';
-      titstr = sprintf( ' Time at Half Max Flux nu = %g', nuVec(ii) );
-      title(titstr)
-      colorbar
-      axis square
-      if saveMe   ;
-        savefig( gcf, [savestr_fm  '_tHm' '_nu'...
-          num2str( nuVec(ii) ) '.fig'] );
-        saveas( gcf, [ savestr_fm '_tHm' '_nu'...
-          num2str( nuVec(ii) ) ], 'jpg' );
-      end
-    end
-  end % loop nu
-end % plot flag
+  titstr = 'Max Flux nu = ';
+  xlab = 'K_{off} \tau';
+  ylab = 'K_{on}B_{t} \tau';
+  fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+    xlab, ylab,  titstr, saveMe, savestr_fm)
+end
 
-%%
+if plotmap_slope_flag == 1
+  titstr = 'Slope, dj/dt, at Half Max Flux nu = ';
+  xlab = 'K_{off} \tau';
+  ylab = 'K_{on}B_{t} \tau';
+  saveStr = [savestr_fm '_slopeHm'];
+  fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+    xlab, ylab,  titstr, saveMe, saveStr)
+end
+
+if plotmap_time_flag == 1
+  titstr = 'Time at Half Max Flux nu = ';
+  xlab = 'K_{off} \tau';
+  ylab = 'K_{on}B_{t} \tau';
+  saveStr = [savestr_fm '_tHm'];
+  fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+    xlab, ylab,  titstr, saveMe, saveStr)
+end
+
 if saveMe
   save(savematstr, 'FluxVsT', 'jMax', ...
     'djdtHm','tHm', 'nuVec','KonBtVec','KoffVec','TimeVec');
