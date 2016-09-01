@@ -106,28 +106,9 @@ end
 
 %%
 % Find Maxes and such
-TimeVec = (0:TimeObj.N_rec-1) * t_rec;
-jMax = FluxVsT(:,:,:,end);
-aMax = AccumVsT(:,:,:,end);
-
-djdtHm = zeros( length(nuVec), length(KonBtVec ) , length(KoffVec)  );
-tHm = zeros( length(nuVec), length(KonBtVec ) , length(KoffVec)  );
-
-for ii = 1:length(nuVec)
-  for jj = 1:length(KonBtVec )
-    for kk = 1:length(KoffVec)
-      % Find index where flux passes half max
-      indTemp = find( FluxVsT(ii,jj,kk,:) > jMax(ii,jj,kk) / 2, 1 );     
-      if indTemp == 1
-        indTemp = 2;
-      end
-      djdtHm(ii,jj,kk) = ...
-        ( FluxVsT(ii,jj,kk,indTemp) - FluxVsT(ii,jj,kk,indTemp - 1) ) ...
-        ./ TimeObj.t_rec;
-      tHm(ii,jj,kk) = TimeVec(indTemp);      
-    end
-  end
-end
+[jMax, aMax, djdtHm, tHm] = ...
+  findFluxProperties( FluxVsT, AccumVsT, TimeObj, ...
+  length(nuVec), length(KonBtVec), length(KoffVec) );
 
 %% Plotting stuff
 % flux vs time
