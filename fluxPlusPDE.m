@@ -5,22 +5,17 @@
 
 saveMe     = 0;
 nuVec       = [0 1 10];
-KonBtVec    = [  logspace(1,3,2) ];
+KonBtVec    = [ logspace(1,3,2) ];
 KoffVec     = [  logspace(1,3,2)  ];
 dt_fac   = 0.5;
 savestr_vt = 'flxvst';
 savestr_fm = ['flxmapSs'];
 savematstr = 'fluxLin.mat';
-plotvst_flag = 1;
-plotmap_max_flag = 1;
-plotmap_slope_flag = 1;
-plotmap_time_flag = 1;
-
-if plotmap_max_flag == 1 || plotmap_max_flag == 1 || plotmap_max_flag == 1;
-  plotmap_flag = 1;
-else
-  plotmap_max_flag = 0;
-end
+plotVstFlag = 1;
+plotSteadyFlag = 1;
+plotmapMaxFlag = 1;
+plotmapSlopeFlag = 1;
+plotmapTimeFlag = 1;
 
 % Add paths and see where we are
 addpath('./Subroutines');
@@ -62,6 +57,10 @@ disp(ParamObj); disp(AnalysisObj); disp(TimeObj);
 FluxVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), TimeObj.N_rec );
 AccumVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), TimeObj.N_rec );
 
+% Store steady state solutions;
+AconcStdy = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ), Nx );
+CconcStdy = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ), Nx );
+
 % Run Diff first
 Koff = 0;
 Kon = 0;
@@ -88,16 +87,17 @@ for ii = 1:length(nuVec)
     pVec(1) = Kon;
     fprintf('\n\n Starting Kon Bt = %f \n\n', KonBtVec(jj) );
     parfor kk = 1:length(KoffVec)
-      Koff = KoffVec(kk);
-      
+      Koff = KoffVec(kk);    
       fprintf( 'Koff = %f Kon = %f\n',Koff,Kon );
       [RecObj] = ...
-        ChemDiffMain('',ParamObj,TimeObj,AnalysisObj, [Kon Koff Bt nu]);
-      
+        ChemDiffMain('',ParamObj,TimeObj,AnalysisObj, [Kon Koff Bt nu]);   
       if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
         fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
       end
       
+      % record
+      AconcStdy(ii,jj,kk,:) = RecObj.Afinal;
+      CconcStdy(ii,jj,kk,:) = RecObj.Cfinal;
       FluxVsT(ii,jj,kk,:) = RecObj.Flux2ResR_rec;
       AccumVsT(ii,jj,kk,:) = RecObj.FluxAccum_rec;
     end
@@ -113,77 +113,43 @@ aMax = AccumVsT(:,:,:,end);
 djdtHm = zeros( length(nuVec), length(KonBtVec ) , length(KoffVec)  );
 tHm = zeros( length(nuVec), length(KonBtVec ) , length(KoffVec)  );
 
-
 for ii = 1:length(nuVec)
   for jj = 1:length(KonBtVec )
     for kk = 1:length(KoffVec)
-      
       % Find index where flux passes half max
-      indTemp = find( FluxVsT(ii,jj,kk,:) > jMax(ii,jj,kk) / 2, 1 );
-      
+      indTemp = find( FluxVsT(ii,jj,kk,:) > jMax(ii,jj,kk) / 2, 1 );     
       if indTemp == 1
         indTemp = 2;
       end
       djdtHm(ii,jj,kk) = ...
         ( FluxVsT(ii,jj,kk,indTemp) - FluxVsT(ii,jj,kk,indTemp - 1) ) ...
         ./ TimeObj.t_rec;
-      tHm(ii,jj,kk) = TimeVec(indTemp);
-      
+      tHm(ii,jj,kk) = TimeVec(indTemp);      
     end
   end
 end
 
-%%
-% Plot vs time
-if plotvst_flag
+%% Plotting stuff
+% flux vs time
+if plotVstFlag
   TimeVec = (0:TimeObj.N_rec-1) * t_rec;
-  [Tr, Tc] =  size(TimeVec);
-  
-  % Plot Koffs vs time for each KdInv
-  % Legend stuff
-  legcell = cell( length(KoffVec) + 1, 1 );
-  legcell{end} = 'No binding';
-  for ii = 1:length(nuVec)
-    
-    for jj = 1:length(KonBtVec)
-      figure();
-      % Plot it
-      AH1 = subplot(1,2,1);
-      axis square
-      hold all
-      AH2 = subplot(1,2,2);
-      axis square
-      hold all
-      for kk = 1:length(KoffVec)
-        plot( AH1, TimeVec, reshape( FluxVsT(ii,jj,kk,:), [Tr Tc] ) );
-        plot( AH2, TimeVec, reshape( AccumVsT(ii,jj,kk,:), [Tr Tc] ) );
-        legcell{kk} = ['Koff = ' num2str( KoffVec(kk) ) ];
-      end
-      plot( AH1, TimeVec, FluxVsTDiff);
-      plot( AH2, TimeVec, AccumVsTDiff);
-      %Axis
-      xlabel(AH1,'time'); xlabel(AH2,'time');
-      ylabel(AH1,'flux'); ylabel(AH2,'accumultation');
-      %   AH1.YLim = [ 0 1e-3 ]; AH2.YLim = [ 0 5e-4 ];
-      % Titles
-      titstr = sprintf('Kon * Bt = %g (BA)', KonBtVec(jj) );
-      title(AH1,titstr);
-      titstr = sprintf('Dc/Da = %g', nuVec(ii) );
-      title(AH2,titstr);
-      h = legend(AH2,legcell,'location','best');
-      h.Position(1:2) = [0.525 0.35];
-      % Save stuff
-      savestr_vts = [savestr_vt '_Kdinv' num2str(round(KonBtVec(jj)))...
-        '_nu' num2str(nuVec(ii)) ];
-      savefig( gcf, [savestr_vts '.fig'] );
-      saveas( gcf, savestr_vts, 'jpg' );
-    end
-  end
+  ah1titl = 'Kon * Bt = ';
+  ah2titl = 'Dc/Da = ';
+  fluxAccumVsTimePlotMultParams( ...
+    FluxVsT, AccumVsT, FluxVsTDiff, AccumVsTDiff, TimeVec, ...
+    nuVec, KonBtVec, KoffVec, 'Koff', ah1titl, ah2titl, saveMe, savestr_vt )
 end
 
+% steady state solutions
+if plotSteadyFlag
+  x = linspace( 0, ParamObj.Lbox, ParamObj.Nx );
+  concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
+    nuVec, KonBtVec, KoffVec, 'nu', 'K_{on}B_{t}', 'K_{off}', ...
+    saveMe, savestr_ss  )
+end
 
-%% Surface plot
-if plotmap_flag
+% Surface plot: max flux
+if plotmapMaxFlag
   titstr = 'Max Flux nu = ';
   xlab = 'K_{off} \tau';
   ylab = 'K_{on}B_{t} \tau';
@@ -191,21 +157,23 @@ if plotmap_flag
     xlab, ylab,  titstr, saveMe, savestr_fm)
 end
 
-if plotmap_slope_flag == 1
+% Surface plot: flux slope
+if plotmapSlopeFlag
   titstr = 'Slope, dj/dt, at Half Max Flux nu = ';
   xlab = 'K_{off} \tau';
   ylab = 'K_{on}B_{t} \tau';
   saveStr = [savestr_fm '_slopeHm'];
-  fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+  fluxSurfPlotter( djdtHm, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 
-if plotmap_time_flag == 1
+% Surface plot: time to flux
+if plotmapTimeFlag 
   titstr = 'Time at Half Max Flux nu = ';
   xlab = 'K_{off} \tau';
   ylab = 'K_{on}B_{t} \tau';
   saveStr = [savestr_fm '_tHm'];
-  fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+  fluxSurfPlotter( tHm, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 

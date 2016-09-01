@@ -1,14 +1,16 @@
 % Find the flux at steady state for various parameter configurations
 % Loops over Ka, koff, nu
 saveMe = 0;
-plotmap_flag = 1;
+plotMapFlag = 1;
+plotSteadyFlag = 1;
 
 % Looped parameters
 % Kon calculated in loop
 nuVec  = [0 1];
 KonBtVec = [0 logspace(3,4.0,2) ];
 KoffVec = [ logspace(1,4.0,2) ];
-savestr_fa = ['flxss'];
+savestr_fa = 'flxss';
+savestr_ss = 'profileSS';
 
 % Non-loopable parameters
 linearEqn = 1;
@@ -40,30 +42,31 @@ for i = 1:length(nuVec)
       Koff = KoffVec(k);
       [AnlOde,CnlOde,x] = RdSsSolverMatBvFunc(...
         Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
-      dx = x(2) - x(1);
+      % calc flux
       flux   = - DA * ( AnlOde(end) - AnlOde(end-1) ) / dx;
+      % record
+      AconcStdy(i,j,k,:) = AnlOde;
+      CconcStdy(i,j,k,:) = CnlOde;
       fluxSS( i, j, k ) = flux;
     end % loop Koff
   end % loop Kdinv
 end % loop nu
 
 %% Surface plot
-if plotmap_flag
+if plotMapFlag
   titstr = 'Max Flux nu = ';
   xlab = 'K_{off} \tau';
-  ylab = 'K_{on}B_{t} \tau'
+  ylab = 'K_{on}B_{t} \tau';
   fluxSurfPlotter( fluxSS, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, savestr_fa )
+end
+
+if plotSteadyFlag
+  concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
+    nuVec, KonBtVec, KoffVec, 'nu', 'K_{on}B_{t}', 'K_{off}', ...
+    saveMe, savestr_ss  )
 end
 
 if saveMe
   save('FluxAtSS.mat', 'fluxSS', 'nuVec', 'KaVec', 'KoffVec');
 end
-
-
-
-
-
-
-
-
