@@ -2,29 +2,44 @@
 %
 % Loops over parameter Kon*Bt (Bt fixed) and KoffVec
 % and calculates the max flux, slope, and time to half max
+% Add paths and output dir 
+addpath( genpath('./src') )
+addpath( genpath('./src') );
+if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
+if ~exist('./steadyfiles/PDE','dir'); mkdir('steadyfiles/PDE'); end;
 
-saveMe     = 0;
-nuVec       = [0 1 10];
-KonBtVec    = [ logspace(1,3,2) ];
-KoffVec     = [  logspace(1,3,2)  ];
-dt_fac   = 0.5;
-savestr_vt = 'flxvst';
-savestr_fm = ['flxmapSs'];
-savematstr = 'fluxLin.mat';
+Time = datestr(now);
+fprintf('Starting fluxPDE: %s\n', Time)
+
+% flags
+saveMe     = 1;
 plotVstFlag = 1;
 plotSteadyFlag = 1;
 plotmapMaxFlag = 1;
 plotmapSlopeFlag = 1;
 plotmapTimeFlag = 1;
 
-% Add paths and see where we are
-addpath('./Subroutines');
-if ~exist('./Outputs','dir'); mkdir('Outputs'); end;
-Time = datestr(now);
-currentdir=pwd;
-fprintf('In dir %s\n',currentdir);
+% save string and some plot labels
+saveStrVsT = 'flxvst'; %flux and accumulation vs time
+saveStrFM = 'flxss'; %flux map
+saveStrSS = 'profileSS'; % steady state
+saveStrMat = 'FluxAtSS.mat'; % matlab files
+dirname = 'temp'; % save dir
 
-fprintf('Starting Flux Loop: %s\n', Time)
+if plotmapSlopeFlag || plotmapSlopeFlag || plotmapTimeFlag
+  xlab = 'k_{off} \tau';
+  ylab = 'k_{on}B_{t} \tau';
+end
+if plotSteadyFlag
+    p1name = '\nu'; 
+    p2name = 'k_{on}B_{t}'; 
+    p3name = 'k_{off}';
+end
+
+nuVec       = [0 1 10];
+KonBtVec    = [ logspace(1,3,2) ];
+KoffVec     = [  logspace(1,3,2)  ];
+dt_fac   = 0.5;
 
 % Initparams
 fprintf('Initiating parameters\n');
@@ -42,11 +57,13 @@ AnalysisObj.PlotMeAccum=0; AnalysisObj.PlotMeWaveFrontAccum=0;
 AnalysisObj.PlotMeLastConcAccum=0; AnalysisObj.CheckConservDen=0;
 AnalysisObj.ShowRunTime=0;
 
+% Set saveme to 0, don't need recs
+ParamObj.SaveMe = 0;
+
 % Build TimeObj
 dt = dt * dt_fac;
 [TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 dtSave = TimeObj.dt;
-
 
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
@@ -104,7 +121,6 @@ for ii = 1:length(nuVec)
   end
 end
 
-%%
 % Find Maxes and such
 [jMax, aMax, djdtHm, tHm] = ...
   findFluxProperties( FluxVsT, AccumVsT, TimeObj, ...
@@ -114,36 +130,32 @@ end
 % flux vs time
 if plotVstFlag
   TimeVec = (0:TimeObj.N_rec-1) * t_rec;
-  ah1titl = 'Kon * Bt = ';
+  ah1titl = 'k_{on} * Bt = ';
   ah2titl = 'Dc/Da = ';
   fluxAccumVsTimePlotMultParams( ...
     FluxVsT, AccumVsT, FluxVsTDiff, AccumVsTDiff, TimeVec, ...
-    nuVec, KonBtVec, KoffVec, 'Koff', ah1titl, ah2titl, saveMe, savestr_vt )
+    nuVec, KonBtVec, KoffVec, 'k_{off}', ah1titl, ah2titl, saveMe, saveStrVsT )
 end
 
 % steady state solutions
 if plotSteadyFlag
   x = linspace( 0, ParamObj.Lbox, ParamObj.Nx );
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    nuVec, KonBtVec, KoffVec, 'nu', 'K_{on}B_{t}', 'K_{off}', ...
-    saveMe, savestr_ss  )
+    nuVec, KonBtVec, KoffVec, p1name, p2name, p3name, ...
+    saveMe, saveStrSS  )
 end
 
 % Surface plot: max flux
 if plotmapMaxFlag
   titstr = 'Max Flux nu = ';
-  xlab = 'K_{off} \tau';
-  ylab = 'K_{on}B_{t} \tau';
   fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
-    xlab, ylab,  titstr, saveMe, savestr_fm)
+    xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 
 % Surface plot: flux slope
 if plotmapSlopeFlag
   titstr = 'Slope, dj/dt, at Half Max Flux nu = ';
-  xlab = 'K_{off} \tau';
-  ylab = 'K_{on}B_{t} \tau';
-  saveStr = [savestr_fm '_slopeHm'];
+  saveStr = [saveStrFM '_slopeHm'];
   fluxSurfPlotter( djdtHm, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
@@ -151,15 +163,23 @@ end
 % Surface plot: time to flux
 if plotmapTimeFlag 
   titstr = 'Time at Half Max Flux nu = ';
-  xlab = 'K_{off} \tau';
-  ylab = 'K_{on}B_{t} \tau';
-  saveStr = [savestr_fm '_tHm'];
+  saveStr = [saveStrFM '_tHm'];
   fluxSurfPlotter( tHm, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 
 if saveMe
-  save(savematstr, 'FluxVsT', 'jMax', ...
-    'djdtHm','tHm', 'nuVec','KonBtVec','KoffVec','TimeVec');
+  save(saveStrMat, 'FluxVsT', 'jMax', 'djdtHm', 'tHm', ...
+    'AconcStdy', 'CconcStdy', 'nuVec', 'KonBtVec', 'KoffVec', 'TimeVec');
+  % make dirs and move
+    if plotSteadyFlag || plotMapFlag
+      movefile('*.fig', dirname);
+      movefile('*.jpg', dirname);
+    end
+    movefile(saveStrMat, dirname);
+    movefile(dirname, './steadyfiles/PDE' )
 end
+
+Time = datestr(now);
+fprintf('Finished fluxPDE: %s\n', Time)
 
