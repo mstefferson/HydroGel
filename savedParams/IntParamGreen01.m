@@ -96,10 +96,10 @@ ss_epsilon  = 1e-12;   % steady state condition
 NumPlots    = 10;      % For the accumulation plot subroutine
 
 % Build the object
-[TimeObj] = TimeObjMakerRD(dt,t_end,t_rec,ss_epsilon,NumPlots);
-Tmod      = 0:TimeObj.t_rec:t_end;
+[timeObj] = timeObjMakerRD(dt,t_end,t_rec,ss_epsilon,NumPlots);
+Tmod      = 0:timeObj.t_rec:t_end;
 
-if TimeObj.N_rec <= NtE % N_rec always should have one more recording point for t = 0
+if timeObj.N_rec <= NtE % N_rec always should have one more recording point for t = 0
    error('recording error') 
 end
 
@@ -111,13 +111,13 @@ fprintf('trial:%d A_BC: %s C_BC: %s\n', trial,A_BC, C_BC)
 
 % keyboard
 % Build Objects
-[ParamObj] = ParamObjMakerRD(SaveMe,ChemOnEndPts,NxM,Lbox,Lr,...
+[paramObj] = paramObjMakerRD(SaveMe,ChemOnEndPts,NxM,Lbox,Lr,...
     A_BC,C_BC,Kon,Koff,DA,nu,Dnl,...
     NLcoup,Bt,AL,AR,trial);
-[xExp,~]  = Gridmaker1DVn(ParamObj.Lbox,NxE);
-[xMod,~]  = Gridmaker1DVn(ParamObj.Lbox,NxM);
-[TimeObj] = TimeObjMakerRD(dt,t_end,t_rec,ss_epsilon,NumPlots);
-[AnalysisObj] = AnalysisObjMakerRD(TrackAccumFromFlux,...
+[xExp,~]  = Gridmaker1DVn(paramObj.Lbox,NxE);
+[xMod,~]  = Gridmaker1DVn(paramObj.Lbox,NxM);
+[timeObj] = timeObjMakerRD(dt,t_end,t_rec,ss_epsilon,NumPlots);
+[analysisFlags] = analysisFlagsMakerRD(TrackAccumFromFlux,...
     TrackAccumFromFluxPlot, PlotMeMovAccum, PlotMeLastConcAccum,...
     PlotMeLastConc,QuickMovie,CheckConservDen,PlotMeRightRes,ShowRunTime);
 
@@ -127,7 +127,7 @@ Where2SavePath    = sprintf('%s/%s/%s',pwd,'Outputs',FileDir);
 
 if SaveMe
     diary('RunDiary.txt')
-    disp(ParamObj)
+    disp(paramObj)
 end
 % keyboard
 
@@ -141,10 +141,10 @@ if RunMe == 1
 
 fprintf('Starting run \n')
 % [Amod_rec,Cmod_rec,DidIBreak,SteadyState] = ...
-%     ChemDiffMainResVn(ParamObj,TimeObj,AnalysisObj);
+%     ChemDiffMainResVn(paramObj,timeObj,analysisFlags);
 
 [Amod_rec,Cmod_rec,DidIBreak,SteadyState] = ...
-ChemDiffMainDirVn(ParamObj,TimeObj,AnalysisObj);
+ChemDiffMainDirVn(paramObj,timeObj,analysisFlags);
 
 fprintf('Finished run\n')
 
@@ -161,7 +161,7 @@ open(Mov);
 
 % Rec to plot
 Mod_rec = (Amod_rec + Cmod_rec) ./ ALres + AddInt;
-timeRec = TimeObj.t_rec * (0:TimeObj.N_rec-1);
+timeRec = timeObj.t_rec * (0:timeObj.N_rec-1);
 
 MaxExp =  max(max( Exp_rec )) ;
 MaxMod = max(max( Mod_rec ));
@@ -177,7 +177,7 @@ ScaleStr = sprintf('Scaling & Box\n tau = %.2e [s]\n L = %.2e [m]\n Inlet Ind = 
 figure()
 
 %%
-for i = 1:TimeObj.N_rec;
+for i = 1:timeObj.N_rec;
  
 %     keyboard
     if i <= (NtEx)
@@ -190,7 +190,7 @@ for i = 1:TimeObj.N_rec;
     h1 = plot(xMod,Mod_rec(i,:),'-',...
         xExp, Exp_rec(i - NtEx,:),'--' );
     timeExpstr = sprintf( 'Time\nt_E = %.2e [s] \n',...
-        t_exp(NtE - TimeObj.N_rec + i) );
+        t_exp(NtE - timeObj.N_rec + i) );
     FrameStr   = sprintf( 'Frame = %d\n',i - NtEx );
     end   
 
@@ -217,7 +217,7 @@ for i = 1:TimeObj.N_rec;
 %     keyboard
     % Get rid of trace and annotation without closing figure.
 %       keyboard
-if i ~= TimeObj.N_rec
+if i ~= timeObj.N_rec
     delete(h1);
 end
 

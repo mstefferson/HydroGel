@@ -1,9 +1,9 @@
-function SSplotterCmpr(SSobj,ParamObj,xPde,xOde)
+function SSplotterCmpr(SSobj,paramObj,xPde,xOde)
 % keyboard
 NxODE = length(xOde);NxPDE = length(xPde);
 
 Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\n',...
-    ParamObj.Kon,ParamObj.Koff,ParamObj.nu);
+    paramObj.Kon,paramObj.Koff,paramObj.nu);
 
 figure()
 plot(xOde,SSobj.AnlOde,'-r',xOde,SSobj.CnlOde,'-b',xOde,SSobj.AnlOde+SSobj.CnlOde,'-k',...

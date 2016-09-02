@@ -9,7 +9,12 @@ legend('A','C','A + C')
 xlabel('x'); ylabel('Concentration');
 titstr =  sprintf('Concentration at last time point trial %d', trial);
 title(titstr)
-textbp(Paramstr)
-textbp(Concstr)
-textbp(Gridstr)
+try
+  textbp(Paramstr)
+  textbp(Concstr)
+  textbp(Gridstr)
+catch err
+    fprintf('%s', err.getReport('extended')) ;
+end
+
 end

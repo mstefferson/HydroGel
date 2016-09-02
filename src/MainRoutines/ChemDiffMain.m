@@ -1,66 +1,67 @@
 % ChemDiffMain
 % Handles all BCs
 
-function [RecObj] = ChemDiffMain( filename, ParamObj,TimeObj, AnalysisObj, pVec )
+function [RecObj] = ChemDiffMain( filename, paramObj,timeObj, flags, analysisFlags, pVec )
 
-ParamObj.Kon = pVec(1);
-ParamObj.Koff = pVec(2);
-ParamObj.Bt = pVec(3);
-ParamObj.Dc = pVec(4) * ParamObj.Da;
-ParamObj.Kdinv = ParamObj.Kon / ParamObj.Koff;
+paramObj.Dc = pVec(1) * paramObj.Da;
+paramObj.Koff = pVec(2);
+paramObj.KonBt = pVec(3);
+paramObj.Bt = pVec(4);
+paramObj.Kon = paramObj.KonBt ./ paramObj.Bt; % KonBt / Bt
+paramObj.Ka = paramObj.Kon / paramObj.Koff;
 
 % Define commonly used variables
 DidIBreak = 0;
 SteadyState = 0;
-if AnalysisObj.TrackAccumFromFlux || AnalysisObj.TrackAccumFromFluxPlot
+if analysisFlags.TrackAccumFromFlux || analysisFlags.TrackAccumFromFluxPlot
   TrackFlux = 1;
 else
   TrackFlux = 0;
 end
 
-A_BC = ParamObj.A_BC;
-C_BC = ParamObj.C_BC;
+A_BC = paramObj.A_BC;
+C_BC = paramObj.C_BC;
 
 % Init global
-Nx     = ParamObj.Nx;
-A_rec   = zeros(Nx,TimeObj.N_rec);
-C_rec   = zeros(Nx,TimeObj.N_rec);
+Nx     = paramObj.Nx;
+A_rec   = zeros(Nx,timeObj.N_rec);
+C_rec   = zeros(Nx,timeObj.N_rec);
 
 % Other recs
-if (AnalysisObj.TrackAccumFromFlux)
-  FluxAccum_rec = zeros(1,TimeObj.N_rec);
-  Flux2ResR_rec = zeros(1,TimeObj.N_rec);
+if (analysisFlags.TrackAccumFromFlux)
+  FluxAccum_rec = zeros(1,timeObj.N_rec);
+  Flux2ResR_rec = zeros(1,timeObj.N_rec);
 else
   FluxAccum_rec  = 0;
   Flux2ResR_rec  = 0;
 end
 
 % Fix LR
-[ParamObj.Lr] = LrMaster(A_BC, ParamObj.Lr);
+[paramObj.Lr] = LrMaster(A_BC, paramObj.Lr);
 
 %Spatial grid
-[x,dx]  = GridMaster(A_BC, C_BC,ParamObj.Lbox,Nx);
-GridObj = struct('Nx',Nx, 'Lbox',ParamObj.Lbox,'Lr', ParamObj.Lr,...
-  'dx', dx, 'x', x,'VNcoef', TimeObj.dt/dx^2);
+[x,dx]  = GridMaster(A_BC, C_BC,paramObj.Lbox,Nx);
+GridObj = struct('Nx',Nx, 'Lbox',paramObj.Lbox,'Lr', paramObj.Lr,...
+  'dx', dx, 'x', x,'VNcoef', timeObj.dt/dx^2);
 
 %Inital Densisy
 [A,~,C,~,CL,CR] = ...
-  IntConcMaker(ParamObj.AL, ParamObj.AR, ParamObj.Bt, ...
-  ParamObj.Ka, ParamObj.Lbox, x,ParamObj.NLcoup);% A = Alin;
+  IntConcMaker(paramObj.AL, paramObj.AR, paramObj.Bt, ...
+  paramObj.Ka, paramObj.Lbox, x,flags.NLcoup);% A = Alin;
 % A= Alin;
 % C= Clin;
 % C(1) = CL; C(end) = CR;
 C(1) = 0; C(end) = 0;
 
 % Blur Density check
-if ParamObj.BindSiteDistFlag == 1
-  [ParamObj.Bt] = BinitGelSquareBlur(ParamObj.Bt, ParamObj.sigma, x);
+if flags.BindSiteDistFlag == 1
+  [paramObj.Bt] = BinitGelSquareBlur(paramObj.Bt, paramObj.sigma, x);
 end
 
 % Blur Density check
-if ParamObj.BtDepDiff == 1
-  [ParamObj.Da,ParamObj.Dc] = BtDepDiffBuilder(ParamObj.Bt, ParamObj.Btc, ...
-    ParamObj.Da,ParamObj.Dc);
+if flags.BtDepDiff == 1
+  [paramObj.Da,paramObj.Dc] = BtDepDiffBuilder(paramObj.Bt, paramObj.Btc, ...
+    paramObj.Da,paramObj.Dc);
 end
 
 v = [A';C'];
@@ -71,7 +72,7 @@ C_rec(:,1)   = C;
 j_record = 2;
 
 % Store the "accumulation" from the flux
-if AnalysisObj.TrackAccumFromFlux
+if analysisFlags.TrackAccumFromFlux
   Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
   FluxAccum   = 0;
   Flux2ResR_rec(1) = Flux2ResR;
@@ -80,21 +81,21 @@ end
 
 % keyboard
 %Build operators and matrices
-[Lop]    =  LopMakerMaster(Nx,dx,ParamObj.Bt,ParamObj.Kon,ParamObj.Koff,...
-  ParamObj.Da,ParamObj.Dc, ParamObj.Lr, A_BC,C_BC);
-[LMcn,RMcn] = MatMakerCN(  Lop, TimeObj.dt, 2 * Nx );
+[Lop]    =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.Kon,paramObj.Koff,...
+  paramObj.Da,paramObj.Dc, paramObj.Lr, A_BC,C_BC);
+[LMcn,RMcn] = MatMakerCN(  Lop, timeObj.dt, 2 * Nx );
 % keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0
-if ParamObj.NLcoup
-  [NLchem]   = CoupChemNLCalc(v,ParamObj.Kon,Nx);
+if flags.NLcoup
+  [NLchem]   = CoupChemNLCalc(v,paramObj.Kon,Nx);
 else
   NLchem     = zeros(2*Nx,1);
 end
 
-if ParamObj.Dnl ~= 1
-  [NLdiff]   = ConcDepDiffCalcNd1stOrd(v,ParamObj.Dnl,ParamObj.Bt,Nx,dx);
+if paramObj.Dnl ~= 1
+  [NLdiff]   = ConcDepDiffCalcNd1stOrd(v,paramObj.Dnl,paramObj.Bt,Nx,dx);
   [NLdiff(1), NLdiff(Nx) ] =  ...
-    NlDiffBcFixer(A_BC,C_BC, ParamObj.Dnl, ParamObj.Bt, v, dx);
+    NlDiffBcFixer(A_BC,C_BC, paramObj.Dnl, paramObj.Bt, v, dx);
 else
   NLdiff     = zeros(2*Nx,1);
 end
@@ -104,20 +105,20 @@ NL  = NLdiff + NLchem;
   NlBcFixer(A_BC, C_BC, NL(1), NL(Nx), NL(Nx+1), NL(2*Nx) );
 
 % Step
-[vNext] = FuncStepperCnAb1(v,RMcn,LMcn,NL,TimeObj.dt);
+[vNext] = FuncStepperCnAb1(v,RMcn,LMcn,NL,timeObj.dt);
 [vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx)] = ...
   BcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx), ...
-  ParamObj.AL, ParamObj.AR, CL, CR);
+  paramObj.AL, paramObj.AR, CL, CR);
 
 if TrackFlux % Just do Euler stepping for now
-  Flux2ResR   = ParamObj.Da * (v(Nx-1) - v(Nx) ) / dx;
-  FluxAccumNext  = ParamObj.AR + TimeObj.dt * Flux2ResR;
+  Flux2ResR   = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
+  FluxAccumNext  = paramObj.AR + timeObj.dt * Flux2ResR;
 end
 
 % Time loop
-if AnalysisObj.ShowRunTime; RunTimeID = tic; end
+if analysisFlags.ShowRunTime; RunTimeID = tic; end
 
-for t = 1: TimeObj.N_time - 1 % t * dt  = time
+for t = 1: timeObj.N_time - 1 % t * dt  = time
   
   % Update
   NLprev = NL;
@@ -126,17 +127,17 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
   %     keyboard
   if TrackFlux  % Just do Euler stepping for now
     FluxAccum     = FluxAccumNext;
-    Flux2ResR     = ParamObj.Da * (v(Nx-1) - v(Nx) ) / dx;
-    FluxAccumNext = FluxAccum + TimeObj.dt * Flux2ResR;
+    Flux2ResR     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
+    FluxAccumNext = FluxAccum + timeObj.dt * Flux2ResR;
   end
   %Non linear. Include endpoints, then set = 0
-  if ParamObj.NLcoup
-    [NLchem] = CoupChemNLCalc(v,ParamObj.Kon,Nx);
+  if flags.NLcoup
+    [NLchem] = CoupChemNLCalc(v,paramObj.Kon,Nx);
   end
-  if ParamObj.Dnl ~= 1
-    [NLdiff] = ConcDepDiffCalcNd1stOrd(v,ParamObj.Dnl,ParamObj.Bt,Nx,dx);
+  if paramObj.Dnl ~= 1
+    [NLdiff] = ConcDepDiffCalcNd1stOrd(v,paramObj.Dnl,paramObj.Bt,Nx,dx);
     [NLdiff(1), NLdiff(Nx) ] =  ...
-      NlDiffBcFixer(A_BC,C_BC, ParamObj.Dnl, ParamObj.Bt, v, dx);
+      NlDiffBcFixer(A_BC,C_BC, paramObj.Dnl, paramObj.Bt, v, dx);
   end
   
   NL  = NLdiff + NLchem;
@@ -145,13 +146,13 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
   
   % Step
   %     keyboard
-  [vNext] = FuncStepperCnAb2(v,RMcn,LMcn,NL,NLprev,TimeObj.dt);
+  [vNext] = FuncStepperCnAb2(v,RMcn,LMcn,NL,NLprev,timeObj.dt);
   [vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx)] = ...
     BcFixer(A_BC, C_BC, vNext(1), vNext(Nx), vNext(Nx+1), vNext(2*Nx),...
-    ParamObj.AL, ParamObj.AR, CL, CR);
+    paramObj.AL, paramObj.AR, CL, CR);
   
   % Save stuff
-  if (mod(t,TimeObj.N_count)== 0)
+  if (mod(t,timeObj.N_count)== 0)
     if  TrackFlux % Just do Euler stepping for now
       Flux2ResR_rec(j_record) = Flux2ResR;
       FluxAccum_rec(j_record) = FluxAccum;
@@ -160,16 +161,16 @@ for t = 1: TimeObj.N_time - 1 % t * dt  = time
     A_rec(:,j_record)   = v(1:Nx);
     C_rec(:,j_record)   = v(Nx+1:2*Nx);
     
-    [DidIBreak, SteadyState] = BrokenSteadyTrack(TimeObj.ss_epsilon);
+    [DidIBreak, SteadyState] = BrokenSteadyTrack(timeObj.ss_epsilon);
     
     if (DidIBreak == 1);
-      fprintf('I broke time = %f jrec= %d \n',TimeObj.dt*t,j_record)
-      TimeRec = TimeObj.t_rec .* (0:j_record-1);
+      fprintf('I broke time = %f jrec= %d \n',timeObj.dt*t,j_record)
+      TimeRec = timeObj.t_rec .* (0:j_record-1);
       break;
     end;
     if (SteadyState == 1)
-      TimeRec = TimeObj.t_rec .* (0:j_record-1);
-      fprintf('Steady State time = %.1f jrec =%d\n',TimeObj.dt*t,j_record);
+      TimeRec = timeObj.t_rec .* (0:j_record-1);
+      fprintf('Steady State time = %.1f jrec =%d\n',timeObj.dt*t,j_record);
       break;
     end
     j_record = j_record + 1;
@@ -182,11 +183,11 @@ t = t+1;
 
 if TrackFlux % Just do Euler stepping for now
   FluxAccum     = FluxAccumNext;
-  Flux2ResR     = ParamObj.Da * (v(Nx-1) - v(Nx) ) / dx;
+  Flux2ResR     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
 end
 
 if ~SteadyState || ~DidIBreak
-  if (mod(t,TimeObj.N_count)==0)
+  if (mod(t,timeObj.N_count)==0)
     v     = vNext;
     if TrackFlux % Just do Euler stepping for now
       Flux2ResR_rec(j_record) = Flux2ResR;
@@ -203,7 +204,7 @@ fprintf('Finished time loop\n');
 % Store the total concentrations
 
 if ~SteadyState
-  TimeRec = TimeObj.t_rec .* [0:TimeObj.N_rec-1];
+  TimeRec = timeObj.t_rec .* [0:timeObj.N_rec-1];
 end
 
 %Check for negative densities
@@ -217,11 +218,11 @@ if DidIBreak == 1 || SteadyState == 1;
     Flux2ResR_rec = [];
     FluxAccum_rec = [];
   end
-  TimeObj.N_rec = j_record;
+  timeObj.N_rec = j_record;
 end
 
 % Show run time
-if AnalysisObj.ShowRunTime; 
+if analysisFlags.ShowRunTime; 
   RunTime = toc(RunTimeID); 
   fprintf('Run time %.2g min\n', RunTime / 60);
   fprintf('Sim Time Ran = %.4f\n', TimeRec(end) );
@@ -230,7 +231,7 @@ end
 % Run analysis
 [RecObj] = AnalysisMaster( filename, SteadyState, DidIBreak,...
   Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
-  AnalysisObj ,ParamObj, TimeRec, TimeObj,GridObj);
+  analysisFlags, paramObj, flags, timeObj, GridObj, TimeRec);
 fprintf('Finished run \n');
 
 end

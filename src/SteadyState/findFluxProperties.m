@@ -1,13 +1,13 @@
 %[jMax, aMax, djdtHm, tHm] = ...
-%  findFluxProperties( FluxVsT, AccumVsT, TimeObj, Np1, Np2, Np3 )
+%  findFluxProperties( FluxVsT, AccumVsT, timeObj, Np1, Np2, Np3 )
 %
 % Given a flux and accumulationvs time, function returns the max flux,
 % time until half max flux, and slope at half max flux
 
 function [jMax, aMax, djdtHm, tHm] = ...
-  findFluxProperties( FluxVsT, AccumVsT, TimeObj, Np1, Np2, Np3 )
+  findFluxProperties( FluxVsT, AccumVsT, timeObj, Np1, Np2, Np3 )
 
-TimeVec = (0:TimeObj.N_rec-1) * TimeObj.t_rec;
+TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 jMax = FluxVsT(:,:,:,end);
 aMax = AccumVsT(:,:,:,end);
 
@@ -24,7 +24,7 @@ for ii = 1:Np1
       end
       djdtHm(ii,jj,kk) = ...
         ( FluxVsT(ii,jj,kk,indTemp) - FluxVsT(ii,jj,kk,indTemp - 1) ) ...
-        ./ TimeObj.t_rec;
+        ./ timeObj.t_rec;
       tHm(ii,jj,kk) = TimeVec(indTemp);      
     end
   end

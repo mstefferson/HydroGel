@@ -50,7 +50,11 @@ for ii = 1:nFrames
   ParamStr = sprintf(...
     ' t = %.1g \n Bt = %.1g \n Ka = %.1g \n nu = %.1g \n beta = %.1g \n Kon = %.1g \n Koff = %.1g \n ', ...
     TimeRec(ii), max(Bt), Ka, nu, Dnl,Kon, Koff );
-  textbp(ParamStr)
+  try
+    textbp(ParamStr)
+  catch err
+    fprintf('%s', err.getReport('extended')) ;
+  end
   title(TitlStr2)
   xlabel('x');ylabel('Concentration');
   legend('Bt','B_{free}')

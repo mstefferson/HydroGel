@@ -51,28 +51,28 @@ else
 end
 
 % "Analysis" subroutines
-AnalysisObj.QuickMovie=0; AnalysisObj.TrackAccumFromFlux= 1;
-AnalysisObj.TrackAccumFromFluxPlot=0; AnalysisObj.PlotMeLastConc=0;
-AnalysisObj.PlotMeAccum=0; AnalysisObj.PlotMeWaveFrontAccum=0;
-AnalysisObj.PlotMeLastConcAccum=0; AnalysisObj.CheckConservDen=0;
-AnalysisObj.ShowRunTime=0;
+analysisFlags.QuickMovie=0; analysisFlags.TrackAccumFromFlux= 1;
+analysisFlags.TrackAccumFromFluxPlot=0; analysisFlags.PlotMeLastConc=0;
+analysisFlags.PlotMeAccum=0; analysisFlags.PlotMeWaveFrontAccum=0;
+analysisFlags.PlotMeLastConcAccum=0; analysisFlags.CheckConservDen=0;
+analysisFlags.ShowRunTime=0;
 
 % Set saveme to 0, don't need recs
-ParamObj.SaveMe = 0;
+flags.SaveMe = 0;
 
-% Build TimeObj
+% Build timeObj
 dt = dt * dt_fac;
-[TimeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
-dtSave = TimeObj.dt;
+[timeObj] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
+dtSave = timeObj.dt;
 
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
-  ParamObj.trial,ParamObj.A_BC, ParamObj.C_BC)
-disp(ParamObj); disp(AnalysisObj); disp(TimeObj);
+  paramObj.trial,paramObj.A_BC, paramObj.C_BC)
+disp(paramObj); disp(analysisFlags); disp(timeObj);
 
 % Edits here. Change params and loop over
-FluxVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), TimeObj.N_rec );
-AccumVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), TimeObj.N_rec );
+FluxVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), timeObj.N_rec );
+AccumVsT = zeros( length(nuVec), length(KonBtVec) , length(KoffVec), timeObj.N_rec );
 
 % Store steady state solutions;
 AconcStdy = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ), Nx );
@@ -85,29 +85,29 @@ dt = dtSave;
 
 pVec(1) = 0;
 pVec(2) = 0;
-pVec(3) = ParamObj.Bt;
+pVec(3) = paramObj.Bt;
 pVec(4) = 0;
 
-[RecObj] = ChemDiffMain('', ParamObj,TimeObj,AnalysisObj, pVec );
+[RecObj] = ChemDiffMain('', paramObj,timeObj,analysisFlags, pVec );
 FluxVsTDiff = RecObj.Flux2ResR_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
 
 % Hold Bt Steady
-Bt = ParamObj.Bt;
+Bt = paramObj.Bt;
 
 for ii = 1:length(nuVec)
-  ParamObj.Dc  = nuVec(ii);
-  nu = ParamObj.Dc;
-  fprintf('\n\n Starting nu = %g \n\n', ParamObj.Dc );
+  paramObj.Dc  = nuVec(ii);
+  nu = paramObj.Dc;
+  fprintf('\n\n Starting nu = %g \n\n', paramObj.Dc );
   for jj = 1:length(KonBtVec)
-    Kon = KonBtVec(jj) / ParamObj.Bt;
+    Kon = KonBtVec(jj) / paramObj.Bt;
     pVec(1) = Kon;
     fprintf('\n\n Starting Kon Bt = %f \n\n', KonBtVec(jj) );
     parfor kk = 1:length(KoffVec)
       Koff = KoffVec(kk);    
       fprintf( 'Koff = %f Kon = %f\n',Koff,Kon );
       [RecObj] = ...
-        ChemDiffMain('',ParamObj,TimeObj,AnalysisObj, [Kon Koff Bt nu]);   
+        ChemDiffMain('',paramObj,timeObj,analysisFlags, [Kon Koff Bt nu]);   
       if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
         fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
       end
@@ -123,13 +123,13 @@ end
 
 % Find Maxes and such
 [jMax, aMax, djdtHm, tHm] = ...
-  findFluxProperties( FluxVsT, AccumVsT, TimeObj, ...
+  findFluxProperties( FluxVsT, AccumVsT, timeObj, ...
   length(nuVec), length(KonBtVec), length(KoffVec) );
 
 %% Plotting stuff
 % flux vs time
 if plotVstFlag
-  TimeVec = (0:TimeObj.N_rec-1) * t_rec;
+  TimeVec = (0:timeObj.N_rec-1) * t_rec;
   ah1titl = 'k_{on} * Bt = ';
   ah2titl = 'Dc/Da = ';
   fluxAccumVsTimePlotMultParams( ...
@@ -139,7 +139,7 @@ end
 
 % steady state solutions
 if plotSteadyFlag
-  x = linspace( 0, ParamObj.Lbox, ParamObj.Nx );
+  x = linspace( 0, paramObj.Lbox, paramObj.Nx );
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
     nuVec, KonBtVec, KoffVec, p1name, p2name, p3name, ...
     saveMe, saveStrSS  )
