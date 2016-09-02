@@ -1,3 +1,16 @@
+% fluxODE uses matlabs boundary value solver to find the steady state solution
+% of the RD equation for various parameter configurations by solving the ODE ( dv/dt = 0 ).
+% Using this, it calculated the RHS flux and makes nice plots. Loops over
+% nu, KonBt, Koff.
+% fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname ) 
+
+function fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname ) 
+
+% Make up a dirname if one wasn't given
+if nargin == 3 && saveMe == 1
+  dirname = ['flux_' num2str( randi( 100 ) )];
+end
+
 % Add paths and output dir 
 addpath( genpath('./src') );
 if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
@@ -6,42 +19,54 @@ if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end;
 Time = datestr(now);
 fprintf('Starting fluxODE: %s\n', Time)
 
-% Find the flux at steady state for various parameter configurations
-% Loops over Ka, koff, nu
-saveMe = 1;
-plotMapFlag = 1;
-plotSteadyFlag = 1;
+% Initparams
+fprintf('Initiating parameters\n');
+if exist( 'initParams.m','file');
+  initParams;
+else
+  cpParams
+  initParams
+end
+
+% Copy master parameters input object
+paramObj = paramMaster;
+% Looped over parameters
+nuVec = paramObj.nu;
+KonBtVec = paramObj.KonBt; 
+KoffVec = paramObj.Koff; 
+if length( paramObj.Bt ) > 1
+  paramObj.Bt = paramObj.Bt(1);
+end
 
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
-dirname = 'temp'; % save dir
-
+dirname = [dirname '_nl' num2str( flags.NLcoup )];
 if plotMapFlag 
   xlab = 'k_{off} \tau';
   ylab = 'k_{on}B_{t} \tau';
 end
 if plotSteadyFlag
-    p1name = '\nu'; 
-    p2name = 'k_{on}B_{t}'; 
-    p3name = 'k_{off}';
+  p1name = '\nu'; 
+  p2name = 'k_{on}B_{t}'; 
+  p3name = 'k_{off}';
 end
 
-% Looped parameters
-% Kon calculated in loop
-nuVec  = [0 1];
-KonBtVec = [0 logspace(3,4.0,2) ];
-KoffVec = [ logspace(1,4.0,1) ];
+% Specify necessary parameters for parfor
+linearEqn = ~flags.NLcoup;
+Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
+Bt = paramObj.Bt; Nx = paramObj.Nx; Lbox = paramObj.Lbox;
 
-% Non-loopable parameters
-linearEqn = 1;
-BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
-DA  = 1;
-AL  = 2e-4;
-AR  = 0;
-Bt  = 2e-3;
-Nx  = 1000;
-Lbox = 1;
+if strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
+  BCstr = 'DirVn'; 
+elseif strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
+  BCstr = 'Dir'; 
+elseif strcmp( paramObj.A_BC,'Vn' ) && strcmp( paramObj.C_BC, 'Vn' )
+  BCstr = 'Vn'; 
+else
+  fprintf( 'I cannot handle those BC, doing A = Dir, C = Vn \n')
+  BCstr = 'DirVn';
+end
 
 % Flux matrix
 fluxSS = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ) );
@@ -64,7 +89,7 @@ for i = 1:length(nuVec)
       [AnlOde,CnlOde,x] = RdSsSolverMatBvFunc(...
         Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
       % calc flux
-      flux   = - DA * ( AnlOde(end) - AnlOde(end-1) ) / dx;
+      flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
       % record
       AconcStdy(i,j,k,:) = AnlOde;
       CconcStdy(i,j,k,:) = CnlOde;

@@ -1,7 +1,8 @@
-% RunHydroGel
+% runHydroGel
 % Description: Executable. Runs initParams then main rountine.
 % Fix Time issues and build object
 
+function RecObj = runHydroGel()
 % Add paths and see where we are
 addpath( genpath('./src') )
 if ~exist('./runfiles','dir'); mkdir('runfiles'); end;
@@ -23,6 +24,7 @@ end
 % Copy master parameters input object
 paramObj = paramMaster;
 timeObj = timeMaster;
+flagsObj = flags;
 
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
@@ -52,7 +54,7 @@ if numRuns > 1
   analysisFlags.PlotMeLastConc = 0; analysisFlags.PlotMeAccum = 0; 
   analysisFlags.PlotMeWaveFrontAccum = 0; analysisFlags.PlotMeLastConcAccum = 0;  
   analysisFlags.CheckConservDen = 0; analysisFlags.ShowRunTime = 0;
-  
+  SaveMe = flags.SaveMe;
   parfor ii = 1:numRuns
     % Assign parameters
     paramvec = [ paramNu(ii) paramKoff(ii) paramKonBt(ii) paramBt(ii) ];
@@ -64,10 +66,10 @@ if numRuns > 1
     
     Where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',filename);
     fprintf('\nStarting %s \n', filename);
-    [RecObj] = ChemDiffMain(filename, paramObj, timeObj, flags, analysisFlags, paramvec);
+    [~] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
     fprintf('Finished %s \n', filename);
     % Move things to runfiles
-    if flags.SaveMe
+    if SaveMe
       mkdir(Where2SavePath)
       movefile([filename '.mat'], Where2SavePath)
       if ~isempty( dir( ['*' filename '*.avi'] ) );
@@ -121,3 +123,4 @@ runSec = floor(runTime);
 fprintf('RunTime: %.2d:%.2d:%.2d (hr:min:sec)\n', runHr, runMin,runSec);
 fprintf('Finished RunHardRod: %s\n', dateTime);
 
+end

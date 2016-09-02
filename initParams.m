@@ -8,7 +8,7 @@ paramMaster.trial  = 1;
 
 % Turn things on
 flags.SaveMe = 1;
-flags.NLcoup        = 1;
+flags.NLcoup = 1;
 flags.ChemOnEndPts  = 1;
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff  = 0;  % Turn on if diffusion depends on Bt.
@@ -33,9 +33,9 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 %Non Dimensional and Concentration
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.nu     = [1]; % vec Dc/Da aka nu 
-paramMaster.Koff   = [1e2]; % vec koff (time scale)
-paramMaster.KonBt  = [1e2 1e2];  % vec konBt (time scale)
-paramMaster.Bt     = [1e-3 2-4];  % vec molar (old: 1e-2) (new: 1e-3)
+paramMaster.Koff   = [1e2 1e3 1e4]; % vec koff (time scale)
+paramMaster.KonBt  = [1e2 1e3 1e4];  % vec konBt (time scale)
+paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Dnl    = 1; % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
 paramMaster.AL     = 2e-4;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet

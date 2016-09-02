@@ -7,8 +7,17 @@ paramObj.Dc = pVec(1) * paramObj.Da;
 paramObj.Koff = pVec(2);
 paramObj.KonBt = pVec(3);
 paramObj.Bt = pVec(4);
-paramObj.Kon = paramObj.KonBt ./ paramObj.Bt; % KonBt / Bt
-paramObj.Ka = paramObj.Kon / paramObj.Koff;
+if paramObj.KonBt == 0; 
+  paramObj.Kon = 0; 
+else
+  paramObj.Kon = paramObj.KonBt ./ paramObj.Bt; 
+end;% KonBt / Bt
+if paramObj.Kon == 0; 
+  paramObj.Ka = 0; 
+else
+  paramObj.Ka = paramObj.Kon / paramObj.Koff;
+end;% KonBt / Bt
+
 
 % Define commonly used variables
 DidIBreak = 0;
@@ -79,7 +88,6 @@ if analysisFlags.TrackAccumFromFlux
   FluxAccum_rec(1) =  FluxAccum;
 end
 
-% keyboard
 %Build operators and matrices
 [Lop]    =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.Kon,paramObj.Koff,...
   paramObj.Da,paramObj.Dc, paramObj.Lr, A_BC,C_BC);
