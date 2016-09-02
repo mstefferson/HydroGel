@@ -8,7 +8,7 @@ paramMaster.trial  = 1;
 
 % Turn things on
 flags.SaveMe = 1;
-flags.NLcoup = 1;
+flags.NLcoup = 0;
 flags.ChemOnEndPts  = 1;
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff  = 0;  % Turn on if diffusion depends on Bt.

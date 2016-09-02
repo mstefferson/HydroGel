@@ -35,7 +35,7 @@ end
 % Copy master parameters input object
 paramObj = paramMaster;
 timeObj = timeMaster;
-flagsObj = flagsObj;
+flagsObj = flags;
 
 % Looped over parameters
 nuVec = paramObj.nu;
@@ -50,7 +50,7 @@ saveStrVsT = 'flxvst'; %flux and accumulation vs time
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
-dirname = [dirname '_nl' num2str( flagsObj.NLcoup )];
+if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end;
 
 if plotmapSlopeFlag || plotmapSlopeFlag || plotmapTimeFlag
   xlab = 'k_{off} \tau';

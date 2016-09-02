@@ -30,6 +30,7 @@ end
 
 % Copy master parameters input object
 paramObj = paramMaster;
+flagsObj = flags;
 % Looped over parameters
 nuVec = paramObj.nu;
 KonBtVec = paramObj.KonBt; 
@@ -41,7 +42,7 @@ end
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
-dirname = [dirname '_nl' num2str( flags.NLcoup )];
+if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end;
 if plotMapFlag 
   xlab = 'k_{off} \tau';
   ylab = 'k_{on}B_{t} \tau';

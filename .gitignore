@@ -21,4 +21,4 @@ data/*
 dataInf/
 
 # Params files
-InitParams.m
+initParams.m

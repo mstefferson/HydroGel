@@ -32,6 +32,7 @@ function concSteadyPlotMultParams( Amat, Cmat, x, ...
       ax1.XLabel.String = 'x';
       ax1.YLabel.String = 'A';
       ax1.Title.String = [ ax1tit titAdd ];
+      ax1.YLim = [ Amat(1,1,1,end) Amat(1,1,1,1)  ];
       ax2 = subplot(3,1,2);
       hold(ax2,'on');
       ax2.XLabel.String = 'x';

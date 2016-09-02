@@ -36,7 +36,6 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj );
 fprintf('Executing %d runs \n\n', numRuns);
 
-paramvec = zeros(numRuns,1);
 % For some reason, param_mat gets "sliced". Create vectors to get arround
 paramNu     = paramMat(:,1); paramKoff = paramMat(:,2);
 paramKonBt  = paramMat(:,3); paramBt   = paramMat(:,4);
