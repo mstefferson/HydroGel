@@ -6,8 +6,10 @@
 % fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
 %  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
 
-function fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
-  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
+function [jMax, djdtHm, tHm, ...
+    AconcStdy, CconcStdy, params] = ....
+    fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
+    plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
 
 % Make up a dirname if one wasn't given
 if nargin == 3 && saveMe == 1
@@ -41,6 +43,12 @@ flagsObj = flags;
 nuVec = paramObj.nu;
 KonBtVec = paramObj.KonBt; 
 KoffVec = paramObj.Koff; 
+
+% Store parameters just in case
+params.nu = nuVec;
+params.Koff = KoffVec;
+params.KonBt = KonBtVec;
+
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
@@ -148,7 +156,7 @@ end
 % Surface plot: max flux
 if plotmapMaxFlag
   titstr = 'Max Flux nu = ';
-  fluxSurfPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+  surfLoopPlotter( jMax, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 
@@ -156,7 +164,7 @@ end
 if plotmapSlopeFlag
   titstr = 'Slope, dj/dt, at Half Max Flux nu = ';
   saveStr = [saveStrFM '_slopeHm'];
-  fluxSurfPlotter( djdtHm, nuVec, KoffVec, KonBtVec,...
+  surfLoopPlotter( djdtHm, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 
@@ -164,7 +172,7 @@ end
 if plotmapTimeFlag 
   titstr = 'Time at Half Max Flux nu = ';
   saveStr = [saveStrFM '_tHm'];
-  fluxSurfPlotter( tHm, nuVec, KoffVec, KonBtVec,...
+  surfLoopPlotter( tHm, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 

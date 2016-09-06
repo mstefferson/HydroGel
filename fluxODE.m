@@ -4,7 +4,8 @@
 % nu, KonBt, Koff.
 % fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname ) 
 
-function fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname ) 
+function [fluxSS, AconcStdy, CconcStdy, params] = ...
+  fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname ) 
 
 % Make up a dirname if one wasn't given
 if nargin == 3 && saveMe == 1
@@ -35,6 +36,12 @@ flagsObj = flags;
 nuVec = paramObj.nu;
 KonBtVec = paramObj.KonBt; 
 KoffVec = paramObj.Koff; 
+
+% Store parameters just in case
+params.nu = nuVec;
+params.Koff = KoffVec;
+params.KonBt = KonBtVec;
+
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
@@ -102,7 +109,7 @@ end % loop nu
 %% Surface plot
 if plotMapFlag
   titstr = 'Max Flux nu = ';
-  fluxSurfPlotter( fluxSS, nuVec, KoffVec, KonBtVec,...
+  surfLoopPlotter( fluxSS, nuVec, KoffVec, KonBtVec,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end
 

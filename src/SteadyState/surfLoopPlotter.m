@@ -1,9 +1,13 @@
-% fluxSurfPlotter( dataMat, vec1, vec2, vec3, titstr, saveMe, savestr)
+% surfLoopPlotter( dataMat, vec1, vec2, vec3, titstr, saveMe, savestr)
 %   Makes a surface plot of dataMat as a function of vec2 and vec 3 for every
 %   element in vec 1
 %
 %
-function fluxSurfPlotter( dataMat, vec1, vec2, vec3, xlab, ylab, titstr, saveMe, savestr)
+function surfLoopPlotter( dataMat, vec1, vec2, vec3, xlab, ylab, titstr, saveMe, savestr)
+
+if nargin < 8
+  saveMe = 0;
+end
 
   for i = 1:length(vec1)
     figure()

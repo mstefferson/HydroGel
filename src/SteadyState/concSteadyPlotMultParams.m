@@ -14,15 +14,15 @@ function concSteadyPlotMultParams( Amat, Cmat, x, ...
   [xr, yr] =  size(x);
 
   % Reused titles
-  ax1tit = 'A vs x at steady state ';
-  ax2tit = 'C vs x at steady state ';
-  ax3tit = 'A + C vs x at steady state ';
+  ax1tit = 'A vs x at steady state: ';
+  ax2tit = 'C vs x at steady state: ';
+  ax3tit = 'A + C vs x at steady state: ';
 
   % Loop over plots
   for ii = 1:length(pvec1)
     for jj = 1:length(pvec2)
       % Str to add to titls
-      titAdd = [ p1name ' = ' num2str( pvec1(ii) ) ...
+      ttlAdd = [ p1name ' = ' num2str( pvec1(ii) ) ';'...
         ' ' p2name ' = ' num2str( pvec2(jj) ) ];
 
       % Set-up fig
@@ -31,18 +31,18 @@ function concSteadyPlotMultParams( Amat, Cmat, x, ...
       hold(ax1,'on');
       ax1.XLabel.String = 'x';
       ax1.YLabel.String = 'A';
-      ax1.Title.String = [ ax1tit titAdd ];
+      ax1.Title.String = [ ax1tit ttlAdd ];
       ax1.YLim = [ Amat(1,1,1,end) Amat(1,1,1,1)  ];
       ax2 = subplot(3,1,2);
       hold(ax2,'on');
       ax2.XLabel.String = 'x';
       ax2.YLabel.String = 'C';
-      ax2.Title.String = [ ax2tit titAdd ];
+      ax2.Title.String = [ ax2tit ttlAdd ];
       ax3 = subplot(3,1,3);
       hold(ax3,'on');
       ax3.XLabel.String = 'x';
       ax3.YLabel.String = 'A + C';
-      ax3.Title.String = [ ax3tit titAdd ];
+      ax3.Title.String = [ ax3tit ttlAdd ];
       
       % Plot it
       for kk = 1:length(pvec3)
@@ -52,10 +52,6 @@ function concSteadyPlotMultParams( Amat, Cmat, x, ...
         legcell{kk} = [ p3name ' = ' num2str( pvec3(kk) ) ];
       end
       legend( ax1, legcell ); legend( ax2, legcell ); legend( ax3, legcell );
-      
-      %Axis
-%       h = legend(AH2,legcell,'location','best');
-%       h.Position(1:2) = [0.525 0.35];
       
       if saveMe
       % Save stuff
