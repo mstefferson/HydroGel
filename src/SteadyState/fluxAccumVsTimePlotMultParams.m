@@ -45,6 +45,7 @@ function fluxAccumVsTimePlotMultParams( ...
       titstr = [ah2titl num2str( pvec1(ii) )];
       title(AH2,titstr);
       h = legend(AH2,legcell,'location','best');
+      h.Interpreter = 'latex';
       h.Position(1:2) = [0.525 0.35];
       
       if saveMe

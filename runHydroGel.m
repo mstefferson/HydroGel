@@ -14,7 +14,7 @@ fprintf('Starting RunHydroGel: %s\n', Time)
 
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'initParams.m','file');
+if exist( 'initParams.m','file')
   initParams;
 else
   cpParams
@@ -25,6 +25,9 @@ end
 paramObj = paramMaster;
 timeObj = timeMaster;
 flagsObj = flags;
+
+% if Nx is too large, reset to something reasonable
+if paramObj.Nx > 256; paramObj.Nx = 128; end
 
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
@@ -71,13 +74,13 @@ if numRuns > 1
     if SaveMe
       mkdir(Where2SavePath)
       movefile([filename '.mat'], Where2SavePath)
-      if ~isempty( dir( ['*' filename '*.avi'] ) );
+      if ~isempty( dir( ['*' filename '*.avi'] ) )
         movefile(['*' filename '*.avi'], Where2SavePath);
       end;
-      if ~isempty( dir( ['*' filename '*.fig'] ) );
+      if ~isempty( dir( ['*' filename '*.fig'] ) )
         movefile(['*' filename '*.fig'], Where2SavePath);
       end;
-      if ~isempty( dir( ['*' filename '*.jpg '] ) );
+      if ~isempty( dir( ['*' filename '*.jpg '] ) )
         movefile(['*' filename '*.jpg'], Where2SavePath);
       end;
     end
@@ -99,13 +102,13 @@ else
   if flags.SaveMe
     mkdir(Where2SavePath)
     movefile([filename '.mat'], Where2SavePath)
-    if ~isempty( dir( ['*' filename '*.avi'] ) );
+    if ~isempty( dir( ['*' filename '*.avi'] ) )
       movefile(['*' filename '*.avi'], Where2SavePath);
     end;
-    if ~isempty( dir( ['*' filename '*.fig'] ) );
+    if ~isempty( dir( ['*' filename '*.fig'] ) )
       movefile(['*' filename '*.fig'], Where2SavePath);
     end;
-    if ~isempty( dir( ['*' filename '*.jpg '] ) );
+    if ~isempty( dir( ['*' filename '*.jpg '] ) )
       movefile(['*' filename '*.jpg'], Where2SavePath);
     end;
   end

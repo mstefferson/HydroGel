@@ -1,15 +1,15 @@
-% Master Parameter template. Tracked by git. Don't edit unless 
-% adding a parameter.
+%  Parameter file
 
+% Add path
 CurrentDir = pwd;
 addpath( genpath( CurrentDir) );
 
-paramMaster.trial  = 1;
+paramMaster.trial  = 1; % trial ID
 
 % Turn things on
-flags.SaveMe = 1;
-flags.NLcoup = 1;
-flags.ChemOnEndPts = 1;
+flags.SaveMe = 1; % Save runHydrogel outputs
+flags.NLcoup = 1; % Turn on/off the nonlinear term AC
+flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
 
@@ -33,10 +33,10 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 %Non Dimensional and Concentration
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.nu     = [1]; % vec Dc/Da aka nu 
-paramMaster.Koff   = [1e2]; % vec koff (time scale)
 paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
+paramMaster.Koff   = [1e2]; % vec koff (time scale)
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
-paramMaster.Dnl    = 1; % Dsat/DA. Only used for nonlinear diffusion beta  > 1?
+paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 2e-4;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet
 
