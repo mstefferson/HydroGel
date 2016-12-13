@@ -26,6 +26,9 @@ paramObj = paramMaster;
 timeObj = timeMaster;
 flagsObj = flags;
 
+% if Nx is too large, reset to something reasonable
+if paramObj.Nx > 256; paramObj.Nx = 128; end
+
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)

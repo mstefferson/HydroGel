@@ -5,69 +5,85 @@
 %
 % fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
 %  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
-
+% 
+% Inputs:
+% plotVstFlag: plot j vs t for various koff and konbt
+% plotSteadyFlag: plot concentration profiles
+% plotmapMaxFlag: surface plot jmax vs koff and konbt
+% plotmapSlopeFlag: surface plot of dj/dt at jmax/2 vs koff and konbt
+% plotmapTimeFlag: surface plot of time until jmax/2 vs koff and konbt
+% saveMe: save plots and outputs
+% dirname: directory name for saving
+%
+% Outputs:
+% jMax: matrix of steady state flux vs koff and konbt
+% djdtHm: matrix of dj/dt at jmax/2 vs koff and konbt
+% tHm: matrix of time until jmax/2 vs koff and konbt
+% AconcStdy: matrix of A steady state profile vs koff and konbt
+% CconcStdy: matrix of C steady state profile vs koff and konbt
+% params: parameters of runs
 function [jMax, djdtHm, tHm, ...
     AconcStdy, CconcStdy, params] = ....
     fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
     plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
-
+% Latex font
+set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin == 3 && saveMe == 1
-  dirname = ['flux_' num2str( randi( 100 ) )];
+if nargin < 6
+  if saveMe == 1
+    dirname = ['fluxPDE_' num2str( randi( 100 ) )];
+  else
+    dirname = ['tempFluxPDE_' num2str( randi( 100 ) ) ];
+  end
 end
-
 % Add paths and output dir 
 addpath( genpath('./src') )
 addpath( genpath('./src') );
 if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
 if ~exist('./steadyfiles/PDE','dir'); mkdir('steadyfiles/PDE'); end;
-
+% Prting start time
 Time = datestr(now);
 fprintf('Starting fluxPDE: %s\n', Time)
-
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'initParams.m','file');
+if exist( 'initParams.m','file')
   initParams;
 else
   cpParams
   initParams
 end
-
 % Copy master parameters input object
 paramObj = paramMaster;
 timeObj = timeMaster;
 flagsObj = flags;
-
 % Looped over parameters
 nuVec = paramObj.nu;
 KonBtVec = paramObj.KonBt; 
 KoffVec = paramObj.Koff; 
-
 % Store parameters just in case
 params.nu = nuVec;
 params.Koff = KoffVec;
 params.KonBt = KonBtVec;
-
+params.Bt = paramObj.Bt;
+% Fix N if it's too high and make sure Bt isn't a vec 
+if ( paramObj.Nx > 1000 ); paramObj.Nx = 128; end;
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
-
 % save string and some plot labels
 saveStrVsT = 'flxvst'; %flux and accumulation vs time
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
 if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end;
-
 if plotmapSlopeFlag || plotmapSlopeFlag || plotmapTimeFlag
-  xlab = 'k_{off} \tau';
-  ylab = 'k_{on}B_{t} \tau';
+  xlab = '$$ k_{off} $$';
+  ylab = '$$ k_{on}B_{t} $$';
 end
 if plotSteadyFlag
-    p1name = '\nu'; 
-    p2name = 'k_{on}B_{t}'; 
-    p3name = 'k_{off}';
+    p1name = '$$ \nu $$'; 
+    p2name = '$$ k_{on}B_{t} $$'; 
+    p3name = '$$ k_{off} $$';
 end
 
 
@@ -96,14 +112,11 @@ CconcStdy = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ), Nx );
 
 % Run Diff first
 pVec =[0 0 0 0];
-
 [RecObj] = ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, pVec );
 FluxVsTDiff = RecObj.Flux2ResR_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
-
 % Hold Bt Steady
 Bt = paramObj.Bt;
-
 for ii = 1:length(nuVec)
   paramObj.Dc  = nuVec(ii);
   nu = paramObj.Dc;
@@ -118,8 +131,7 @@ for ii = 1:length(nuVec)
         ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [Kon Koff Bt nu]);   
       if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
         fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
-      end
-      
+      end 
       % record
       AconcStdy(ii,jj,kk,:) = RecObj.Afinal;
       CconcStdy(ii,jj,kk,:) = RecObj.Cfinal;
@@ -138,11 +150,11 @@ end
 % flux vs time
 if plotVstFlag
   TimeVec = (0:timeObj.N_rec-1) * t_rec;
-  ah1titl = 'k_{on} * Bt = ';
-  ah2titl = 'Dc/Da = ';
+  ah1titl = '$$ k_{on} B_t  = $$';
+  ah2titl = '$$ \nu = $$';
   fluxAccumVsTimePlotMultParams( ...
     FluxVsT, AccumVsT, FluxVsTDiff, AccumVsTDiff, TimeVec, ...
-    nuVec, KonBtVec, KoffVec, 'k_{off}', ah1titl, ah2titl, saveMe, saveStrVsT )
+    nuVec, KonBtVec, KoffVec, '$$k_{off}$$', ah1titl, ah2titl, saveMe, saveStrVsT )
 end
 
 % steady state solutions
@@ -155,24 +167,24 @@ end
 
 % Surface plot: max flux
 if plotmapMaxFlag
-  titstr = 'Max Flux nu = ';
-  surfLoopPlotter( jMax, nuVec, KoffVec, KonBtVec,...
+  titstr = '$$ j_{max} $$ $$\nu = $$';
+  surfLoopPlotter( jMax, nuVec, KonBtVec, KoffVec, ...
     xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 
 % Surface plot: flux slope
 if plotmapSlopeFlag
-  titstr = 'Slope, dj/dt, at Half Max Flux nu = ';
+  titstr = 'Slope, $$ \frac{dj}{dt} $$, at Half Max Flux $$ \nu =$$ ';
   saveStr = [saveStrFM '_slopeHm'];
-  surfLoopPlotter( djdtHm, nuVec, KoffVec, KonBtVec,...
+  surfLoopPlotter( djdtHm, nuVec, KonBtVec, KoffVec, ...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 
 % Surface plot: time to flux
 if plotmapTimeFlag 
-  titstr = 'Time at Half Max Flux nu = ';
+  titstr = 'Time at Half Max Flux $$ \nu = $$ ';
   saveStr = [saveStrFM '_tHm'];
-  surfLoopPlotter( tHm, nuVec, KoffVec, KonBtVec,...
+  surfLoopPlotter( tHm, nuVec, KonBtVec, KoffVec, ...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 
