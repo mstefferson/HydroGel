@@ -10,6 +10,7 @@ paramMaster.trial  = 1; % trial ID
 flags.SaveMe = 1; % Save runHydrogel outputs
 flags.NLcoup = 1; % Turn on/off the nonlinear term AC
 flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
+flags.BoundTetherDiff = 1; % Use the bound spring tether approx
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
 
@@ -36,12 +37,13 @@ paramMaster.nu     = [1]; % vec Dc/Da aka nu
 paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
 paramMaster.Koff   = [1e2]; % vec koff (time scale)
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
+paramMaster.Llp    = 1e-2; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 2e-4;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet
 
-% time
-tfac        = 1;
+% tim
+tfac        = 1
 dtfac       = 1;
 dt          = dtfac *(paramMaster.Lbox/(paramMaster.Nx))^2; % time step
 t_tot       = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
