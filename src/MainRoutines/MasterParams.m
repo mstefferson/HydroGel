@@ -43,7 +43,7 @@ paramMaster.AL     = 2e-4;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet
 
 % tim
-tfac        = 1
+tfac        = 1;
 dtfac       = 1;
 dt          = dtfac *(paramMaster.Lbox/(paramMaster.Nx))^2; % time step
 t_tot       = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time

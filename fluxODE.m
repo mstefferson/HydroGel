@@ -45,16 +45,29 @@ end
 % Copy master parameters input object
 paramObj = paramMaster;
 flagsObj = flags;
+boundTetherDiff = flags.BoundTetherDiff;
 % Looped over parameters
-nuVec = paramObj.nu;
+% p1 either nu or Llp
+if boundTetherDiff 
+  p1name = '$$ Ll_p $$';
+  p1Vec = paramObj.Llp;
+else
+  p1name = '$$ \nu $$';
+  p1Vec = paramObj.nu;
+end
+numP1 = length(p1Vec);
+numKonBt = length(paramObj.KonBt);
+numKoff = length(paramObj.Koff);
 KonBtVec = paramObj.KonBt;
 KoffVec = paramObj.Koff;
 % Store parameters just in case
-params.nu = nuVec;
+params.nu = paramObj.nu;
 params.Koff = KoffVec;
 params.KonBt = KonBtVec;
 params.Bt = paramObj.Bt;
 params.nl = flags.NLcoup;
+params.Llp = paramObj.Llp;
+Da = paramObj.Da;
 % Fix N if it's too low and make sure Bt isn't a vec
 if ( paramObj.Nx < 1000 ); paramObj.Nx = 1000; end;
 if length( paramObj.Bt ) > 1
@@ -70,7 +83,6 @@ if plotMapFlag
   ylab = '$$ k_{off} $$';
 end
 if plotSteadyFlag
-  p1name = '$$ \nu $$';
   p2name = '$$ k_{on}B_{t} $$';
   p3name = '$$ k_{off} $$';
 end
@@ -89,21 +101,27 @@ else
   BCstr = 'DirVn';
 end
 % Flux matrix
-fluxSS = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ) );
+fluxSS = zeros( numP1, numKonBt, numKoff );
 % Store steady state solutions;
-AconcStdy = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ), Nx );
-CconcStdy = zeros( length( nuVec ), length(KonBtVec), length( KoffVec ), Nx );
+AconcStdy = zeros( numP1, numKonBt, numKoff, Nx );
+CconcStdy = zeros( numP1, numKonBt, numKoff, Nx );
 % Calculated things
 x = linspace(0, Lbox, Nx) ;
 dx  = x(2) - x(1);
 % Run the loops
-for i = 1:length(nuVec)
-  nu = nuVec(i);
-  for j = 1:length(KonBtVec)
+for i = 1:numP1
+  p1Temp = p1Vec(i);
+  for j = 1:numKonBt
     Kon = KonBtVec(j) ./ Bt;
-    parfor k = 1:length(KoffVec)
+    parfor k = 1:numKoff
       Koff = KoffVec(k);
-      [AnlOde,CnlOde,x] = RdSsSolverMatBvFunc(...
+      if boundTetherDiff
+        Dc =  boundTetherDiffCalc( p1Temp, Koff, Da)
+        nu = Dc ./ Da;
+      else
+        nu = p1Temp;
+      end
+      [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
         Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
       % calc flux
       flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
@@ -116,19 +134,23 @@ for i = 1:length(nuVec)
 end % loop nu
 % Surface plot
 if plotMapFlag
-  titstr = '$$ j_{max} $$ $$ \nu = $$';
-  surfLoopPlotter( fluxSS, nuVec, KonBtVec, KoffVec,...
+  if flags.BoundTetherDiff
+    titstr = '$$ j_{max} $$; $$ Ll_p = $$ ';
+  else
+    titstr = '$$ j_{max} $$; $$ \nu = $$ ';
+  end
+  surfLoopPlotter( fluxSS, p1Vec, KonBtVec, KoffVec,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end
 % Steady states
 if plotSteadyFlag
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    nuVec, KonBtVec, KoffVec, p1name, p2name, p3name, ...
-    saveMe, saveStrSS  )
+    p1Vec, KonBtVec, KoffVec, p1name, p2name, p3name, ...
+    saveMe, saveStrSS )
 end
 % save data
 if saveMe
-  save(saveStrMat, 'fluxSS', 'AconcStdy', 'CconcStdy','nuVec', 'KonBtVec', 'KoffVec');
+  save(saveStrMat, 'fluxSS', 'AconcStdy', 'CconcStdy','p1Vec', 'KonBtVec', 'KoffVec');
   % make dirs and move
   if plotSteadyFlag || plotMapFlag
     movefile('*.fig', dirname);

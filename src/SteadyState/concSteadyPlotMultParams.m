@@ -55,7 +55,7 @@ function concSteadyPlotMultParams( Amat, Cmat, x, ...
       saveStr = [saveStr '_' num2str(round(pvec2(jj)))...
         '_' num2str(pvec1(ii)) ];
       savefig( gcf, [saveStr '.fig'] );
-      saveas( gcf, saveStr, 'jpg' );
+      saveas( gcf, [saveStr '.jpg'], 'jpg' );
       end
     end
   end

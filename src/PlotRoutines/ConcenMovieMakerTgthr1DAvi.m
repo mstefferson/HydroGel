@@ -1,5 +1,5 @@
-function  ConcenMovieMakerTgthr1DAvi(videoName,A_rec, C_rec,...
-  x,TimeRec,nFrames,Kon,Koff,Dnl,nu,Bt,Ka)
+unction  ConcenMovieMakerTgthr1DAvi(videoName,A_rec, C_rec,...
+  x,TimeRec,nFrames,Kon,Koff,Dnl,Da,Dc,Bt,Ka)
 
 % Video Write stuff
 Mov = VideoWriter(videoName);
@@ -43,23 +43,25 @@ for ii = 1:nFrames
   title(TitlStr1)
   xlabel('x');ylabel('Concentration');
   set(gca,'YLim', [lLimF1 uLimF1] )
-  legend('A','C','A+C')
+  hl = legend('A','C','A+C');
+  hl.Interpreter = 'latex';
   
   subplot(ax2)
   LinObj = plot(x, [Bt;  ( Bt' - C_rec(:,ii) )' ] );
   LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2;
-  ParamStr = sprintf(...
-    ' t = %.1g \n Bt = %.1g \n Ka = %.1g \n nu = %.1g \n beta = %.1g \n Kon = %.1g \n Koff = %.1g \n ', ...
-    TimeRec(ii), max(Bt), Ka, nu, Dnl,Kon, Koff );
-  try
-    textbp(ParamStr)
-  catch err
-    fprintf('%s', err.getReport('extended')) ;
-  end
+  
   title(TitlStr2)
   xlabel('x');ylabel('Concentration');
-  legend('Bt','B_{free}')
+  % legend
+  hl = legend('$$B_t$$','$$B_{free}$$');
+  hl.Interpreter = 'latex';
   set(gca,'YLim', [lLimF2 uLimF2] )
+  % text
+  ParamStr = sprintf(...
+    ' t = %.1g \n $$B_t$$ = %.1g \n $$K_A$$ = %.1g \n $$D_A$$ = %.1g \n $$D_C$$ = %.1g \n $$beta$$ = %.1g \n $$k_{on}B_t$$ = %.1g \n $$k_{on} = %.1g \n $$k_{off}$$ = %.1g \n ', ...
+    TimeRec(ii), max(Bt), Ka, Da, Dc, Dnl,Kon*max(Bt), Kon,Koff );
+  tl = text(0,0,ParamStr);
+  tl.Position =  [0.4743 mean(Bt)/2 0];
   
   pause( 0.01 ); drawnow;
   
