@@ -18,11 +18,13 @@ else
 end;% KonBt / Bt
 % Calculate D if you're suppose to
 if flags.BoundTetherDiff
-  paramObj.Dc =  ( paramObj.Llp * paramObj.Koff * paramObj.Da ) ./ ...
-    (paramObj.Koff * paramObj.Llp + 3 * paramObj.Da);
+  paramObj.Llp = pVec(1);
+  paramObj.Dc =  boundTetherDiffCalc( paramObj.Llp, paramObj.Koff, paramObj.Da )
 else
   paramObj.Dc = pVec(1) * paramObj.Da;
+  paramObj.Llp = 0;
 end
+paramObj.nu = paramObj.Dc ./  paramObj.Da;
 % Define commonly used variables
 DidIBreak = 0;
 SteadyState = 0;

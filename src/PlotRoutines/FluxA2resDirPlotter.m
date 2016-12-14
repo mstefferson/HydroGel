@@ -3,7 +3,7 @@
 
 function FluxA2resDirPlotter(...
     AL,Bt,AR,A_tend,C_tend, nu,Lbox,dx, TimeRec,...
-    FluxAccum_rec,Flux2ResR_rec,Paramstr,Gridstr)
+    FluxAccum_rec,Flux2ResR_rec,Paramstr,Concstr,Gridstr)
 
     % Calculate some fluxes
     FluxMax = (AL + Bt(1) - AR) / Lbox; % Max possible flux
@@ -14,10 +14,8 @@ function FluxA2resDirPlotter(...
     if nu == 1
         FluxCalculate = ...
         ( (A_tend(1) + C_tend(1) ) - ( A_tend(end) + C_tend(end) ) ) / Lbox;
-        
         FluxStr = sprintf('steady state \n jA Meas =%.3e \n jC Meas =%.3e \n jA Calc=%.3e',...
             FluxMeasured,FluxC,FluxCalculate);
-  
     elseif nu == 0
         FluxCalculate = ( A_tend(1) - A_tend(end) ) / Lbox;
         FluxStr = sprintf('steady state \n jA Measured=%.3e \n jA Calc=%.3e',...
@@ -38,6 +36,7 @@ function FluxA2resDirPlotter(...
 try
     textbp(FluxStr)
     textbp(Paramstr)
+    textbp(Concstr)
     textbp(Gridstr)
 catch
   fprintf('Issues with textbp, no parameter strings\n');
