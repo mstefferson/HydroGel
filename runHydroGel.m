@@ -37,22 +37,24 @@ fprintf('Executing %d runs \n\n', numRuns);
 % For some reason, param_mat gets "sliced". Create vectors to get arround
 paramNuLlp     = paramMat(:,1); paramKoff = paramMat(:,2);
 paramKonBt  = paramMat(:,3); paramBt   = paramMat(:,4);
+% pulls and some variables flags out here
+SaveMe = flags.SaveMe;
+boundDiff = flags.BoundTetherDiff;
+Nx = paramObj.Nx; A_BC = paramObj.A_BC; C_BC = paramObj.C_BC; 
+NLcoup = flags.NLcoup; trial = paramObj.trial;
 % Loops over all run
 fprintf('Starting loop over runs\n');
 ticID = tic;
 if numRuns > 1
   parobj = gcp;
   fprintf('I have hired %d workers\n',parobj.NumWorkers);
-  Nx = paramObj.Nx; A_BC = paramObj.A_BC; C_BC = paramObj.C_BC; 
-  NLcoup = flags.NLcoup; trial = paramObj.trial;
+
   % Turn off graphics
   fprintf('Using parfor: turning off graphics\n')
   analysisFlags.QuickMovie = 0; analysisFlags.TrackAccumFromFluxPlot = 0;  
   analysisFlags.PlotMeLastConc = 0; analysisFlags.PlotMeAccum = 0; 
   analysisFlags.PlotMeWaveFrontAccum = 0; analysisFlags.PlotMeLastConcAccum = 0;  
   analysisFlags.CheckConservDen = 0; analysisFlags.ShowRunTime = 0;
-  SaveMe = flags.SaveMe;
-  boundDiff = flags.BoundTetherDiff;
   parfor ii = 1:numRuns
     % Assign parameters
     paramvec = [ paramNuLlp(ii) paramKoff(ii) paramKonBt(ii) paramBt(ii) ];
@@ -105,7 +107,7 @@ else
   [RecObj] = ChemDiffMain(filename, paramObj, timeObj, flags, analysisFlags, paramvec);
   fprintf('Finished %s \n', filename);
   % Move things to runfiles
-  if flags.SaveMe
+  if SaveMe
     mkdir(Where2SavePath)
     movefile([filename '.mat'], Where2SavePath)
     if ~isempty( dir( ['*' filename '*.avi'] ) )
