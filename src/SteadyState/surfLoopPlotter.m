@@ -22,13 +22,15 @@ for ii = 1:length(vec1)
   % Fix axis
   Ax = gca;
   Ax.YTick = 1 : tickAmnt : length(vec3);
-  Ax.YTickLabel = num2cell( round( vec3(1:tickAmnt:end) ) );
+%   Ax.YTickLabel = num2cell( round( vec3(1:tickAmnt:end) ) );
+  Ax.YTickLabel = num2cell(  vec3(1:tickAmnt:end)  );
   Ax.YDir = 'normal';
   Ax.XTick = 1 : tickAmnt : length(vec2) ;
-  Ax.XTickLabel = num2cell( round (vec2 (1:tickAmnt:end) ) );
+%   Ax.XTickLabel = num2cell( round (vec2 (1:tickAmnt:end) ) );
+  Ax.XTickLabel = num2cell( vec2 (1:tickAmnt:end) );
   colorbar
   axis square
-  
+
   % Save stuff
   if saveMe
     savefig( gcf, [savestr  '_' num2str( vec1(ii) ) '.fig'] );
