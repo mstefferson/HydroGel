@@ -31,11 +31,13 @@ Nx    = 128;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox); % Scale by box. Careful!!!
 paramMaster.Lr = 10; % Reservoir length if there is one
 
-%Non Dimensional and Concentration
+%Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
+% konBt, koff, Ka
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.nu     = [1]; % vec Dc/Da aka nu 
 paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
 paramMaster.Koff   = [1e2]; % vec koff (time scale)
+paramMaster.Ka   = []; % vec binding affinity (time scale) 
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Llp    = 1e-2; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
