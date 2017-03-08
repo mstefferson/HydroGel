@@ -5,15 +5,15 @@
 % It plots everything from p3 on a single plotmakes new plots for each 
 
 function concSteadyPlotMultParams( Amat, Cmat, x, ...
-  pvec1, pvec2, pvec3, p1name, p2name, p3name, saveMe, saveStr )
+  pvec1, pvec2, pvec3, p1name, p2name, p3name, pfixed, pfixedstr, saveMe, saveStr )
   % Set up legend
   legcell = cell( length(pvec3) , 1 );
   % Find the size of the TimeVec
   [xr, yr] =  size(x);
   % Reused titles
-  ax1tit = 'A vs x at steady state: ';
-  ax2tit = 'C vs x at steady state: ';
-  ax3tit = 'A + C vs x at steady state: ';
+  ax1tit = ['A vs x at steady state: ' pfixedstr ' = ' num2str(pfixed) '; ' ];
+  ax2tit = ['C vs x at steady state: ' pfixedstr ' = ' num2str(pfixed) '; ' ];
+  ax3tit = ['A + C vs x at steady state: ' pfixedstr ' = ' num2str(pfixed) '; ' ];
   % Loop over plots
   for ii = 1:length(pvec1)
     for jj = 1:length(pvec2)

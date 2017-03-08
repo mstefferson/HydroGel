@@ -8,15 +8,15 @@
 
 function fluxAccumVsTimePlotMultParams( ...
   fluxMat, accumMat, fluxDiff, accumDiff, timeVec, ...
-  pvec1, pvec2, pvec3, p3name, ah1titl, ah2titl, saveMe, saveStr )
-
+  pvec1, pvec2, pvec3, p3name, pfixed, pfixedStr, ...
+  ah1titl, ah2titl, saveMe, saveStr )
   % Set up legend
-  legcell = cell( length(pvec3) + 1, 1 );
-  legcell{end} = 'No binding';
-
+  legcell2 = cell( length(pvec3) + 1, 1 );
+  legcell2{end} = 'No binding';
   % Find the size of the TimeVec
   [Tr, Tc] =  size(timeVec);
-
+  % fixed legend
+  legcell1 = [ pfixedStr ' = '  num2str(pfixed) ];
   % Loop over plots
   for ii = 1:length(pvec1)
     for jj = 1:length(pvec2)
@@ -31,7 +31,7 @@ function fluxAccumVsTimePlotMultParams( ...
       for kk = 1:length(pvec3)
         plot( AH1, timeVec, reshape( fluxMat(ii,jj,kk,:), [Tr Tc] ) );
         plot( AH2, timeVec, reshape( accumMat(ii,jj,kk,:), [Tr Tc] ) );
-        legcell{kk} = [ p3name ' = ' num2str( pvec3(kk) ) ];
+        legcell2{kk} = [ p3name ' = ' num2str( pvec3(kk) ) ];
       end
       plot( AH1, timeVec, fluxDiff);
       plot( AH2, timeVec, accumDiff);
@@ -42,14 +42,15 @@ function fluxAccumVsTimePlotMultParams( ...
       % Titles
       titstr = [ah1titl num2str( pvec2(jj) )];
       title(AH1,titstr);
+      h = legend(AH1,legcell1,'location','best');
+      h.Interpreter = 'latex';
       titstr = [ah2titl num2str( pvec1(ii) )];
       title(AH2,titstr);
-      h = legend(AH2,legcell,'location','best');
+      h = legend(AH2,legcell2,'location','best');
       h.Interpreter = 'latex';
-      h.Position(1:2) = [0.525 0.35];
-      
-      if saveMe
+%       h.Position(1:2) = [0.525 0.35];
       % Save stuff
+      if saveMe
       saveStr = [saveStr '_' num2str(round(pvec2(jj)))...
         '_' num2str(pvec1(ii)) ];
       savefig( gcf, [saveStr '.fig'] );

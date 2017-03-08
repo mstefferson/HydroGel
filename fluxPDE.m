@@ -1,11 +1,11 @@
 % fluxPDE solves the time evolution of the reaction diffusion equation
-% for various parameter configurations by solving the PDE 
+% for various parameter configurations by solving the PDE
 % It saves steady state solutions, makes plots, and has temporal info for the
 % flux. Loops over nu, KonBt, Koff.
 %
 % fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
-%  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
-% 
+%  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname )
+%
 % Inputs:
 % plotVstFlag: plot j vs t for various koff and konbt
 % plotSteadyFlag: plot concentration profiles
@@ -16,33 +16,33 @@
 % dirname: directory name for saving
 % Outputs:
 % jMax: matrix of steady state flux vs koff and konbt
+% jNorm: jMax ./ jDiff
 % djdtHm: matrix of dj/dt at jmax/2 vs koff and konbt
 % tHm: matrix of time until jmax/2 vs koff and konbt
 % AconcStdy: matrix of A steady state profile vs koff and konbt
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
-function [jMax, djdtHm, tHm, ...
-    AconcStdy, CconcStdy, params] = ....
-    fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
-    plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname ) 
+function [jMax, jNorm, djdtHm, tHm, ...
+  AconcStdy, CconcStdy, paramObj] = ....
+  fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
+  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
 if nargin < 6
   if saveMe == 1
-    dirname = ['fluxPDE_' num2str( randi( 100 ) )];
+    dirname = ['fluxODE_' num2str( randi( 100 ) )];
   else
-    dirname = ['tempFluxPDE_' num2str( randi( 100 ) ) ];
+    dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
 end
-% Add paths and output dir 
-addpath( genpath('./src') )
+% Add paths and output dir
 addpath( genpath('./src') );
 if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
-if ~exist('./steadyfiles/PDE','dir'); mkdir('steadyfiles/PDE'); end;
-% Prting start time
+if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end;
+% print start time
 Time = datestr(now);
-fprintf('Starting fluxPDE: %s\n', Time)
+fprintf('Starting fluxODE: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
 if exist( 'initParams.m','file')
@@ -58,44 +58,75 @@ flagsObj = flags;
 boundTetherDiff = flags.BoundTetherDiff;
 % Looped over parameters
 % p1 either nu or Llp
-if boundTetherDiff 
+if boundTetherDiff
   p1name = '$$ Ll_p $$';
   p1Vec = paramObj.Llp;
 else
   p1name = '$$ \nu $$';
   p1Vec = paramObj.nu;
 end
+paramObj.nu = p1Vec;
 numP1 = length(p1Vec);
-numKonBt = length(paramObj.KonBt);
-numKoff = length(paramObj.Koff);
-KonBtVec = paramObj.KonBt; 
-KoffVec = paramObj.Koff; 
-% Store parameters just in case
-params.nu = paramObj.nu;
-params.Koff = KoffVec;
-params.KonBt = KonBtVec;
-params.Bt = paramObj.Bt;
-params.nl = flags.NLcoup;
-params.Llp = paramObj.Llp;
-Da = paramObj.Da;
-% Fix N if it's too high and make sure Bt isn't a vec 
+% Fix N if it's too low and make sure Bt isn't a vec
 if ( paramObj.Nx > 1000 ); paramObj.Nx = 128; end;
+% Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
+Bt = paramObj.Bt;
+% Get correct kinetic params
+[~, kinParams] =  kineticParams( paramObj.KonBt, paramObj.Koff, paramObj.Ka, paramObj.Bt );
+paramObj.KonBt = kinParams.konBt;
+paramObj.Koff = kinParams.koff;
+paramObj.Ka = kinParams.kA;
+paramObj.Bt = kinParams.Bt;
+paramObj.fixedVar = kinParams.fixedVar;
+if strcmp( kinParams.fixedVar, 'kA')
+  paramObj.kinVar1 = paramObj.KonBt;
+  paramObj.kinVar1str = 'konBt';
+  paramObj.kinVar1strTex = '$$ k_{on} B_t $$';
+  paramObj.kinVar2 = paramObj.Koff;
+  paramObj.kinVar2str = 'koff';
+  paramObj.kinVar2strTex = '$$ k_{off}$$';
+elseif strcmp( kinParams.fixedVar, 'koff')
+  paramObj.kinVar1 = paramObj.KonBt;
+  paramObj.kinVar1str = 'konBt';
+  paramObj.kinVar1strTex = '$$ k_{on} B_t $$';
+  paramObj.kinVar2 = paramObj.Ka;
+  paramObj.kinVar2str = 'Ka';
+  paramObj.kinVar2strTex = '$$ K_A $$';
+else % 'konBt'
+  paramObj.kinVar1 = paramObj.Koff;
+  paramObj.kinVar1strTex = '$$ k_{off}$$';
+  paramObj.kinVar1str = 'koff';
+  paramObj.kinVar2 = paramObj.Ka;
+  paramObj.kinVar2str = 'Ka';
+  paramObj.kinVar2strTex = '$$ K_A $$';
+end
+numP2 = length( paramObj.kinVar1 );
+numP3 = length( paramObj.kinVar2 );
+% Make paramMat
+fprintf('Building parameter mat \n');
+[paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
+fprintf('Executing %d runs \n\n', numRuns);
+% Run the loops
+paramNuLlp  = paramMat(1,:); paramKoff = paramMat(2,:);
+paramKonBt  = paramMat(3,:);
 % save string and some plot labels
 saveStrVsT = 'flxvst'; %flux and accumulation vs time
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
 if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end;
-if plotmapSlopeFlag || plotmapSlopeFlag || plotmapTimeFlag
-  xlab = '$$ k_{off} $$';
-  ylab = '$$ k_{on}B_{t} $$';
+if plotmapMaxFlag || plotmapSlopeFlag || plotmapTimeFlag
+  xlab = paramObj.kinVar1strTex;
+  ylab = paramObj.kinVar2strTex;
 end
-if plotSteadyFlag
-    p2name = '$$ k_{on}B_{t} $$'; 
-    p3name = '$$ k_{off} $$';
+if plotSteadyFlag || plotVstFlag 
+  pfixed = paramObj.Bt;
+  pfixedStr = '$$ B_t $$';
+  p2name = paramObj.kinVar1strTex;
+  p3name = paramObj.kinVar2strTex;
 end
 % "Analysis" subroutines
 analysisFlags.QuickMovie=0; analysisFlags.TrackAccumFromFlux= 1;
@@ -103,6 +134,9 @@ analysisFlags.TrackAccumFromFluxPlot=0; analysisFlags.PlotMeLastConc=0;
 analysisFlags.PlotMeAccum=0; analysisFlags.PlotMeWaveFrontAccum=0;
 analysisFlags.PlotMeLastConcAccum=0; analysisFlags.CheckConservDen=0;
 analysisFlags.ShowRunTime=0;
+% Commonly used parameters
+Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
+Bt = paramObj.Bt; Nx = paramObj.Nx; Lbox = paramObj.Lbox;
 % Set saveme to 0, don't need recs
 flagsObj.SaveMe = 0;
 % Display everything
@@ -110,66 +144,69 @@ fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)
 disp(paramObj); disp(analysisFlags); disp(timeObj);
 % Edits here. Change params and loop over
-FluxVsT = zeros( numP1, numKonBt, numKoff, timeObj.N_rec );
-AccumVsT = zeros( numP1, numKonBt, numKoff, timeObj.N_rec );
+FluxVsT = zeros( numRuns, timeObj.N_rec );
+AccumVsT = zeros( numRuns, timeObj.N_rec );
 % Store steady state solutions;
-AconcStdy = zeros( numP1, numKonBt, numKoff, Nx );
-CconcStdy = zeros( numP1, numKonBt, numKoff, Nx );
+AconcStdy = zeros( numRuns, Nx );
+CconcStdy = zeros( numRuns, Nx );
 % Run Diff first
 pVec =[0 0 0 0];
 [RecObj] = ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, pVec );
 FluxVsTDiff = RecObj.Flux2ResR_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
-% Hold Bt Steady
-Bt = paramObj.Bt;
-for ii = 1:length(p1Vec)
-  p1Temp = p1Vec(ii);
-  fprintf('\n\n Starting p1 = %g \n\n', p1Temp );
-  for jj = 1:length(KonBtVec)
-    Kon = KonBtVec(jj) / paramObj.Bt;
-    fprintf('\n\n Starting Kon Bt = %f \n\n', KonBtVec(jj) );
-    parfor kk = 1:length(KoffVec)
-      Koff = KoffVec(kk);    
-      fprintf( 'Koff = %f Kon = %f\n',Koff,Kon );
-      [RecObj] = ...
-        ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp Kon Koff Bt]);   
-      if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
-        fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
-      end 
-      % record
-      AconcStdy(ii,jj,kk,:) = RecObj.Afinal;
-      CconcStdy(ii,jj,kk,:) = RecObj.Cfinal;
-      FluxVsT(ii,jj,kk,:) = RecObj.Flux2ResR_rec;
-      AccumVsT(ii,jj,kk,:) = RecObj.FluxAccum_rec;
-    end
+parfor ii = 1:numRuns
+  % set params
+  p1Temp = paramNuLlp(ii);
+  KonBt  = paramKonBt(ii);
+  Koff  = paramKoff(ii);
+  Kon = KonBt ./ Bt;
+  [RecObj] = ...
+    ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp Kon Koff Bt]);
+  if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
+    fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
   end
+  % record
+  AconcStdy(ii,:) = RecObj.Afinal;
+  CconcStdy(ii,:) = RecObj.Cfinal;
+  FluxVsT(ii,:) = RecObj.Flux2ResR_rec;
+  AccumVsT(ii,:) = RecObj.FluxAccum_rec;
+  fprintf('Finished %d \n', ii );
 end
+% reshape to more intutive size---> Mat( p1, p2, p3, : )
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
+FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3, timeObj.N_rec] );
+AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3, timeObj.N_rec] );
 % Find Maxes and such
 [jMax, ~, djdtHm, tHm] = ...
   findFluxProperties( FluxVsT, AccumVsT, timeObj, ...
-  length(p1Vec), length(KonBtVec), length(KoffVec) );
+  length(p1Vec), length(paramObj.kinVar1), length(paramObj.kinVar2) );
+% Get norm
+jDiff = Da * ( AL - AR ) / Lbox;
+jNorm = jMax ./  jDiff;
 %% Plotting stuff
 % flux vs time
 if plotVstFlag
   TimeVec = (0:timeObj.N_rec-1) * t_rec;
-  ah1titl = '$$ k_{on} B_t  = $$' ;
-  ah2titl = [ p1name '=' ] ;
+  ah1titl = [paramObj.kinVar1strTex ' = ' ] ;
+  ah2titl = [p1name ' = ' ] ;
   fluxAccumVsTimePlotMultParams( ...
     FluxVsT, AccumVsT, FluxVsTDiff, AccumVsTDiff, TimeVec, ...
-    p1Vec, KonBtVec, KoffVec, '$$k_{off}$$', ah1titl, ah2titl, saveMe, saveStrVsT )
+    p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
+    p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
 end
 % steady state solutions
 if plotSteadyFlag
-  x = linspace( 0, paramObj.Lbox, paramObj.Nx );
+  x = linspace( 0, Lbox, paramObj.Nx );
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    p1Vec, KonBtVec, KoffVec, p1name, p2name, p3name, ...
-    saveMe, saveStrSS  )
+    p1Vec, paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
+    pfixed, pfixedStr, saveMe, saveStrSS )
 end
 % Surface plot: max flux
 if plotmapMaxFlag
-  titleSort = '$$ j_{max} $$; ';
+  titleSort = '$$ j_{max} / j_{diff} $$; ';
   titstr = [ titleSort p1name ' = '] ;
-  surfLoopPlotter( jMax, p1Vec, KonBtVec, KoffVec, ...
+  surfLoopPlotter( jNorm, p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
     xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 % Surface plot: flux slope
@@ -177,28 +214,33 @@ if plotmapSlopeFlag
   titleSort = 'Slope, $$ \frac{dj}{dt} $$, at Half Max Flux; ';
   titstr = [ titleSort p1name ' = '] ;
   saveStr = [saveStrFM '_slopeHm'];
-  surfLoopPlotter( djdtHm, p1Vec, KonBtVec, KoffVec, ...
+  surfLoopPlotter( djdtHm, p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 % Surface plot: time to flux
-if plotmapTimeFlag 
+if plotmapTimeFlag
   titleSort = 'Time at Half Max Flux; ';
   titstr = [ titleSort p1name ' = '] ;
   saveStr = [saveStrFM '_tHm'];
-  surfLoopPlotter( tHm, p1Vec, KonBtVec, KoffVec, ...
+  surfLoopPlotter( tHm, p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 % Save
 if saveMe
-  save(saveStrMat, 'FluxVsT', 'jMax', 'djdtHm', 'tHm', ...
-    'AconcStdy', 'CconcStdy', 'p1Vec', 'KonBtVec', 'KoffVec', 'TimeVec');
+  kinVar1 = paramObj.kinVar1;
+  kinVar1str = paramObj.kinVar1str;
+  kinVar2 = paramObj.kinVar2;
+  kinVar2str = paramObj.kinVar2str;
+  save(saveStrMat, 'FluxVsT', 'jMax', 'jNorm', 'djdtHm', 'tHm', ...
+    'AconcStdy', 'CconcStdy', 'p1Vec', 'p1name', 'kinVar1','kinVar1str',...
+    'kinVar2', 'kinVar2str', 'TimeVec');
   % make dirs and move
-    if plotSteadyFlag || plotMapFlag
-      movefile('*.fig', dirname);
-      movefile('*.jpg', dirname);
-    end
-    movefile(saveStrMat, dirname);
-    movefile(dirname, './steadyfiles/PDE' )
+  if plotSteadyFlag || plotMapFlag
+    movefile('*.fig', dirname);
+    movefile('*.jpg', dirname);
+  end
+  movefile(saveStrMat, dirname);
+  movefile(dirname, './steadyfiles/PDE' )
 end
 % Print times
 Time = datestr(now);
