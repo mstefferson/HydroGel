@@ -3,7 +3,7 @@
 % Using this, it calculated the RHS flux and makes nice plots. Loops over
 % nu, KonBt, Koff.
 % fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname )
-% 
+%
 % Inputs:
 % plotMapFlag: surface plot jmax vs koff and konbt
 % plotSteadyFlag: plot concentration profiles
@@ -48,26 +48,56 @@ flagsObj = flags;
 boundTetherDiff = flags.BoundTetherDiff;
 % Looped over parameters
 % p1 either nu or Llp
-if boundTetherDiff 
+if boundTetherDiff
   p1name = '$$ Ll_p $$';
   p1Vec = paramObj.Llp;
 else
   p1name = '$$ \nu $$';
   p1Vec = paramObj.nu;
 end
+paramObj.nu = p1Vec;
 numP1 = length(p1Vec);
-numKonBt = length(paramObj.KonBt);
-numKoff = length(paramObj.Koff);
-KonBtVec = paramObj.KonBt;
-KoffVec = paramObj.Koff;
+% Get correct kinetic params
+[~, kinParams] =  kineticParams( paramObj.KonBt, paramObj.Koff, paramObj.Ka, paramObj.Bt );
+paramObj.KonBt = kinParams.konBt;
+paramObj.Koff = kinParams.koff;
+paramObj.Ka = kinParams.kA;
+paramObj.Bt = kinParams.Bt;
+paramObj.fixedVar = kinParams.fixedVar;
+if strcmp( kinParams.fixedVar, 'kA')
+  paramObj.kinVar1 = paramObj.KonBt;
+  paramObj.kinVar1str = 'konBt';
+  paramObj.kinVar2 = paramObj.Koff;
+  paramObj.kinVar2str = 'koff';
+elseif strcmp( kinParams.fixedVar, 'koff')
+  paramObj.kinVar1 = paramObj.KonBt;
+  paramObj.kinVar1str = 'konBt';
+  paramObj.kinVar2 = paramObj.Ka;
+  paramObj.kinVar2str = 'Ka';
+else % 'konBt'
+  paramObj.kinVar1 = paramObj.Koff;
+  paramObj.kinVar1str = 'koff';
+  paramObj.kinVar2 = paramObj.Ka;
+  paramObj.kinVar2str = 'Ka';
+end
+numP2 = length( paramObj.kinVar1 );
+numP3 = length( paramObj.kinVar2 );
+% Make paramMat
+fprintf('Building parameter mat \n');
+[paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
+fprintf('Executing %d runs \n\n', numRuns);
+%numKonBt = length(paramObj.KonBt);
+%numKoff = length(paramObj.Koff);
+% KonBtVec = paramObj.KonBt;
+% KoffVec = paramObj.Koff;
 % Store parameters just in case
-params.nu = paramObj.nu;
-params.Koff = KoffVec;
-params.KonBt = KonBtVec;
-params.Bt = paramObj.Bt;
-params.nl = flags.NLcoup;
-params.Llp = paramObj.Llp;
-Da = paramObj.Da;
+% params.nu = paramObj.nu;
+% params.Koff = KoffVec;
+% params.KonBt = KonBtVec;
+% params.Bt = paramObj.Bt;
+% params.nl = flags.NLcoup;
+% params.Llp = paramObj.Llp;
+
 % Fix N if it's too low and make sure Bt isn't a vec
 if ( paramObj.Nx < 1000 ); paramObj.Nx = 1000; end;
 if length( paramObj.Bt ) > 1
@@ -79,12 +109,16 @@ saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
 if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end;
 if plotMapFlag
-  xlab = '$$ k_{on}B_{t} $$';
-  ylab = '$$ k_{off} $$';
+  %xlab = '$$ k_{on}B_{t} $$';
+  %ylab = '$$ k_{off} $$';
+  xlab = paramObj.kinVar1str;
+  ylab = paramObj.kinVar2str;
 end
 if plotSteadyFlag
-  p2name = '$$ k_{on}B_{t} $$';
-  p3name = '$$ k_{off} $$';
+  %p2name = '$$ k_{on}B_{t} $$';
+  %p3name = '$$ k_{off} $$';
+  p2name = paramObj.kinVar1str;
+  p3name = paramObj.kinVar2str;
 end
 % Specify necessary parameters for parfor
 linearEqn = ~flags.NLcoup;
@@ -101,37 +135,38 @@ else
   BCstr = 'DirVn';
 end
 % Flux matrix
-fluxSS = zeros( numP1, numKonBt, numKoff );
+fluxSS = zeros( numP1, numP2, numP3 );
 % Store steady state solutions;
-AconcStdy = zeros( numP1, numKonBt, numKoff, Nx );
-CconcStdy = zeros( numP1, numKonBt, numKoff, Nx );
+AconcStdy = zeros( numP1, numP2, numP3, Nx );
+CconcStdy = zeros( numP1, numP2, numP3, Nx );
 % Calculated things
 x = linspace(0, Lbox, Nx) ;
 dx  = x(2) - x(1);
 % Run the loops
-for i = 1:numP1
-  p1Temp = p1Vec(i);
-  for j = 1:numKonBt
-    Kon = KonBtVec(j) ./ Bt;
-    parfor k = 1:numKoff
-      Koff = KoffVec(k);
-      if boundTetherDiff
-        Dc =  boundTetherDiffCalc( p1Temp, Koff, Da)
-        nu = Dc ./ Da;
-      else
-        nu = p1Temp;
-      end
-      [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-        Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
-      % calc flux
-      flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
-      % record
-      AconcStdy(i,j,k,:) = AnlOde;
-      CconcStdy(i,j,k,:) = CnlOde;
-      fluxSS( i, j, k ) = flux;
-    end % loop Koff
-  end % loop Kdinv
-end % loop nu
+paramNuLlp  = paramMat(1,:); paramKoff = paramMat(2,:);
+paramKonBt  = paramMat(3,:); paramBt   = paramMat(4,:);
+for ii = 1:numRuns
+  [l, m, n] = ind2sub( [numP1, numP2, numP3], ii );
+  p1Temp = paramNuLlp(ii);
+  KonBt  = paramKonBt(ii);
+  Bt  = paramBt(ii);
+  Koff  = paramKoff(ii);
+  Kon = KonBt ./ Bt;
+  if boundTetherDiff
+    Dc =  boundTetherDiffCalc( p1Temp, Koff, Da);
+    nu = Dc ./ Da;
+  else
+    nu = p1Temp;
+  end
+  [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
+    Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
+  % calc flux
+  flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
+  % record
+  AconcStdy(l,m,n,:) = AnlOde;
+  CconcStdy(l,m,n,:) = CnlOde;
+  fluxSS(l,m,n) = flux;
+end
 % Surface plot
 if plotMapFlag
   if flags.BoundTetherDiff
@@ -139,13 +174,13 @@ if plotMapFlag
   else
     titstr = '$$ j_{max} $$; $$ \nu = $$ ';
   end
-  surfLoopPlotter( fluxSS, p1Vec, KonBtVec, KoffVec,...
+  surfLoopPlotter( fluxSS, p1Vec, paramObj.kinVar1, paramObj.kinVar2,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end
 % Steady states
 if plotSteadyFlag
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    p1Vec, KonBtVec, KoffVec, p1name, p2name, p3name, ...
+    p1Vec,  paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
     saveMe, saveStrSS )
 end
 % save data
@@ -162,4 +197,3 @@ end
 
 Time = datestr(now);
 fprintf('Finished fluxODE: %s\n', Time)
-
