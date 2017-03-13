@@ -68,12 +68,11 @@ end
 paramObj.nu = p1Vec;
 numP1 = length(p1Vec);
 % Fix N if it's too low and make sure Bt isn't a vec
-if ( paramObj.Nx > 1000 ); paramObj.Nx = 128; end;
+if ( paramObj.Nx > 256 ); paramObj.Nx = 128; end;
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
-Bt = paramObj.Bt;
 % Get correct kinetic params
 [~, kinParams] =  kineticParams( paramObj.KonBt, paramObj.Koff, paramObj.Ka, paramObj.Bt );
 paramObj.KonBt = kinParams.konBt;
@@ -110,8 +109,9 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % Run the loops
-paramNuLlp  = paramMat(1,:); paramKoff = paramMat(2,:);
-paramKonBt  = paramMat(3,:);
+paramNuLlp  = paramMat(1,:); 
+paramKonBt  = paramMat(2,:);
+paramKoff = paramMat(3,:);
 % save string and some plot labels
 saveStrVsT = 'flxvst'; %flux and accumulation vs time
 saveStrFM = 'flxss'; %flux map
@@ -159,9 +159,8 @@ parfor ii = 1:numRuns
   p1Temp = paramNuLlp(ii);
   KonBt  = paramKonBt(ii);
   Koff  = paramKoff(ii);
-  Kon = KonBt ./ Bt;
   [RecObj] = ...
-    ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp Kon Koff Bt]);
+    ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp KonBt Koff Bt]);
   if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
     fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
   end
@@ -245,4 +244,3 @@ end
 % Print times
 Time = datestr(now);
 fprintf('Finished fluxPDE: %s\n', Time)
-

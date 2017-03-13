@@ -52,8 +52,8 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % For some reason, param_mat gets "sliced". Create vectors to get arround
-paramNuLlp     = paramMat(1,:); paramKoff = paramMat(2,:);
-paramKonBt  = paramMat(3,:); paramBt   = paramMat(4,:);
+paramNuLlp  = paramMat(1,:); paramKoff = paramMat(3,:);
+paramKonBt  = paramMat(2,:); paramBt   = paramMat(4,:);
 % pulls and some variables flags out here
 SaveMe = flags.SaveMe;
 boundDiff = flags.BoundTetherDiff;
@@ -73,14 +73,14 @@ if numRuns > 1
   analysisFlags.CheckConservDen = 0; analysisFlags.ShowRunTime = 0;
   parfor ii = 1:numRuns
     % Assign parameters
-    paramvec = [ paramNuLlp(ii) paramKoff(ii) paramKonBt(ii) paramBt(ii) ];
+    paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
     % Name it
     if boundDiff
-      filename = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_koff%d_konBt%d_bt%.1g_t%.2d',...
+      filename = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
         Nx, A_BC, C_BC, NLcoup,...
         paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
     else
-      filename = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_koff%d_konBt%d_bt%.1g_t%.2d',...
+      filename = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
         Nx, A_BC, C_BC, NLcoup,...
         paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
     end
@@ -106,14 +106,14 @@ if numRuns > 1
   end % parfor
 else
   % Assign parameters
-  paramvec = [ paramNuLlp(1) paramKoff(1) paramKonBt(1) paramBt(1) ];
+  paramvec = [ paramNuLlp(1) paramKonBt(1)  paramKoff(1) paramBt(1) ];
   % Name it
   if boundDiff
-    filename = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_koff%d_konBt%d_bt%.1g_t%.2d',...
+    filename = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
       Nx, A_BC, C_BC, NLcoup,...
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
   else
-    filename = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_koff%d_konBt%d_bt%.1g_t%.2d',...
+    filename = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
       Nx, A_BC, C_BC, NLcoup,...
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
   end

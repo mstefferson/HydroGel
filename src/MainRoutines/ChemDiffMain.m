@@ -3,8 +3,8 @@
 
 function [RecObj] = ChemDiffMain( filename, paramObj,timeObj, flags, analysisFlags, pVec )
 % get parameters from vec
-paramObj.Koff = pVec(2);
-paramObj.KonBt = pVec(3);
+paramObj.KonBt = pVec(2);
+paramObj.Koff = pVec(3);
 paramObj.Bt = pVec(4);
 if paramObj.KonBt == 0
   paramObj.Kon = 0; 
@@ -214,5 +214,4 @@ end
   Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
   analysisFlags, paramObj, flags, timeObj, GridObj, TimeRec);
 fprintf('Finished run \n');
-
 end

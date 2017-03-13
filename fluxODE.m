@@ -100,8 +100,9 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % Run the loops
-paramNuLlp  = paramMat(1,:); paramKoff = paramMat(2,:);
-paramKonBt  = paramMat(3,:); paramBt   = paramMat(4,:);
+paramNuLlp  = paramMat(1,:); 
+paramKonBt  = paramMat(2,:); 
+paramKoff = paramMat(3,:);
 % save names
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state

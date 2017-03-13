@@ -6,14 +6,14 @@
 
 function [jMax, aMax, djdtHm, tHm] = ...
   findFluxProperties( FluxVsT, AccumVsT, timeObj, Np1, Np2, Np3 )
-
+% store some things
 TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 jMax = FluxVsT(:,:,:,end);
 aMax = AccumVsT(:,:,:,end);
-
+% allocate
 djdtHm = zeros( Np1, Np2, Np3  );
 tHm = zeros( Np1, Np2, Np3  );
-
+% loop
 for ii = 1:Np1
   for jj = 1:Np2
     for kk = 1:Np3
