@@ -14,8 +14,21 @@ tickAmnt = 2;
 for ii = 1:length(vec1)
   figure()
   % Make the plot
-  imagesc( 1:length(vec2), 1:length(vec3), ...
-    reshape( dataMat(ii,:,:), [ length(vec2) length(vec3) ] )' );
+  n2 = length(vec2);
+  n3 = length(vec3);
+  n2t = n2  ;
+  n3t = n3 ;
+  temp = zeros( n2t, n3t );
+  temp( 1:n2, 1:n3 ) = reshape( dataMat(ii,:,:), [n2 n3] );
+  temp( n2t, 1:n3 ) = temp(n2,1:n3);
+  temp( 1:n2, n3t ) = temp(1:n2,n3);
+  temp( n2t, n3t ) = temp(n2,n3);
+  pcolor( 1:n3t, 1:n2t, temp);
+  shading('interp')
+  xlab2 = ylab;
+  ylab2 = xlab;
+  xlab = xlab2 ;
+  ylab = ylab2;
   % label
   xlabel( xlab ); ylabel( ylab );
   title( [titstr num2str( vec1(ii) ) ] );

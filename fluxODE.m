@@ -175,6 +175,7 @@ if plotMapFlag
   else
     titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(Bt) '; $$ \nu = $$ ' ];
   end
+  save
   surfLoopPlotter( jNorm, p1Vec, paramObj.kinVar1, paramObj.kinVar2,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end

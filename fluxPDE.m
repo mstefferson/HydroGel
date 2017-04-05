@@ -23,7 +23,7 @@
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
 function [jMax, jNorm, djdtHm, tHm, ...
-  AconcStdy, CconcStdy, paramObj] = ....
+  AconcStdy, CconcStdy, FluxVsT, FluxVsTDiff, paramObj] = ....
   fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
   plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname )
 % Latex font
@@ -109,7 +109,7 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % Run the loops
-paramNuLlp  = paramMat(1,:); 
+paramNuLlp  = paramMat(1,:);
 paramKonBt  = paramMat(2,:);
 paramKoff = paramMat(3,:);
 % save string and some plot labels
@@ -122,7 +122,7 @@ if plotmapMaxFlag || plotmapSlopeFlag || plotmapTimeFlag
   xlab = paramObj.kinVar1strTex;
   ylab = paramObj.kinVar2strTex;
 end
-if plotSteadyFlag || plotVstFlag 
+if plotSteadyFlag || plotVstFlag
   pfixed = paramObj.Bt;
   pfixedStr = '$$ B_t $$';
   p2name = paramObj.kinVar1strTex;
@@ -186,13 +186,25 @@ jNorm = jMax ./  jDiff;
 %% Plotting stuff
 % flux vs time
 if plotVstFlag
+  plotBoth = 0;
   TimeVec = (0:timeObj.N_rec-1) * t_rec;
   ah1titl = [paramObj.kinVar1strTex ' = ' ] ;
   ah2titl = [p1name ' = ' ] ;
-  fluxAccumVsTimePlotMultParams( ...
-    FluxVsT, AccumVsT, FluxVsTDiff, AccumVsTDiff, TimeVec, ...
-    p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
-    p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
+  fluxAll2plot = FluxVsT ./ jDiff;
+  fluxDiff2plot = FluxVsTDiff ./ jDiff;
+  if plotBoth
+    fluxAccumVsTimePlotMultParams( ...
+      fluxAll2plot, AccumVsT, fluxDiff2plot, AccumVsTDiff, TimeVec, ...
+      p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
+      p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
+  else
+    fluxVsTimePlotMultParams( ...
+       fluxAll2plot ,fluxDiff2plot, TimeVec, ...
+      p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
+      p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
+    ylabel( ' $$ j / j_{max} $$' );
+    xlabel( ' t ' );
+  end
 end
 % steady state solutions
 if plotSteadyFlag
