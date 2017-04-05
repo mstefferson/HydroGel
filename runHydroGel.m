@@ -52,8 +52,10 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % For some reason, param_mat gets "sliced". Create vectors to get arround
-paramNuLlp  = paramMat(1,:); paramKoff = paramMat(3,:);
-paramKonBt  = paramMat(2,:); paramBt   = paramMat(4,:);
+paramNuLlp  = paramMat(1,:); 
+paramKonBt  = paramMat(2,:); 
+paramKoff = paramMat(3,:);
+paramBt   = paramMat(4,:);
 % pulls and some variables flags out here
 SaveMe = flags.SaveMe;
 boundDiff = flags.BoundTetherDiff;
