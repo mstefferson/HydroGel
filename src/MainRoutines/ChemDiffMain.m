@@ -152,10 +152,11 @@ for t = 1: timeObj.N_time - 1 % t * dt  = time
     A_rec(:,j_record)   = v(1:Nx);
     C_rec(:,j_record)   = v(Nx+1:2*Nx);
     % see if it broke
-    [DidIBreak, SteadyState] = BrokenSteadyTrack(timeObj.ss_epsilon);
+    [DidIBreak, SteadyState] = BrokenSteadyTrack(v, vNext, timeObj.ss_epsilon);
     if (DidIBreak == 1)
       fprintf('I broke time = %f jrec= %d \n',timeObj.dt*t,j_record)
       TimeRec = timeObj.t_rec .* (0:j_record-1);
+      SteadyState = 0;
       break;
     end;
     if (SteadyState == 1)
@@ -187,9 +188,6 @@ if ~SteadyState || ~DidIBreak
 end
 fprintf('Finished time loop\n');
 % Store the total concentrations
-if ~SteadyState
-  TimeRec = timeObj.t_rec .* [0:timeObj.N_rec-1];
-end
 %Check for negative densities
 if DidIBreak == 1 || SteadyState == 1
   A_rec = A_rec(:,1:j_record);
@@ -202,6 +200,9 @@ if DidIBreak == 1 || SteadyState == 1
     FluxAccum_rec = [];
   end
   timeObj.N_rec = j_record;
+end
+if ~SteadyState && DidIBreak == 0
+  TimeRec = timeObj.t_rec .* [0:timeObj.N_rec-1];
 end
 % Show run time
 if analysisFlags.ShowRunTime 

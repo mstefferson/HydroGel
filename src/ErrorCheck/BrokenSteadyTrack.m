@@ -1,17 +1,13 @@
-function [DidIBreak, SteadyState] = BrokenSteadyTrack(epsilon)
-
-
-global v;
-global vNext;
-
+function [DidIBreak, SteadyState] = BrokenSteadyTrack(v, vNext, epsilon)
+% initialize
 DidIBreak  = 0;
 SteadyState = 0;
-
-if min(v) < 0
+% check
+if any( v < 0 )
     fprintf('Something went negative\n')
     DidIBreak = 1;
 end
-if find(~isfinite(v)) ~= 0
+if any( isinf(v) ) || any( isnan(v) )
     fprintf('Something blew up\n')
     DidIBreak = 1;
 end
@@ -19,6 +15,4 @@ end
 if max( abs( (v-vNext)./v ) ) < epsilon
     SteadyState = 1;    
 end
-
-
 end
