@@ -35,13 +35,17 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 % konBt, koff, Ka
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.nu     = [1]; % vec Dc/Da aka nu 
+% Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
+%paramMaster.KonBt  = [1e2 1e3 1e4];  % vec konBt (time scale)
+%paramMaster.Koff   = [1e2 1e4 1e6]; % vec koff (time scale)
+%paramMaster.Ka   = []; % vec binding affinity (time scale) 
 paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
 paramMaster.Koff   = [1e2]; % vec koff (time scale)
 paramMaster.Ka   = []; % vec binding affinity (time scale) 
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Llp    = 1e-2; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
-paramMaster.AL     = 2e-4;  % concentration of inlet
+paramMaster.AL     = 1e-6;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet
 
 % tim
