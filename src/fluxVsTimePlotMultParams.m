@@ -24,11 +24,16 @@ function fluxVsTimePlotMultParams( ...
       axis square
       hold all
       for kk = 1:length(pvec3)
-        p = plot( AH1, timeVec, reshape( fluxMat(ii,jj,kk,:), [Tr Tc] ) );
+        vec2plot = reshape( fluxMat(ii,jj,kk,:), [Tr Tc] ) ;
+        numTimePoints = length( vec2plot ); 
+        p = plot( AH1, timeVec(1:numTimePoints), vec2plot );
         p.LineWidth = 3;
         legcell{kk} = [ p3name ' = ' num2str( pvec3(kk) ) ];
       end
-      p = plot( AH1, timeVec, fluxDiff);
+      % diffusion
+      vec2plot = fluxDiff;
+      numTimePoints = length( vec2plot ); 
+      p = plot( AH1, timeVec(1:numTimePoints), vec2plot);
       p.LineWidth =3;
       %Axis
       xlabel(AH1,'time'); 
@@ -41,10 +46,7 @@ function fluxVsTimePlotMultParams( ...
       title(AH1,titstr);
       h = legend(AH1,legcell,'location','best');
       h.Interpreter = 'latex';
-%       titstr = [ah2titl num2str( pvec1(ii) )];
-%       title(AH2,titstr);
 
-%       h.Position(1:2) = [0.525 0.35];
       % Save stuff
       if saveMe
       saveStr = [saveStr '_' num2str(round(pvec2(jj)))...

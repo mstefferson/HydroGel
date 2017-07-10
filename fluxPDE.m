@@ -22,9 +22,8 @@
 % AconcStdy: matrix of A steady state profile vs koff and konbt
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
-function [jMax, jNorm, djdtHm, tHm, ...
-  AconcStdy, CconcStdy, FluxVsT, FluxVsTDiff, paramObj] = ....
-  fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
+
+function [fluxSum] = fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
   plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
@@ -42,7 +41,7 @@ if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
 if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end;
 % print start time
 Time = datestr(now);
-fprintf('Starting fluxODE: %s\n', Time)
+fprintf('Starting fluxPDE: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
 if exist( 'initParams.m','file')
@@ -83,20 +82,20 @@ paramObj.fixedVar = kinParams.fixedVar;
 if strcmp( kinParams.fixedVar, 'kA')
   paramObj.kinVar1 = paramObj.KonBt;
   paramObj.kinVar1str = 'konBt';
-  paramObj.kinVar1strTex = '$$ k_{on} B_t $$';
+  paramObj.kinVar1strTex = '$$ k_{on} B_t \tau $$';
   paramObj.kinVar2 = paramObj.Koff;
   paramObj.kinVar2str = 'koff';
-  paramObj.kinVar2strTex = '$$ k_{off}$$';
+  paramObj.kinVar2strTex = '$$ k_{off} \tau $$';
 elseif strcmp( kinParams.fixedVar, 'koff')
   paramObj.kinVar1 = paramObj.KonBt;
   paramObj.kinVar1str = 'konBt';
-  paramObj.kinVar1strTex = '$$ k_{on} B_t $$';
+  paramObj.kinVar1strTex = '$$ k_{on} B_t \tau $$';
   paramObj.kinVar2 = paramObj.Ka;
   paramObj.kinVar2str = 'Ka';
   paramObj.kinVar2strTex = '$$ K_A $$';
 else % 'konBt'
   paramObj.kinVar1 = paramObj.Koff;
-  paramObj.kinVar1strTex = '$$ k_{off}$$';
+  paramObj.kinVar1strTex = '$$ k_{off} \tau $$';
   paramObj.kinVar1str = 'koff';
   paramObj.kinVar2 = paramObj.Ka;
   paramObj.kinVar2str = 'Ka';
@@ -154,6 +153,7 @@ pVec =[0 0 0 0];
 [RecObj] = ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, pVec );
 FluxVsTDiff = RecObj.Flux2ResR_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
+
 parfor ii = 1:numRuns
   % set params
   p1Temp = paramNuLlp(ii);
@@ -202,8 +202,8 @@ if plotVstFlag
        fluxAll2plot ,fluxDiff2plot, TimeVec, ...
       p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
       p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
-    ylabel( ' $$ j / j_{max} $$' );
-    xlabel( ' t ' );
+    ylabel( ' $$ j / j_{diff, steady} $$' );
+    xlabel( ' $$ t / \tau $$ ' );
   end
 end
 % steady state solutions
@@ -253,6 +253,16 @@ if saveMe
   movefile(saveStrMat, dirname);
   movefile(dirname, './steadyfiles/PDE' )
 end
+% store everything
+fluxSum.jMax = jMax; 
+fluxSum.jNorm = jNorm; 
+fluxSum.djdtHm = djdtHm;
+fluxSum.tHm = tHm;
+fluxSum.AconcStdy = AconcStdy;
+fluxSum.CconcStdy = CconcStdy; 
+fluxSum.FluxVsT = FluxVsT;
+fluxSum.FluxVsTDiff = FluxVsTDiff;
+fluxSum.paramObj = paramObj;
 % Print times
 Time = datestr(now);
 fprintf('Finished fluxPDE: %s\n', Time)
