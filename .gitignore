@@ -20,6 +20,7 @@ data/
 data/*
 dataInf/
 sandbox
+steadyfiles/
 
 # Params files
 initParams.m

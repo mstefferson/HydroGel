@@ -24,6 +24,7 @@ analysisFlags.PlotMeWaveFrontAccum   = 0;  % Wavefront and accum
 analysisFlags.PlotMeLastConcAccum    = 0;  % Conc at end time and accum
 analysisFlags.CheckConservDen        = 0;  % Check if density is conserved
 analysisFlags.ShowRunTime            = 1;  % Display run time
+analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length

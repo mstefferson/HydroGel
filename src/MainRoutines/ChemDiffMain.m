@@ -157,14 +157,18 @@ for t = 1: timeObj.N_time - 1 % t * dt  = time
       fprintf('I broke time = %f jrec= %d \n',timeObj.dt*t,j_record)
       TimeRec = timeObj.t_rec .* (0:j_record-1);
       SteadyState = 0;
+      keyboard
       break;
-    end;
+    end
     if (SteadyState == 1)
       TimeRec = timeObj.t_rec .* (0:j_record-1);
       fprintf('Steady State time = %.1f jrec =%d\n',timeObj.dt*t,j_record);
       break;
     end
     j_record = j_record + 1;
+    if analysisFlags.TrackProgress
+      fprintf('%.0f percent done\n', j_record / timeObj.N_rec * 100);
+    end
     % Check steady state
   end % save stuff
 end % time loop
@@ -182,8 +186,7 @@ if ~SteadyState || ~DidIBreak
       FluxAccum_rec(j_record) = FluxAccum;
     end
     A_rec(:,j_record)   = v(1:Nx);
-    C_rec(:,j_record)   = v(Nx+1:2*Nx);
-    
+    C_rec(:,j_record)   = v(Nx+1:2*Nx);   
   end
 end
 fprintf('Finished time loop\n');
