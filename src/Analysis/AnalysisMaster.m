@@ -31,8 +31,8 @@ if analysisFlags.QuickMovie
       GridObj.x, TimeRec, timeObj.N_rec, paramObj.Nx, paramObj.Kon, paramObj.Koff,...
       paramObj.Dnl, paramObj.Da, paramObj.Dc, paramObj.Bt, paramObj.Ka, flags.SaveMe);
   catch err
-  fprintf('Error running movies. There is some box size error I do not get\n')
-  keyboard
+    fprintf('Error writing video\n')
+    fprintf('%s',err.getReport('extended') );
   end
 end
 % Plot the flux of species a at the end of the gel and "accumulation"

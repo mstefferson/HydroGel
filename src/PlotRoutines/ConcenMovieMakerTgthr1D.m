@@ -12,11 +12,18 @@ else
   %Initialize the movie structure array
   M_All(nFrames)  = struct('cdata',zeros(N,N,3,'int8'), 'colormap',[]);
 end
-% Set up figure
+% smallest screen dimension
+ScreenSize = get(0,'screensize');
+ScreenWidth = ScreenSize(3); ScreenHeight = ScreenSize(4);
+FigWidth    = floor( ScreenWidth * .6 );
+FigHeight   =  floor( ScreenHeight * .8);
+FigPos      = [ floor( 0.5 * ( ScreenWidth - FigWidth ) ) ...
+  floor( 0.5 * (ScreenHeight - FigHeight ) ) ...
+  FigWidth FigHeight];
+%Build a square box set by smallest dimension of screen
 Fig = figure();
-set(Fig, 'WindowStyle', 'normal');
-PosVec = [680 558 1200 800];
-Fig.Position = PosVec;
+Fig.WindowStyle = 'normal';
+Fig.Position = FigPos;
 % Axis
 ax1 = subplot(1,2,1);
 set(ax1, 'nextplot','replacechildren')
@@ -65,9 +72,9 @@ for ii = 1:nFrames
   tl = text(0,0,ParamStr);
   tl.Position =  [0.4743 mean(Bt)/2 0];
   % pause, draw, and record
-  pause( 0.01 ); drawnow;
+  drawnow; pause( 0.01 );
   if saveMe
-    Fr = getframe(Fig,[0 0 PosVec(3) PosVec(4)]);
+    Fr = getframe(Fig);
     writeVideo(Mov,Fr);
   else
     M_All(ii) = getframe(gcf); %Store the frame
