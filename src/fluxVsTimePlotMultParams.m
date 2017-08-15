@@ -7,14 +7,12 @@
 % combination of elements in p1 and p2 
 
 function fluxVsTimePlotMultParams( ...
-  fluxMat, fluxDiff, timeVec, ...
+  fluxMat, fluxDiff, jDiff, timeVec, ...
   pvec1, pvec2, pvec3, p3name, pfixed, pfixedStr, ...
   ah1titl1, ah1titl2, saveMe, saveStr )
   % Set up legend
   legcell = cell( length(pvec3) + 1, 1 );
   legcell{end} = 'No binding';
-  % Find the size of the TimeVec
-  [Tr, Tc] =  size(timeVec);
   % Loop over plots
   for ii = 1:length(pvec1)
     for jj = 1:length(pvec2)
@@ -24,21 +22,20 @@ function fluxVsTimePlotMultParams( ...
       axis square
       hold all
       for kk = 1:length(pvec3)
-        vec2plot = reshape( fluxMat(ii,jj,kk,:), [Tr Tc] ) ;
-        numTimePoints = length( vec2plot ); 
-        p = plot( AH1, timeVec(1:numTimePoints), vec2plot );
+        flux2plot = fluxMat{ii,jj,kk} ./ jDiff;
+        nt = length( flux2plot ); 
+        p = plot( AH1, timeVec(1:nt), flux2plot );
         p.LineWidth = 3;
         legcell{kk} = [ p3name ' = ' num2str( pvec3(kk) ) ];
       end
       % diffusion
-      vec2plot = fluxDiff;
-      numTimePoints = length( vec2plot ); 
-      p = plot( AH1, timeVec(1:numTimePoints), vec2plot);
+      flux2plot = fluxDiff ./ jDiff;
+      nt = length( flux2plot ); 
+      p = plot( AH1, timeVec(1:nt), flux2plot);
       p.LineWidth =3;
       %Axis
       xlabel(AH1,'time'); 
       ylabel(AH1,'flux'); 
-      %   AH1.YLim = [ 0 1e-3 ]; AH2.YLim = [ 0 5e-4 ];
       % Titles
       titstr = [ah1titl1 num2str( pvec2(jj) ) ' '...
         ah1titl2 num2str( pvec1(ii) ) ' '...

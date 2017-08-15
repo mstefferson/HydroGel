@@ -152,8 +152,8 @@ fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)
 disp(paramObj); disp(analysisFlags); disp(timeObj);
 % Edits here. Change params and loop over
-FluxVsT = zeros( numRuns, timeObj.N_rec );
-AccumVsT = zeros( numRuns, timeObj.N_rec );
+FluxVsT = cell( numRuns, 1 );
+AccumVsT = cell( numRuns, 1 );
 % Store steady state solutions;
 AconcStdy = zeros( numRuns, Nx );
 CconcStdy = zeros( numRuns, Nx );
@@ -169,6 +169,7 @@ AccumVsTDiff = RecObj.FluxAccum_rec;
 % loop over runs
 if numRuns > 1
   parfor ii = 1:numRuns
+    try
     % set params
     p1Temp = paramNuLlp(ii);
     KonBt  = paramKonBt(ii);
@@ -181,9 +182,12 @@ if numRuns > 1
     % record
     AconcStdy(ii,:) = RecObj.Afinal;
     CconcStdy(ii,:) = RecObj.Cfinal;
-    FluxVsT(ii,:) = RecObj.Flux2ResR_rec;
-    AccumVsT(ii,:) = RecObj.FluxAccum_rec;
+    FluxVsT{ii} = RecObj.Flux2ResR_rec;
+    AccumVsT{ii} = RecObj.FluxAccum_rec;
     fprintf('Finished %d \n', ii );
+    catch err
+      fprintf('%s',err.getReport('extended') );
+    end 
   end
 else
   ii = 1;
@@ -199,15 +203,16 @@ else
   % record
   AconcStdy(ii,:) = RecObj.Afinal;
   CconcStdy(ii,:) = RecObj.Cfinal;
-  FluxVsT(ii,:) = RecObj.Flux2ResR_rec;
-  AccumVsT(ii,:) = RecObj.FluxAccum_rec;
+  FluxVsT{ii} = RecObj.Flux2ResR_rec;
+  AccumVsT{ii} = RecObj.FluxAccum_rec;
   fprintf('Finished %d \n', ii );
 end
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
 AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
 CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
-FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3, timeObj.N_rec] );
-AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3, timeObj.N_rec] );
+% keyboard
+FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
+AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
 % time
 TimeVec = (0:timeObj.N_rec-1) * t_rec;
 % Find Maxes and such
@@ -223,16 +228,17 @@ if plotVstFlag
   plotBoth = 0;
   ah1titl = [paramObj.kinVar1strTex ' = ' ] ;
   ah2titl = [p1name ' = ' ] ;
-  fluxAll2plot = FluxVsT ./ jDiff;
-  fluxDiff2plot = FluxVsTDiff ./ jDiff;
+  fluxAll2plot = FluxVsT;
+  fluxDiff2plot = FluxVsTDiff;
   if plotBoth
     fluxAccumVsTimePlotMultParams( ...
-      fluxAll2plot, AccumVsT, fluxDiff2plot, AccumVsTDiff, TimeVec, ...
+      fluxAll2plot, AccumVsT, fluxDiff2plot, AccumVsTDiff, ...
+      jDiff, TimeVec, ...
       p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
       p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
   else
     fluxVsTimePlotMultParams( ...
-      fluxAll2plot ,fluxDiff2plot, TimeVec, ...
+      fluxAll2plot ,fluxDiff2plot, jDiff, TimeVec, ...
       p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
       p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
     ylabel( ' $$ j / j_{diff, steady} $$' );
