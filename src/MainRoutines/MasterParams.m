@@ -49,10 +49,10 @@ paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet
 
-% tim
-tfac        = 1;
-dtfac       = 1;
-dt          = dtfac *(paramMaster.Lbox/(paramMaster.Nx))^2; % time step
+% time
+tfac        = 1; % run time factor in relation to box diffusion time
+dtfac       = 1; % dt factor in relation to VN stability condition
+dt          = dtfac * ( (paramMaster.Lbox/paramMaster.Nx)^2 / paramMaster.Da ); % time step
 t_tot       = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
 t_rec       = t_tot / 100;  % time interval for recording dynamics
 ss_epsilon  = 1e-8;  % steady state condition

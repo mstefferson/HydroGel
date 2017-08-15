@@ -5,7 +5,7 @@
 
 3) Run the code: runHydroGel
 
-4) Outputs placed in a directory in ./Outputs
+4) Outputs placed in a directory in ./runfiles
 
 ## WD Function Description ##
 
@@ -13,10 +13,10 @@ initParams: (parameter file) Set parameters for runHydroGel and fluxPlusPDE
 
 runHydroGel: (executeable) runs temporal evolution of PDE. 
 
-fluxODE: (executeable) finds the flux at steady state using and ODE solver
+fluxODE: (function) finds the flux at steady state using and ODE solver. Uses initParams.
 
-fluxPlusPDE: (executeable) finds flux at steady state, slope dj/dt at half max flux, and time
-  till half max slope by solving PDE.
+fluxPlusPDE: (function) finds flux at steady state, slope dj/dt at half max flux, and time
+  till half max slope by solving PDE. Uses initParams.
 
 cmprSteadySolvers: (executeable) compares steady state solutions of various methods, ODE
   solvers, PDE solvers, linear vs non-linear, etc
@@ -24,4 +24,7 @@ cmprSteadySolvers: (executeable) compares steady state solutions of various meth
 cpParams: (executeable) copies master parameter file to initParams in WD
 
 cleanme: (executeable) destroys all txt, fig, jpg, avi files in WD
+
+nonDimParamCalc: (function) calculate scaled parameters from physical parameters
+
 
