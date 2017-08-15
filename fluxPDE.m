@@ -166,7 +166,7 @@ dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
 [RecObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, analysisFlags, pVec );
 FluxVsTDiff = RecObj.Flux2ResR_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
-
+% loop over runs
 if numRuns > 1
   parfor ii = 1:numRuns
     % set params
@@ -279,6 +279,7 @@ fluxSummary.CconcStdy = CconcStdy;
 fluxSummary.FluxVsT = FluxVsT;
 fluxSummary.FluxVsTDiff = FluxVsTDiff;
 fluxSummary.paramObj = paramObj;
+fluxSummary.timeVec = TimeVec;
 % Save
 if saveMe
   kinVar1 = paramObj.kinVar1;
