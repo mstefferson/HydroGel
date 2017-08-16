@@ -10,13 +10,13 @@
 % saveMe: save plots and outputs
 % dirname: directory name for saving
 %
-% Outputs:
+% Outputs: fluxSummary with fields
 % jMax: matrix of steady state flux vs koff and konbt
 % jNorm: jMax ./ jDiff
 % AconcStdy: matrix of A steady state profile vs koff and konbt
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
-function [jMax, jNorm, AconcStdy, CconcStdy, paramObj] = ...
+function [ fluxSummary ] = ...
   fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
@@ -185,13 +185,19 @@ if plotSteadyFlag
     p1Vec,  paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
     pfixed, pfixedStr, saveMe, saveStrSS )
 end
+% store everything
+fluxSummary.jMax = jMax;
+fluxSummary.jNorm = jNorm;
+fluxSummary.AconcStdy = AconcStdy;
+fluxSummary.CconcStdy = CconcStdy;
+fluxSummary.paramObj = paramObj;
 % save data
 if saveMe
   kinVar1 = paramObj.kinVar1;
   kinVar1str = paramObj.kinVar1str;
   kinVar2 = paramObj.kinVar2;
   kinVar2str = paramObj.kinVar2str;
-  save(saveStrMat, 'jMax', 'jNorm','AconcStdy', 'CconcStdy','p1Vec', 'p1name', 'kinVar1', 'kinVar1str', ...
+  save(saveStrMat, 'fluxSummary', 'p1Vec', 'p1name', 'kinVar1', 'kinVar1str', ...
   'kinVar2', 'kinVar2str');
   % make dirs and move
   if plotSteadyFlag || plotMapFlag

@@ -14,7 +14,8 @@
 % plotmapTimeFlag: surface plot of time until jmax/2 vs koff and konbt
 % saveMe: save plots and outputs
 % dirname: directory name for saving
-% Outputs:
+%
+% Outputs: fluxSummary with fields
 % jMax: matrix of steady state flux vs koff and konbt
 % jNorm: jMax ./ jDiff
 % djdtHm: matrix of dj/dt at jmax/2 vs koff and konbt
