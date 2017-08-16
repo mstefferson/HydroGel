@@ -63,6 +63,9 @@ echo "Using ${NPROCS} processors across ${NNODES} nodes"
 echo "Job name: ${PBS_JOBNAME}. Job ID: ${PBS_JOBID}"
 echo "Sending email when done"
 
+# Make output dir
+mkdir -p oe
+
 # load matlab
 echo "Loading module"
 module load matlab_R2015b
