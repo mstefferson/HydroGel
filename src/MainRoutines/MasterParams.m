@@ -16,8 +16,8 @@ flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
 
 % "Analysis" subroutines
 analysisFlags.QuickMovie             = 1;  % Time evolv. Movie
-analysisFlags.TrackAccumFromFlux     = 1;  % Track the flux into outlet
-analysisFlags.TrackAccumFromFluxPlot = 1;  % Plot flux vs time
+analysisFlags.TrackAccumFlux         = 1;  % Track the flux into outlet
+analysisFlags.PlotAccumFlux          = 1;  % Plot flux vs time
 analysisFlags.PlotMeLastConc         = 1;  % Concentration at end time
 analysisFlags.PlotMeAccum            = 0;  % Concentration at Outlet vs time
 analysisFlags.PlotMeWaveFrontAccum   = 0;  % Wavefront and accum

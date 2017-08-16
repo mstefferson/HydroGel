@@ -28,7 +28,7 @@ paramObj.nu = paramObj.Dc ./  paramObj.Da;
 % Define commonly used variables
 DidIBreak = 0;
 SteadyState = 0;
-if analysisFlags.TrackAccumFromFlux || analysisFlags.TrackAccumFromFluxPlot
+if analysisFlags.TrackAccumFlux || analysisFlags.PlotAccumFromFlux
   TrackFlux = 1;
 else
   TrackFlux = 0;
@@ -40,7 +40,7 @@ Nx     = paramObj.Nx;
 A_rec   = zeros(Nx,timeObj.N_rec);
 C_rec   = zeros(Nx,timeObj.N_rec);
 % Other recs
-if (analysisFlags.TrackAccumFromFlux)
+if TrackFlux
   FluxAccum_rec = zeros(1,timeObj.N_rec);
   Flux2ResR_rec = zeros(1,timeObj.N_rec);
 else
@@ -76,7 +76,7 @@ A_rec(:,1)   = A;
 C_rec(:,1)   = C;
 j_record = 2;
 % Store the "accumulation" from the flux
-if analysisFlags.TrackAccumFromFlux
+if TrackFlux
   Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
   FluxAccum   = 0;
   Flux2ResR_rec(1) = Flux2ResR;

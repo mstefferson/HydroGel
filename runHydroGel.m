@@ -2,7 +2,10 @@
 % Description: Executable. Runs initParams then main rountine.
 % Fix Time issues and build object
 
-function RecObj = runHydroGel()
+function RecObj = runHydroGel(graphicsFlag)
+if nargin == 0 
+  graphicsFlag = 0;
+end
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Add paths and see where we are
@@ -42,6 +45,15 @@ elseif strcmp( kinParams.fixedVar, 'koff')
 else % 'konBt'
   paramObj.kinVar1 = paramObj.Koff;
   paramObj.kinVar2 = paramObj.Ka;
+end
+% Turn off graphics in flag is zero
+if graphicsFlag == 0
+  analysisFlags.QuickMovie           = 0;  % Time evolv. Movie
+  analysisFlags.PlotAccumFlux        = 0;  % Plot flux vs time
+  analysisFlags.PlotMeLastConc       = 0;  % Concentration at end time
+  analysisFlags.PlotMeAccum          = 0;  % Concentration at Outlet vs time
+  analysisFlags.PlotMeWaveFrontAccum = 0;  % Wavefront and accum
+  analysisFlags.PlotMeLastConcAccum  = 0;  % Conc at end time and accum
 end
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
