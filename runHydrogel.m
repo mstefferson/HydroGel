@@ -2,7 +2,7 @@
 % Description: Executable. Runs initParams then main rountine.
 % Fix Time issues and build object
 
-function RecObj = runHydroGel(graphicsFlag)
+function RecObj = runHydrogel(graphicsFlag)
 if nargin == 0 
   graphicsFlag = 0;
 end

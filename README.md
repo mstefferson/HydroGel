@@ -3,7 +3,7 @@
 
 2) Edit parameters in initParams. And save
 
-3) Run the code: runHydroGel
+3) Run the code: runHydrogel
 
 4) Outputs placed in a directory in ./runfiles
 
@@ -11,7 +11,7 @@
 
 initParams: (parameter file) Set parameters for runHydroGel and fluxPlusPDE
 
-runHydroGel: (executeable) runs temporal evolution of PDE. 
+runHydrogel: (executeable) runs temporal evolution of PDE. 
 
 fluxODE: (function) finds the flux at steady state using and ODE solver. Uses initParams.
 
@@ -27,4 +27,13 @@ cleanme: (executeable) destroys all txt, fig, jpg, avi files in WD
 
 nonDimParamCalc: (function) calculate scaled parameters from physical parameters
 
+## Pando runs ##
+
+To run runHydrogel on pando (currently using Torque)
+
+For get mail:
+qsub -N jobname hgMailPando.pbs
+
+For no mail:
+qsub -N jobname hgPando.pbs
 

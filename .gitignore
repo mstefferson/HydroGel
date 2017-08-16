@@ -12,6 +12,9 @@
 *.mat
 *.jpg
 *.fig
+*.out
+*.OU
+*.ER
 
 # Directories
 Outputs/
@@ -22,6 +25,7 @@ dataInf/
 sandbox
 steadyfiles/
 figs/
+oe/
 
 # Params files
 initParams.m

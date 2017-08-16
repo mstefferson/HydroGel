@@ -26,11 +26,15 @@
 
 ### Remove only the three initial "#" characters before #PBS
 ### in the following lines to enable:
+###
+### To send email when the job is completed:
+#PBS -m ae
+#PBS -M mist7261@colorado.edu
 
 ### Optionally set the destination for your program's output
 ### Specify localhost and an NFS filesystem to prevent file copy errors.
-#PBS -e /Users/mist7261/McHydro/eo/
-#PBS -o /Users/mist7261/McHydro/eo/
+#PBS -e /Users/mist7261/HydroGel/oe/
+#PBS -o /Users/mist7261/HydroGel/oe/
 
 ### Specify the number of cpus for your job.  This example will allocate 12 cores
 ### using 12 processors on each of 1 nodes.
@@ -45,8 +49,9 @@
 
 ### Switch to the working directory; by default TORQUE launches processes
 ### from your home directory.
+echo "Home is $HOME"
+echo "Working directory is $PBS_O_WORKDIR"
 cd $PBS_O_WORKDIR
-echo Working directory is $PBS_O_WORKDIR
 
 # Calculate the number of processors allocated to this run.
 NPROCS=`wc -l < $PBS_NODEFILE`
@@ -55,22 +60,23 @@ NPROCS=`wc -l < $PBS_NODEFILE`
 NNODES=`uniq $PBS_NODEFILE | wc -l`
 
 ### Display the job context
-echo Running on host `hostname`
-echo Time is `date`
-echo Directory is `pwd`
-echo Using ${NPROCS} processors across ${NNODES} nodes
+echo "Running on host `hostname`"
+echo "Time is `date`"
+echo "Directory is `pwd`"
+echo "Using ${NPROCS} processors across ${NNODES} nodes"
 echo "Job name: ${PBS_JOBNAME}. Job ID: ${PBS_JOBID}"
-echo "No mail is being sent"
+echo "Sending email when done"
 
 # load matlab
+echo "Loading module"
 module load matlab_R2015b
 
 # Run matlab program
+echo "Submitting run"
 matlab -nodesktop -nosplash \
-  -r  "try, runHydogel, catch, exit(1), end, exit(0);" \
-  2>&1 | tee ${PBS_JOBNAME}.out
+  -r  "try, runHydrogel, catch, exit(1), end, exit(0);"
 echo "Finished. Matlab exit code: $?" 
-echo Time is `date`
+echo "Time is `date`"
 
 # PBS environment variables available in every batch job:
 #
