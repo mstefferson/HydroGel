@@ -1,6 +1,7 @@
 % Handles all of the analysis
-function [RecObj] = AnalysisMaster( filename, SteadyState,  ...
-  DidIBreak, Flux2ResR_rec, FluxAccum_rec, A_rec, C_rec,...
+function [recObj] = AnalysisMaster( filename, runSave, ...
+  A_rec, C_rec, Flux2Res_rec, FluxAccum_rec,...
+  Afinal, Cfinal, SteadyState, DidIBreak, ...
   analysisFlags, paramObj, flags, timeObj, GridObj, TimeRec)
 % Strings
 Paramstr = sprintf(' $$k_{on}B_t=$$ %.1g\n $$k_{on} =$$ %.1g\n $$k_{off}=$$ %.1g\n $$D_A=$$ %.2g\n $$D_C=$$ %.2g\n',...
@@ -9,26 +10,28 @@ Concstr = sprintf('$$B_t=$$ %.1g\n $$A_L=$$ %.1g\n $$A_R=$$ %.2g',...
   max(paramObj.Bt),paramObj.AL,paramObj.AR);
 Gridstr = sprintf(' $$N_x=$$ %d\n $$L_{box}=$$ %.1f',GridObj.Nx,GridObj.Lbox);
 % RecObj
-RecObj.params = paramObj;
-RecObj.A_rec = A_rec;
-RecObj.C_rec = C_rec;
-RecObj.Afinal = A_rec(:,end);
-RecObj.Cfinal = C_rec(:,end);
-RecObj.SteadyState = SteadyState;
-RecObj.DidIBreak = DidIBreak;
-RecObj.TimeRec = TimeRec;
-RecObj.Flux2ResR_rec = Flux2ResR_rec;
-RecObj.FluxAccum_rec = FluxAccum_rec;
+recObj.Params = paramObj;
+recObj.Afinal = Afinal;
+recObj.Cfinal = Cfinal;
+recObj.SteadyState = SteadyState;
+recObj.DidIBreak = DidIBreak;
+recObj.TimeRec = TimeRec;
+recObj.A_rec = A_rec;
+recObj.C_rec = C_rec;
+recObj.Flux2Res_rec = Flux2Res_rec;
+recObj.FluxAccum_rec = FluxAccum_rec;
+
 % save things
 if flags.SaveMe
-  save([filename '.mat'],'paramObj','GridObj','timeObj','analysisFlags','RecObj')
+  runSave.recObj = recObj;
 end
+
 % Make a movie of the concentrations
 if analysisFlags.QuickMovie
   try
     videoName = ['concMov_' filename '.avi'];
     ConcenMovieMakerTgthr1D(videoName, A_rec, C_rec,...
-      GridObj.x, TimeRec, timeObj.N_rec, paramObj.Nx, paramObj.Kon, paramObj.Koff,...
+      GridObj.x, TimeRec, paramObj.Nx, paramObj.Kon, paramObj.Koff,...
       paramObj.Dnl, paramObj.Da, paramObj.Dc, paramObj.Bt, paramObj.Ka, flags.SaveMe);
   catch err
     fprintf('Error writing video\n')
@@ -40,9 +43,9 @@ end
 % if A could leave the gel.
 if analysisFlags.PlotAccumFlux
   FluxA2resDirPlotter(...
-    paramObj.AL,paramObj.Bt,paramObj.AR,A_rec(:,end),C_rec(:,end),paramObj.Dc,...
+    paramObj.AL,paramObj.Bt,paramObj.AR,recObj.Afinal,recObj.Cfinal,paramObj.Dc,...
     paramObj.Lbox,GridObj.dx,TimeRec,...
-    FluxAccum_rec,Flux2ResR_rec,Paramstr,Concstr,Gridstr)
+    FluxAccum_rec,Flux2Res_rec,Paramstr,Concstr,Gridstr)
   if flags.SaveMe
     savefig(gcf, ['FluxAndAccum_' filename '.fig'])
   end
@@ -66,6 +69,7 @@ if analysisFlags.PlotMeWaveFrontAccum
     timeObj.NumPlots,paramObj.Kon,paramObj.Koff,paramObj.Dc,paramObj.Dnl,...
     paramObj.AL,paramObj.Bt)
 end
+
 % Plot last concentration and accum
 if analysisFlags.PlotMeLastConcAccum
   PlotLastConcAndAccum(...

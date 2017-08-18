@@ -1,0 +1,12 @@
+# Put your matlab path here:
+# alias matlab='/Applications/MATLAB_R2017a.app/bin/matlab'
+# 
+# or in your .bashrc
+# matlab
+# PATH=/path/2/matlab/bin:$PATH
+# export PATH
+# e.g.:
+# PATH=/Applications/MATLAB_R2017a.app/bin:$PATH
+# export PATH
+# 
+matlab -nodesktop -nodisplay < submitHydrogel.m &> hg.out &

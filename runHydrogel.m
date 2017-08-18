@@ -2,15 +2,18 @@
 % Description: Executable. Runs initParams then main rountine.
 % Fix Time issues and build object
 
-function RecObj = runHydrogel(graphicsFlag)
-if nargin == 0 
+function recObj = runHydrogel(graphicsFlag)
+if nargin == 0
   graphicsFlag = 0;
+end
+if graphicsFlag == 0
+  fprintf('No graphics\n')
 end
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Add paths and see where we are
 addpath( genpath('./src') )
-if ~exist('./runfiles','dir'); mkdir('runfiles'); end;
+if ~exist('./runfiles','dir'); mkdir('runfiles'); end
 Time = datestr(now);
 currentdir=pwd;
 fprintf('In dir %s\n',currentdir);
@@ -23,6 +26,8 @@ else
   cpParams
   initParams
 end
+% hard code rand ind power to prevent directory overriding
+randSavePow = 4;
 % Copy master parameters input object
 paramObj = paramMaster;
 timeObj = timeMaster;
@@ -47,7 +52,7 @@ else % 'konBt'
   paramObj.kinVar2 = paramObj.Ka;
 end
 % Turn off graphics in flag is zero
-if graphicsFlag == 0
+if graphicsFlag == 0 || flags.SaveMe == 0
   analysisFlags.QuickMovie           = 0;  % Time evolv. Movie
   analysisFlags.PlotAccumFlux        = 0;  % Plot flux vs time
   analysisFlags.PlotMeLastConc       = 0;  % Concentration at end time
@@ -64,91 +69,109 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % For some reason, param_mat gets "sliced". Create vectors to get arround
-paramNuLlp  = paramMat(1,:); 
-paramKonBt  = paramMat(2,:); 
+paramNuLlp  = paramMat(1,:);
+paramKonBt  = paramMat(2,:);
 paramKoff = paramMat(3,:);
 paramBt   = paramMat(4,:);
 % pulls and some variables flags out here
 SaveMe = flags.SaveMe;
 boundDiff = flags.BoundTetherDiff;
-Nx = paramObj.Nx; A_BC = paramObj.A_BC; C_BC = paramObj.C_BC; 
+Nx = paramObj.Nx; A_BC = paramObj.A_BC; C_BC = paramObj.C_BC;
 NLcoup = flags.NLcoup; trial = paramObj.trial;
 % Loops over all run
 fprintf('Starting loop over runs\n');
 ticID = tic;
 if numRuns > 1
+  recObj = 0;
   parobj = gcp;
   fprintf('I have hired %d workers\n',parobj.NumWorkers);
   % Turn off graphics
   fprintf('Using parfor: turning off graphics\n')
-  analysisFlags.QuickMovie = 0; analysisFlags.TrackAccumFromFluxPlot = 0;  
-  analysisFlags.PlotMeLastConc = 0; analysisFlags.PlotMeAccum = 0; 
-  analysisFlags.PlotMeWaveFrontAccum = 0; analysisFlags.PlotMeLastConcAccum = 0;  
+  analysisFlags.QuickMovie = 0; analysisFlags.TrackAccumFromFluxPlot = 0;
+  analysisFlags.PlotMeLastConc = 0; analysisFlags.PlotMeAccum = 0;
+  analysisFlags.PlotMeWaveFrontAccum = 0; analysisFlags.PlotMeLastConcAccum = 0;
   analysisFlags.CheckConservDen = 0; analysisFlags.ShowRunTime = 0;
   parfor ii = 1:numRuns
     % Assign parameters
     paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
     % Name it
     if boundDiff
-      filename = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
+      dirname = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
         Nx, A_BC, C_BC, NLcoup,...
         paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
     else
-      filename = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
+      dirname = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
         Nx, A_BC, C_BC, NLcoup,...
         paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
     end
-    Where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',filename);
+    filename = [dirname '.mat'];
+    where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
     fprintf('\nStarting %s \n', filename);
     % Run main code
-    [~] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
+    [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
     fprintf('Finished %s \n', filename);
     % Move things to runfiles
     if SaveMe
-      mkdir(Where2SavePath)
-      movefile([filename '.mat'], Where2SavePath)
+      if exist(where2SavePath,'dir')
+        fprintf('You are trying to rewrite data. Renaming \n')
+        rng('shuffle');
+        where2SavePath = [where2SavePath '_' ...
+        num2str( randi(10^randSavePow), ['%.' num2str(randSavePow+1) 'd'] ) ];
+      end
+      fprintf('Saving at %s \n', where2SavePath);
+      mkdir(where2SavePath)
+      movefile(filename, where2SavePath)
       if ~isempty( dir( ['*' filename '*.avi'] ) )
-        movefile(['*' filename '*.avi'], Where2SavePath);
-      end;
-      if ~isempty( dir( ['*' filename '*.fig'] ) )
-        movefile(['*' filename '*.fig'], Where2SavePath);
-      end;
-      if ~isempty( dir( ['*' filename '*.jpg '] ) )
-        movefile(['*' filename '*.jpg'], Where2SavePath);
-      end;
+        movefile(['*' dirname '*.avi'], where2SavePath);
+      end
+      if ~isempty( dir( ['*' dirname '*.fig'] ) )
+        movefile(['*' filename '*.fig'], where2SavePath);
+      end
+      if ~isempty( dir( ['*' dirname '*.jpg '] ) )
+        movefile(['*' filename '*.jpg'], where2SavePath);
+      end
     end
   end % parfor
 else
+  ii = 1;
   % Assign parameters
-  paramvec = [ paramNuLlp(1) paramKonBt(1)  paramKoff(1) paramBt(1) ];
+  paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
   % Name it
   if boundDiff
-    filename = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
+    dirname = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
       Nx, A_BC, C_BC, NLcoup,...
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
   else
-    filename = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
+    dirname = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
       Nx, A_BC, C_BC, NLcoup,...
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
   end
-  Where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',filename);
+  filename = [dirname '.mat'];
+  where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
   fprintf('\nStarting %s \n', filename);
   % Run main code
-  [RecObj] = ChemDiffMain(filename, paramObj, timeObj, flags, analysisFlags, paramvec);
+  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
   fprintf('Finished %s \n', filename);
   % Move things to runfiles
   if SaveMe
-    mkdir(Where2SavePath)
-    movefile([filename '.mat'], Where2SavePath)
+    if exist(where2SavePath,'dir')
+      fprintf('You are trying to rewrite data. Renaming \n')
+      rng('shuffle');
+      where2SavePath = [where2SavePath '_' ...
+        num2str( randi(10^randSavePow), ['%.' num2str(randSavePow+1) 'd'] ) ];
+    end
+    fprintf('Saving at %s \n', where2SavePath);
+    mkdir(where2SavePath)
+    movefile(filename, where2SavePath)
     if ~isempty( dir( ['*' filename '*.avi'] ) )
-      movefile(['*' filename '*.avi'], Where2SavePath);
-    end;
-    if ~isempty( dir( ['*' filename '*.fig'] ) )
-      movefile(['*' filename '*.fig'], Where2SavePath);
-    end;
-    if ~isempty( dir( ['*' filename '*.jpg '] ) )
-      movefile(['*' filename '*.jpg'], Where2SavePath);
-    end;
+      movefile(['*' dirname '*.avi'], where2SavePath);
+    end
+    if ~isempty( dir( ['*' dirname '*.fig'] ) )
+      movefile(['*' filename '*.fig'], where2SavePath);
+    end
+    if ~isempty( dir( ['*' dirname '*.jpg '] ) )
+      movefile(['*' filename '*.jpg'], where2SavePath);
+    end
   end
 end % numRuns > 1
 % Print time info

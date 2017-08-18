@@ -1,7 +1,8 @@
 function [M_All] = ...
   ConcenMovieMakerTgthr1D(videoName, A_rec, C_rec,...
-  x, TimeRec, nFrames, N, Kon, Koff, Dnl, Da, Dc, Bt, Ka, saveMe)
+  x, TimeRec, N, Kon, Koff, Dnl, Da, Dc, Bt, Ka, saveMe)
 % set-up movies differently depending on save
+nFrames = length(TimeRec);
 if saveMe
   % Video Write stuff
   Mov = VideoWriter(videoName);

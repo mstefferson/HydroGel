@@ -13,6 +13,7 @@ flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BoundTetherDiff = 1; % Use the bound spring tether approx
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
+flags.BreakAtSteady = 0; % Save runHydrogel outputs
 
 % "Analysis" subroutines
 analysisFlags.QuickMovie             = 1;  % Time evolv. Movie
@@ -37,9 +38,6 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.nu     = [1]; % vec Dc/Da aka nu 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-%paramMaster.KonBt  = [1e2 1e3 1e4];  % vec konBt (time scale)
-%paramMaster.Koff   = [1e2 1e4 1e6]; % vec koff (time scale)
-%paramMaster.Ka   = []; % vec binding affinity (time scale) 
 paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
 paramMaster.Koff   = [1e2]; % vec koff (time scale)
 paramMaster.Ka   = []; % vec binding affinity (time scale) 

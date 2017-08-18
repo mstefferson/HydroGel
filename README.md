@@ -3,7 +3,10 @@
 
 2) Edit parameters in initParams. And save
 
-3) Run the code: runHydrogel
+3.1) Run the code: runHydrogel in matlab
+
+3.2) Run ./submitHgLocal (need to make sure matlab binary is in path)
+
 
 4) Outputs placed in a directory in ./runfiles
 

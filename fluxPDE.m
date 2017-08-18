@@ -39,6 +39,11 @@ end
 % fix flags 
 if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
   plotMapFlag = 1;
+  % set colormap
+  randI = randi(100000);
+  figure(randI)
+  colormap( viridis );
+  close(randI)
 else
   plotMapFlag = 0;
 end
@@ -128,8 +133,8 @@ if saveMe
   mkdir(dirname)
 end
 if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
-  xlab = paramObj.kinVar1strTex;
-  ylab = paramObj.kinVar2strTex;
+  xlab = paramObj.kinVar2strTex; % columns
+  ylab = paramObj.kinVar1strTex;  % rows
 end
 if plotSteadyFlag || plotVstFlag
   pfixed = paramObj.Bt;
@@ -139,7 +144,7 @@ if plotSteadyFlag || plotVstFlag
 end
 % "Analysis" subroutines
 analysisFlags.QuickMovie=0; analysisFlags.TrackAccumFromFlux= 1;
-analysisFlags.TrackAccumFromFluxPlot=0; analysisFlags.PlotMeLastConc=0;
+analysisFlags.PlotAccumFlux=0; analysisFlags.PlotMeLastConc=0;
 analysisFlags.PlotMeAccum=0; analysisFlags.PlotMeWaveFrontAccum=0;
 analysisFlags.PlotMeLastConcAccum=0; analysisFlags.CheckConservDen=0;
 analysisFlags.ShowRunTime=0;
@@ -165,7 +170,7 @@ dtfac       = 1;
 dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
 [timeObjDiff] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 [RecObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, analysisFlags, pVec );
-FluxVsTDiff = RecObj.Flux2ResR_rec;
+FluxVsTDiff = RecObj.Flux2Res_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
 % loop over runs
 if numRuns > 1
@@ -183,7 +188,7 @@ if numRuns > 1
     % record
     AconcStdy(ii,:) = RecObj.Afinal;
     CconcStdy(ii,:) = RecObj.Cfinal;
-    FluxVsT{ii} = RecObj.Flux2ResR_rec;
+    FluxVsT{ii} = RecObj.Flux2Res_rec;
     AccumVsT{ii} = RecObj.FluxAccum_rec;
     fprintf('Finished %d \n', ii );
     catch err
@@ -204,7 +209,7 @@ else
   % record
   AconcStdy(ii,:) = RecObj.Afinal;
   CconcStdy(ii,:) = RecObj.Cfinal;
-  FluxVsT{ii} = RecObj.Flux2ResR_rec;
+  FluxVsT{ii} = RecObj.Flux2Res_rec;
   AccumVsT{ii} = RecObj.FluxAccum_rec;
   fprintf('Finished %d \n', ii );
 end

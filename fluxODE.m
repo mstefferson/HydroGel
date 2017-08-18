@@ -59,7 +59,7 @@ end
 paramObj.nu = p1Vec;
 numP1 = length(p1Vec);
 % Fix N if it's too low and make sure Bt isn't a vec
-if ( paramObj.Nx < 1000 ); paramObj.Nx = 1000; end;
+if ( paramObj.Nx < 1000 ); paramObj.Nx = 1000; end
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
@@ -107,10 +107,16 @@ paramKoff = paramMat(3,:);
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
-if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end;
+if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end
 if plotMapFlag
-  xlab = paramObj.kinVar1strTex;
-  ylab = paramObj.kinVar2strTex;
+  % set colormap
+  randI = randi(100000);
+  figure(randI)
+  colormap( viridis );
+  close(randI)
+  % labels
+  ylab = paramObj.kinVar1strTex; % rows
+  xlab = paramObj.kinVar2strTex; % columns
 end
 if plotSteadyFlag
   pfixed = paramObj.Bt;
@@ -168,6 +174,12 @@ jMax = reshape( jMax, [numP1, numP2, numP3] );
 % Get flux diff and normalize it
 jDiff = Da * ( AL - AR ) / Lbox;
 jNorm = jMax ./  jDiff;
+% Steady states
+if plotSteadyFlag
+  concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
+    p1Vec,  paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
+    pfixed, pfixedStr, saveMe, saveStrSS )
+end
 % Surface plot
 if plotMapFlag
   if flags.BoundTetherDiff
@@ -179,12 +191,7 @@ if plotMapFlag
   surfLoopPlotter( jNorm, p1Vec, paramObj.kinVar1, paramObj.kinVar2,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end
-% Steady states
-if plotSteadyFlag
-  concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    p1Vec,  paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
-    pfixed, pfixedStr, saveMe, saveStrSS )
-end
+
 % store everything
 fluxSummary.jMax = jMax;
 fluxSummary.jNorm = jNorm;
