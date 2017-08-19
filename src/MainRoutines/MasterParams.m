@@ -1,11 +1,5 @@
 %  Parameter file
-
-% Add path
-CurrentDir = pwd;
-addpath( genpath( CurrentDir) );
-
 paramMaster.trial  = 1; % trial ID
-
 % Turn things on
 flags.SaveMe = 1; % Save runHydrogel outputs
 flags.NLcoup = 1; % Turn on/off the nonlinear term AC
@@ -53,7 +47,7 @@ dtfac       = 1; % dt factor in relation to VN stability condition
 dt          = dtfac * ( (paramMaster.Lbox/paramMaster.Nx)^2 / paramMaster.Da ); % time step
 t_tot       = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
 t_rec       = t_tot / 100;  % time interval for recording dynamics
-ss_epsilon  = 1e-8;  % steady state condition
+ss_epsilon  = 1e-6;  % steady state condition
 NumPlots    = 10; % For the accumulation plot subroutine
 
 % Build timeObj

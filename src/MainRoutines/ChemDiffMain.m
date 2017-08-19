@@ -179,7 +179,7 @@ for t = 1:timeObj.N_time - 1 % t * dt  = time
       runSave.A_rec(:,j_record)   = v(1:Nx);
       runSave.C_rec(:,j_record)   = v(Nx+1:2*Nx);
       % see if it broke
-      [DidIBreak, SteadyState] = BrokenSteadyTrack(v, vNext, timeObj.ss_epsilon);
+      [DidIBreak, SteadyState] = BrokenSteadyTrack(v, vNext, timeObj.ss_epsilon_dt);
       if (DidIBreak == 1)
         fprintf('I broke time = %f jrec= %d \n',timeObj.dt*t,j_record)
         TimeRec = timeObj.t_rec .* (0:j_record-1);

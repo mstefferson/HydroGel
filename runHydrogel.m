@@ -3,6 +3,9 @@
 % Fix Time issues and build object
 
 function recObj = runHydrogel(graphicsFlag)
+% Add path
+addpath( genpath( pwd ) );
+
 if nargin == 0
   graphicsFlag = 0;
 end
