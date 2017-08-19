@@ -30,7 +30,7 @@ Nx     = paramObj.Nx;
 DidIBreak = 0;
 SteadyState = 0;
 PrintedSteady = 0;
-if analysisFlags.TrackAccumFlux || analysisFlags.PlotAccumFromFlux
+if analysisFlags.TrackAccumFlux || analysisFlags.PlotAccumFlux
   TrackFlux = 1;
 else
   TrackFlux = 0;
