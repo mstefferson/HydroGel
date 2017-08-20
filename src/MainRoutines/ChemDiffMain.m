@@ -57,10 +57,10 @@ if flags.SaveMe
   % Other recs
   if TrackFlux
     runSave.FluxAccum_rec = zeros(1,2);
-    runSave.Flux2ResR_rec = zeros(1,2);
+    runSave.Flux2Res_rec = zeros(1,2);
   else
     runSave.FluxAccum_rec  = 0;
-    runSave.Flux2ResR_rec  = 0;
+    runSave.Flux2Res_rec  = 0;
   end
 else
   runSave = [];
@@ -72,6 +72,8 @@ if TrackFlux
 else
   FluxAccum_rec  = 0;
   Flux2Res_rec  = 0;
+  Flux2Res = 0;
+  FluxAccum = 0;
 end
 A_rec   = zeros(Nx,timeObj.N_rec);
 C_rec   = zeros(Nx,timeObj.N_rec);
@@ -96,9 +98,9 @@ C_rec(:,1)   = C;
 j_record = 2;
 % Store the "accumulation" from the flux
 if TrackFlux
-  Flux2ResR   = (v(Nx-1) - v(Nx) ) / dx;
+  Flux2Res   = (v(Nx-1) - v(Nx) ) / dx;
   FluxAccum   = 0;
-  Flux2Res_rec(1) = Flux2ResR;
+  Flux2Res_rec(1) = Flux2Res;
   FluxAccum_rec(1) =  FluxAccum;
 end
 %Build operators and matrices
@@ -128,8 +130,8 @@ NL  = NLdiff + NLchem;
   paramObj.AL, paramObj.AR, CL, CR);
 % Track flux
 if TrackFlux % Just do Euler stepping for now
-  Flux2ResR   = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
-  FluxAccumNext  = paramObj.AR + timeObj.dt * Flux2ResR;
+  Flux2Res   = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
+  FluxAccumNext  = paramObj.AR + timeObj.dt * Flux2Res;
 end
 % Time loop
 if analysisFlags.ShowRunTime; RunTimeID = tic; end
@@ -142,8 +144,8 @@ for t = 1:timeObj.N_time - 1 % t * dt  = time
   % Track flux
   if TrackFlux  % Just do Euler stepping for now
     FluxAccum     = FluxAccumNext;
-    Flux2ResR     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
-    FluxAccumNext = FluxAccum + timeObj.dt * Flux2ResR;
+    Flux2Res     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
+    FluxAccumNext = FluxAccum + timeObj.dt * Flux2Res;
   end
   %Non linear. Include endpoints, then set = 0
   if flags.NLcoup
@@ -167,12 +169,12 @@ for t = 1:timeObj.N_time - 1 % t * dt  = time
       A_rec(:,j_record)   = v(1:Nx);
       C_rec(:,j_record)   = v(Nx+1:2*Nx);
       if  TrackFlux % Just do Euler stepping for now
-        Flux2Res_rec(1,j_record) = Flux2ResR;
+        Flux2Res_rec(1,j_record) = Flux2Res;
         FluxAccum_rec(1,j_record) = FluxAccum;
       end
     if flags.SaveMe
       if  TrackFlux % Just do Euler stepping for now
-        runSave.Flux2ResR_rec(1,j_record) = Flux2ResR;
+        runSave.Flux2Res_rec(1,j_record) = Flux2Res;
         runSave.FluxAccum_rec(1,j_record) = FluxAccum;
       end
       % record it
@@ -208,18 +210,18 @@ end % time loop
 t = t+1;
 if TrackFlux % Just do Euler stepping for now
   FluxAccum     = FluxAccumNext;
-  Flux2ResR     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
+  Flux2Res     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
 end
 if ~SteadyState || ~DidIBreak
   if (mod(t,timeObj.N_count)==0) 
     v     = vNext;
-    Flux2Res_rec(1,j_record) = Flux2ResR;
-    FluxAccum_rec(1,j_record) = FluxAccum;
     A_rec(:,j_record)   = v(1:Nx);
     C_rec(:,j_record)   = v(Nx+1:2*Nx);
+    Flux2Res_rec(1,j_record) = Flux2Res;
+    FluxAccum_rec(1,j_record) = FluxAccum;
     if flags.SaveMe  
       if TrackFlux % Just do Euler stepping for now
-        runSave.Flux2ResR_rec(1,j_record) = Flux2ResR;
+        runSave.Flux2Res_rec(1,j_record) = Flux2Res;
         runSave.FluxAccum_rec(1,j_record) = FluxAccum;
       end
       runSave.A_rec(:,j_record)   = v(1:Nx);
