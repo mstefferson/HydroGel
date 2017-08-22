@@ -26,6 +26,7 @@ sandbox
 steadyfiles/
 figs/
 oe/
+runfiles/
 
 # Params files
 initParams.m
