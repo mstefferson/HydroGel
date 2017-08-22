@@ -146,7 +146,30 @@ CconcStdy = zeros( numRuns, Nx );
 % Calculated things
 x = linspace(0, Lbox, Nx) ;
 dx  = x(2) - x(1);
-parfor ii = 1:numRuns
+if numRuns > 1
+  parfor ii = 1:numRuns
+    % set params
+    p1Temp = paramNuLlp(ii);
+    KonBt  = paramKonBt(ii);
+    Koff  = paramKoff(ii);
+    Kon = KonBt ./ Bt;
+    if boundTetherDiff
+      Dc =  boundTetherDiffCalc( p1Temp, Koff, Da);
+      nu = Dc ./ Da;
+    else
+      nu = p1Temp;
+    end
+    [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
+      Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
+    % calc flux
+    flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
+    % record
+    AconcStdy(ii,:) = AnlOde;
+    CconcStdy(ii,:) = CnlOde;
+    jMax(ii) = flux;
+  end
+else
+  ii = 1;
   % set params
   p1Temp = paramNuLlp(ii);
   KonBt  = paramKonBt(ii);
