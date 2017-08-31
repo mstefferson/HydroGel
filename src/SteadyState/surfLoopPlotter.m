@@ -17,7 +17,7 @@ for ii = 1:length(vec1)
   n2t = n2;
   n3t = n3 ;
   temp = reshape( dataMat(ii,:,:), [n2 n3] );
-  if size(temp)  == 1
+  if n2  == 1 || n3 == 1
     imagesc(temp);
   else
     pcolor( 1:n3t, 1:n2t, temp);
