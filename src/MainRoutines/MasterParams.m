@@ -8,6 +8,7 @@ flags.BoundTetherDiff = 1; % Use the bound spring tether approx
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
 flags.BreakAtSteady = 0; % Save runHydrogel outputs
+flags.ParforFlag = 0; % Turn on/off Parfor
 
 % "Analysis" subroutines
 analysisFlags.QuickMovie             = 1;  % Time evolv. Movie

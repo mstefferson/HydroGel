@@ -36,7 +36,7 @@ if nargin < 6
     dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
 end
-% fix flags 
+% fix flags
 if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
   plotMapFlag = 1;
   % set colormap
@@ -173,9 +173,17 @@ dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
 FluxVsTDiff = RecObj.Flux2Res_rec;
 AccumVsTDiff = RecObj.FluxAccum_rec;
 % loop over runs
-if numRuns > 1
-  parfor ii = 1:numRuns
-    try
+if numRuns > 1 && flags.ParforFlag
+  recObj = 0;
+  parobj = gcp;
+  numWorkers = parobj.NumWorkers;
+  fprintf('I have hired %d workers\n',parobj.NumWorkers);
+else
+  fprintf('Not using parfor\n')
+  numWorkers = 0;
+end
+parfor (ii=1:numRuns, numWorkers)
+  try
     % set params
     p1Temp = paramNuLlp(ii);
     KonBt  = paramKonBt(ii);
@@ -191,27 +199,9 @@ if numRuns > 1
     FluxVsT{ii} = RecObj.Flux2Res_rec;
     AccumVsT{ii} = RecObj.FluxAccum_rec;
     fprintf('Finished %d \n', ii );
-    catch err
-      fprintf('%s',err.getReport('extended') );
-    end 
+  catch err
+    fprintf('%s',err.getReport('extended') );
   end
-else
-  ii = 1;
-  % set params
-  p1Temp = paramNuLlp(ii);
-  KonBt  = paramKonBt(ii);
-  Koff  = paramKoff(ii);
-  [RecObj] = ...
-    ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp KonBt Koff Bt]);
-  if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
-    fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
-  end
-  % record
-  AconcStdy(ii,:) = RecObj.Afinal;
-  CconcStdy(ii,:) = RecObj.Cfinal;
-  FluxVsT{ii} = RecObj.Flux2Res_rec;
-  AccumVsT{ii} = RecObj.FluxAccum_rec;
-  fprintf('Finished %d \n', ii );
 end
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
 AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );

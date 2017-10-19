@@ -69,7 +69,7 @@ for ii = 1:nFrames
   % text
   ParamStr = sprintf(...
     ' t = %.1g \n $$B_t$$ = %.1g \n $$K_A$$ = %.1g \n $$D_A$$ = %.1g \n $$D_C$$ = %.1g \n $$beta$$ = %.1g \n $$k_{on}$$ = %.1g \n $$k_{off}$$ = %.1g \n ', ...
-    TimeRec(ii), max(Bt), Ka, Da, Dc, Dnl,Kon(1), Koff(1) );
+    TimeRec(ii), max(Bt), Ka(1), Da, Dc, Dnl,Kon(1), Koff(1) );
   tl = text(0,0,ParamStr);
   tl.Position =  [0.4743 mean(Bt)/2 0];
   % pause, draw, and record

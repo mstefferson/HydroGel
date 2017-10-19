@@ -99,7 +99,8 @@ if flags.BtDepDiff == 1
   [paramObj.Da,paramObj.Dc] = BtDepDiffBuilder(paramObj.Bt, paramObj.Btc, ...
     paramObj.Da,paramObj.Dc);
 end
-v = [A';C'];
+
+v = [A;C];
 % Concentration records
 A_rec(:,1)   = A;
 C_rec(:,1)   = C;
