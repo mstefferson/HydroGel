@@ -50,6 +50,11 @@ t_rec       = t_tot / 100;  % time interval for recording dynamics
 ss_epsilon  = 1e-6;  % steady state condition
 NumPlots    = 10; % For the accumulation plot subroutine
 
+% koff vary
+% {'const'}  or {}
+% {'outletboundary', multVal}
+koffVary = {};
+
 % Build timeObj
 [timeMaster] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 % Binding flag 0: constant. 1: Square blurr

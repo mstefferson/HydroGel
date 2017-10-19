@@ -1,7 +1,8 @@
 % ChemDiffMain
 % Handles all BCs
 
-function [recObj] = ChemDiffMain( filename, paramObj,timeObj, flags, analysisFlags, pVec )
+function [recObj] = ChemDiffMain( filename, paramObj,timeObj, flags, ...
+  analysisFlags, pVec, koffVaryCell )
 % get parameters from vec
 paramObj.KonBt = pVec(2);
 paramObj.Koff = pVec(3);
@@ -25,6 +26,13 @@ else
   paramObj.Llp = 0;
 end
 paramObj.nu = paramObj.Dc ./  paramObj.Da;
+% build koffVary
+koffClass = VaryKoffClass( paramObj.Koff, koffVaryCell, paramObj.Nx );
+paramObj.Koff = koffClass.Koff;
+paramObj.Kon  = paramObj.Kon .* ones( size( paramObj.Koff ) );
+paramObj.KonBt  = paramObj.KonBt .* ones( size( paramObj.Koff ) );
+paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
+
 % Define commonly used variables
 Nx     = paramObj.Nx;
 DidIBreak = 0;

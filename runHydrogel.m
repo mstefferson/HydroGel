@@ -111,7 +111,8 @@ if numRuns > 1
     where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
     fprintf('\nStarting %s \n', filename);
     % Run main code
-    [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
+    [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, ...
+      analysisFlags, paramvec, koffVary);
     fprintf('Finished %s \n', filename);
     % Move things to runfiles
     if SaveMe
@@ -153,7 +154,8 @@ else
   where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
   fprintf('\nStarting %s \n', filename);
   % Run main code
-  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
+  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec,...
+    koffVary);
   fprintf('Finished %s \n', filename);
   % Move things to runfiles
   if SaveMe
