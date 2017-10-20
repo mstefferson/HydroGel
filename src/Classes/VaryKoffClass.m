@@ -20,12 +20,11 @@ classdef VaryKoffClass < handle
       obj.N = n;
       if strcmp( koffCell{1}, 'const' )
         obj.Koff = obj.KoffScale .* ones( obj.N, 1 );
-      elseif strcmp( koffInfo.fncform, 'outletboundary' )
+      elseif strcmp( koffCell{1}, 'outletboundary' )
         obj.Koff = obj.KoffScale .* ones( obj.N, 1 );
-        obj.MultFac = koffInfo.multVal;
-        obj.Koff(end) = koffInfo.multVal .* obj.Koff(end);
+        obj.MultFac = koffCell{2};
+        obj.Koff(end) = koffCell{2} .* obj.Koff(end);
       end
     end
   end % methods
-
 end % class
