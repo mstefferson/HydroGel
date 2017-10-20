@@ -1,13 +1,14 @@
 % homodiffsolver. Rescaled by diffusive time
 function [Ass,Css,x] = RdSsSolverMatBvFunc(...
-  KonVal,KoffVal,nuVal,ALval,ARval,Btval,Lboxval,BCstrVal,Nx,linearEqn, koffVaryCell)
-
+  KonVal,KoffVal,nuVal,ALval,ARval,Btval,Lboxval,BCstrVal,Nx, nlEqn, koffVaryCell)
 global nu AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac
 
-% Make sure linear eqn is zero or one
-if linearEqn ~= 0 && linearEqn ~= 1
-  error('Need to set linear eqn parameter to 0 or 1')
+% if koffVary not set, run const
+if nargin < 11
+  koffVaryCell = {'const'};
 end
+
+% set BC
 BCstr = BCstrVal; % 'Dir','Vn','DirVn'
 
 %Parameter you can edit
@@ -17,22 +18,24 @@ nu  = nuVal;
 AL  = ALval;
 AR  = ARval ;
 Bt  = Btval;
+Ka  = Kon ./ Koff;
 
 %Spatial endpoints and grid
 xa = 0;
 xb = Lboxval;
 x = linspace(xa,xb,Nx);
 
-% Calculate other stuff
-Ka  = Kon ./ Koff;
-
 % Make factor for linear equation
-if linearEqn
-  nlFac = 0;
+if nlEqn
+  nlfac = 1;
 else
-  nlFac = 1;
+  nlfac = 0;
 end
-nlfac = nlFac;
+
+% handle koff
+if isempty( koffVaryCell )
+  koffVaryCell = { 'const' };
+end
 
 % Calculated parameters/linear solutions
 % CL and CR are the values based on chemical equilibrium
@@ -51,7 +54,12 @@ else %solve the coupled ODE
   
   % Solve it
   options = [];
-  sol = bvp4c(@odeCoupledDiffChemNL,@resbcfunc,solinit,options);
+  if strcmp( koffVaryCell{1}, 'const' )
+    sol = bvp4c(@odeCoupledDiffChem,@resbcfunc,solinit,options);
+  elseif strcmp( koffVaryCell{1}, 'outletboundary' )
+    sol = bvp4c(@odeCoupledDiffChemOutletBoundary,@resbcfunc,solinit,options,...
+      koffVaryCell{2} );
+  end
   
   % Now  get numerical value
   y = deval(sol,x);
@@ -59,12 +67,10 @@ else %solve the coupled ODE
   Css = y(2,:);
 end
 
-
 %%%%%%%%%%%%%%%Include functions%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Guess solution subroutine. x is a single value, not a point
 function yinit = intcond(x)
-
 global AL AR CL CR xa xb BCstr
 % y = [A C dA/dx dC/dx]
 if strcmp(BCstr,'Dir')
@@ -83,21 +89,8 @@ else
   fprintf('No Boundary Value selected\n')
 end
 
-% ODE subroutine
-% function dydx = odeCoupledDiffChemNL(x, y, nlfac)
-function dydx = odeCoupledDiffChemNL(x, y)
-global Kon Koff Bt nu nlfac
-% y = [A C dA/dx dC/dx]
-%form y' = f(x,y)
-% solve for derivative
-dydx = ...
-  [ y(3) ; y(4) ;
-  Kon .* ( Bt  - nlfac .* y(2) ) .* y(1) - Koff .* y(2);...
-  -1./nu .* ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
-
-
 % Boundary condition subroutine
-function res = resbcfunc(ya,yb)
+function res = resbcfunc(ya,yb,~)
 global AL AR CL CR BCstr
 % y = [A C dA/dx dC/dx]
 if strcmp(BCstr,'Dir') % Both Dirichlet
@@ -109,3 +102,27 @@ elseif strcmp(BCstr,'DirVn')% A Dirichlet C Vn
 else
   fprintf('No Boundary Value selected\n')
 end
+
+% ODE subroutine
+function dydx = odeCoupledDiffChem(~, y)
+global Kon Koff Bt nu nlfac
+% y = [A C dA/dx dC/dx]
+%form y' = f(x,y)
+% solve for derivative
+dydx = ...
+  [ y(3) ; y(4) ;
+  Kon .* ( Bt  - nlfac .* y(2) ) .* y(1) - Koff .* y(2);...
+  -1./nu .* ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
+
+function dydx = odeCoupledDiffChemOutletBoundary(x, y, koffMult)
+global Kon Koff Bt nu nlfac xb
+% y = [A C dA/dx dC/dx]
+%form y' = f(x,y)
+% get koff value. factor of two since h(0) = 1/2
+koffTemp = Koff .* ( 1 + 2  * koffMult * heaviside( x - xb) );
+
+% solve for derivative
+dydx = ...
+  [ y(3) ; y(4) ;
+  Kon * ( Bt  - nlfac .* y(2) ) * y(1) - koffTemp * y(2);...
+  -1./nu * ( Kon * ( Bt - nlfac .* y(2) ) * y(1) - koffTemp * y(2) ) ];

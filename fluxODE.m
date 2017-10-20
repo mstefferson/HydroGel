@@ -125,9 +125,10 @@ if plotSteadyFlag
   p3name = paramObj.kinVar2strTex;
 end
 % Specify necessary parameters for parfor
-linearEqn = ~flags.NLcoup;
+nlEqn = flags.NLcoup;
 Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
 Bt = paramObj.Bt; Nx = paramObj.Nx; Lbox = paramObj.Lbox;
+koffVaryCell = koffVary;
 if strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
   BCstr = 'DirVn';
 elseif strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
@@ -168,7 +169,7 @@ parfor (ii=1:numRuns, numWorkers)
     nu = p1Temp;
   end
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-    Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
+    Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx, nlEqn, koffVaryCell);
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
