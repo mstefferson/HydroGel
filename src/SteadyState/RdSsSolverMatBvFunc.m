@@ -1,8 +1,8 @@
 % homodiffsolver. Rescaled by diffusive time
 function [Ass,Css,x] = RdSsSolverMatBvFunc(...
-  KonVal,KoffVal,nuVal,ALval,ARval,Btval,Lboxval,BCstrVal,Nx,linearEqn)
+  KonVal,KoffVal,nuVal,ALval,ARval,Btval,Lboxval,BCstrVal,Nx,linearEqn, koffVaryCell)
 
-global nu AL AR CL CR Bt Kon Koff Ka xa xb BCstr X counter
+global nu AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac
 
 % Make sure linear eqn is zero or one
 if linearEqn ~= 0 && linearEqn ~= 1
@@ -18,28 +18,21 @@ AL  = ALval;
 AR  = ARval ;
 Bt  = Btval;
 
-% turn everything to a row vector
-if length(Kon) == 1
-  Kon = Kon .* ones( 1, Nx );
-end
-if length(Koff) == 1
-  Koff = Koff .* ones( 1, Nx );
-end
-if length(Bt) == 1
-  Bt = Bt .* ones( 1, Nx );
-end
-if length(nu) == 1
-  nu = nu .* ones( 1, Nx );
-end
-
 %Spatial endpoints and grid
 xa = 0;
 xb = Lboxval;
 x = linspace(xa,xb,Nx);
-X = x;
 
 % Calculate other stuff
 Ka  = Kon ./ Koff;
+
+% Make factor for linear equation
+if linearEqn
+  nlFac = 0;
+else
+  nlFac = 1;
+end
+nlfac = nlFac;
 
 % Calculated parameters/linear solutions
 % CL and CR are the values based on chemical equilibrium
@@ -57,15 +50,8 @@ else %solve the coupled ODE
   solinit = bvpinit(x,@intcond);
   
   % Solve it
-  counter = 0;
-  if linearEqn == 1
-    sol = bvp4c(@odeCoupledDiffChemLin,@resbcfunc,solinit);
-  else
-    options = [];
-    debug = 0;
-    %       sol = bvp4c(@odeCoupledDiffChemNL,@resbcfunc,solinit, options, debug);
-    sol = bvp4c(@odeCoupledDiffChemNL,@resbcfunc,solinit);
-  end
+  options = [];
+  sol = bvp4c(@odeCoupledDiffChemNL,@resbcfunc,solinit,options);
   
   % Now  get numerical value
   y = deval(sol,x);
@@ -98,43 +84,17 @@ else
 end
 
 % ODE subroutine
-function dydx = odeCoupledDiffChemLin(x,y)
-%Parameters you can edit
-global nu Bt Kon Koff
+% function dydx = odeCoupledDiffChemNL(x, y, nlfac)
+function dydx = odeCoupledDiffChemNL(x, y)
+global Kon Koff Bt nu nlfac
 % y = [A C dA/dx dC/dx]
 %form y' = f(x,y)
-% Grab indice
-ind = find( X == x);
 % solve for derivative
 dydx = ...
   [ y(3) ; y(4) ;
-  Kon(ind) .*  Bt(ind)  .* y(1) - Koff(ind) .* y(2);...
-  -1./nu(ind) .* ( Kon(ind) .*  Bt(ind) .* y(1) - Koff(ind) .* y(2) ) ];
+  Kon .* ( Bt  - nlfac .* y(2) ) .* y(1) - Koff .* y(2);...
+  -1./nu .* ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
 
-% ODE subroutine
-function dydx = odeCoupledDiffChemNL(x,y)
-global X Kon Koff Bt nu counter
-debug = 1;
-
-% y = [A C dA/dx dC/dx]
-%form y' = f(x,y)
-% Grab indice
-ind = find( X == x);
-
-if isempty(ind)
-  keyboard
-end
-% solve for derivative
-dydx = ...
-  [ y(3) ; y(4) ;
-  Kon(ind) .* ( Bt(ind)  - y(2) ) .* y(1) - Koff(ind) .* y(2);...
-  -1./nu(ind) .* ( Kon(ind) .* ( Bt(ind) - y(2) ) .* y(1) - Koff(ind) .* y(2) ) ];
-counter = counter + 1;
-if debug
-  ind
-  dydx
-%   keyboard;
-end
 
 % Boundary condition subroutine
 function res = resbcfunc(ya,yb)
