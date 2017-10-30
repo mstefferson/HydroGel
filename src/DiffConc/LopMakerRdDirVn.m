@@ -22,6 +22,9 @@ end
 if length(koff) == 1
   koff = koff .* ones( 1, N );
 end
+if length(Dc) == 1
+  Dc = Dc .* ones( 1, N );
+end
 LopDiff(1 : 2*N+1 : 2*N*N) = -kon .* Bt - 2*Da/dx^2;
 LopDiff(1,1) = 0; LopDiff(N,N) = 0;
 % C Diag
@@ -32,16 +35,16 @@ LopDiff( (2*N)*N + N+1 : 2*N+1 : (2*N )*(2*N) ) = -koff-2*Dc/dx^2;
 LopDiff(2 : 2*N+1 : (N-1)*(2*N)) = Da/dx^2;
 LopDiff(N,N-1) = 0;
 % C Sub Diag
-LopDiff( (2*N)* N + N + 2 : 2*N+1 : (2*N )*(2*N-1) ) = Dc/dx^2;
-LopDiff(2*N,2*N-1) = 2*Dc/dx^2;
+LopDiff( (2*N)* N + N + 2 : 2*N+1 : (2*N )*(2*N-1) ) = Dc(2:end)/dx^2;
+LopDiff(2*N,2*N-1) = 2*Dc(end)/dx^2;
 
 % Super DiagonalS
 % A Super Diag
 LopDiff(2*N+1 : 2*N+1 : (2*N)*N-1) = Da/dx^2;
 LopDiff(1,2) = 0;
 % C Super Diag
-LopDiff( (2*N)*(N+1)+ N + 1 : 2*N+1 : (2*N)*(2*N) - 1) = Dc/dx^2;
-LopDiff(N+1,N+2) = 2*Dc/dx^2;
+LopDiff( (2*N)*(N+1)+ N + 1 : 2*N+1 : (2*N)*(2*N) - 1) = Dc(1:end-1)/dx^2;
+LopDiff(N+1,N+2) = 2*Dc(1)/dx^2;
 
 % Coupling
 LopCoup( N+1 : 2*(N) +1: (2*N)*N) = kon .* Bt; %Chem Eps

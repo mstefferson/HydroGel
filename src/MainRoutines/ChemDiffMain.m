@@ -17,22 +17,26 @@ if paramObj.Kon == 0
 else
   paramObj.Ka = paramObj.Kon / paramObj.Koff;
 end
+% build koffVary
+koffClass = VaryKoffClass( paramObj.Koff, koffVaryCell, paramObj.Nx );
+% if Koff varyies 
+paramObj.Koff = koffClass.Koff;
+paramSize = size( paramObj.Koff );
+paramObj.Kon  = paramObj.Kon .* ones( paramSize  );
+paramObj.KonBt  = paramObj.KonBt .* ones( paramSize );
+paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
 % Calculate D if you're suppose to
 if flags.BoundTetherDiff
   paramObj.Llp = pVec(1);
   paramObj.Dc =  boundTetherDiffCalc( paramObj.Llp, paramObj.Koff, paramObj.Da );
+  if length( paramObj.Dc ) == 1
+    paramObj.Dc = paramObj.Dc .* ones( paramSize );
+  end
 else
-  paramObj.Dc = pVec(1) * paramObj.Da;
+  paramObj.Dc = pVec(1) * paramObj.Da .* ones( paramSize );
   paramObj.Llp = 0;
 end
 paramObj.nu = paramObj.Dc ./  paramObj.Da;
-% build koffVary
-koffClass = VaryKoffClass( paramObj.Koff, koffVaryCell, paramObj.Nx );
-paramObj.Koff = koffClass.Koff;
-paramObj.Kon  = paramObj.Kon .* ones( size( paramObj.Koff ) );
-paramObj.KonBt  = paramObj.KonBt .* ones( size( paramObj.Koff ) );
-paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
-
 % Define commonly used variables
 Nx     = paramObj.Nx;
 DidIBreak = 0;
@@ -119,6 +123,7 @@ end
 [Lop]  =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.Kon,paramObj.Koff,...
   paramObj.Da,paramObj.Dc, paramObj.Lr, A_BC,C_BC);
 [LMcn,RMcn] = MatMakerCN(  Lop, timeObj.dt, 2 * Nx );
+keyboard
 % NonLinear Include endpoints Dirichlet, then set = 0
 if flags.NLcoup
   [NLchem]   = CoupChemNLCalc(v,paramObj.Kon,Nx);
