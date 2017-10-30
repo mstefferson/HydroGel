@@ -123,7 +123,7 @@ end
 [Lop]  =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.Kon,paramObj.Koff,...
   paramObj.Da,paramObj.Dc, paramObj.Lr, A_BC,C_BC);
 [LMcn,RMcn] = MatMakerCN(  Lop, timeObj.dt, 2 * Nx );
-keyboard
+
 % NonLinear Include endpoints Dirichlet, then set = 0
 if flags.NLcoup
   [NLchem]   = CoupChemNLCalc(v,paramObj.Kon,Nx);
