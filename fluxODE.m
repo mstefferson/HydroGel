@@ -156,20 +156,20 @@ else
   fprintf('Not using parfor\n')
   numWorkers = 0;
 end
+% set bound diffusion or not
+if boundTetherDiff
+  nuCell{1} = 'bound';
+else
+  nuCell{1} = 'const';
+end
 parfor (ii=1:numRuns, numWorkers)
   % set params
   p1Temp = paramNuLlp(ii);
   KonBt  = paramKonBt(ii);
   Koff  = paramKoff(ii);
-  Kon = KonBt ./ Bt;
-  if boundTetherDiff
-    Dc =  boundTetherDiffCalc( p1Temp, Koff, Da);
-    nu = Dc ./ Da;
-  else
-    nu = p1Temp;
-  end
+  Kon = KonBt ./ Bt;  
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-    Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx, nlEqn, koffVaryCell);
+    Kon,Koff,AL,AR,Bt,Lbox,BCstr,Nx, nlEqn, koffVaryCell, nuCell, p1Temp);
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
