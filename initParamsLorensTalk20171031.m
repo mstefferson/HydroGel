@@ -39,12 +39,12 @@ if smallBt
   paramMaster.Koff   = []; % vec koff (time scale)
   paramMaster.Ka   = [1e6 1e8]; % vec binding affinity (time scale) 
   paramMaster.Bt     = [5e-6];  % vec molar (old: 1e-2) (new: 1e-3)
-end
+else
   paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
   paramMaster.Koff   = []; % vec koff (time scale)
   paramMaster.Ka   = [1e6 1e8]; % vec binding affinity (time scale) 
-  paramMaster.Bt     = [5e-6];  % vec molar (old: 1e-2) (new: 1e-3)
-  
+  paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
+end
 paramMaster.Llp    = 1e-2; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet
