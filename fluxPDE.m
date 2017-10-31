@@ -36,7 +36,7 @@ if nargin < 6
     dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
 end
-% fix flags 
+% fix flags
 if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
   plotMapFlag = 1;
   % set colormap
@@ -157,6 +157,8 @@ flagsObj.SaveMe = 0;
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)
 disp(paramObj); disp(analysisFlags); disp(timeObj);
+% you need to have koffVary show in script to work
+koffVaryRun = koffVary;
 % Edits here. Change params and loop over
 FluxVsT = cell( numRuns, 1 );
 AccumVsT = cell( numRuns, 1 );
@@ -169,49 +171,41 @@ pVec =[0 0 0 0];
 dtfac       = 1;
 dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
 [timeObjDiff] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
-[RecObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, analysisFlags, pVec );
-FluxVsTDiff = RecObj.Flux2Res_rec;
-AccumVsTDiff = RecObj.FluxAccum_rec;
+[recObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, ...
+  analysisFlags, pVec, koffVary );
+FluxVsTDiff = recObj.Flux2Res_rec;
+AccumVsTDiff = recObj.FluxAccum_rec;
 % loop over runs
-if numRuns > 1
-  parfor ii = 1:numRuns
-    try
+if numRuns > 1 && flags.ParforFlag
+  recObj = 0;
+  parobj = gcp;
+  numWorkers = parobj.NumWorkers;
+  fprintf('I have hired %d workers\n',parobj.NumWorkers);
+else
+  fprintf('Not using parfor\n')
+  numWorkers = 0;
+end
+parfor (ii=1:numRuns, numWorkers)
+  try
     % set params
     p1Temp = paramNuLlp(ii);
     KonBt  = paramKonBt(ii);
     Koff  = paramKoff(ii);
-    [RecObj] = ...
-      ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp KonBt Koff Bt]);
-    if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
-      fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
+    [recObj] = ...
+      ChemDiffMain('', paramObj, timeObj, flagsObj, ...
+        analysisFlags, [p1Temp KonBt Koff Bt], koffVaryRun);
+    if recObj.DidIBreak == 1 || recObj.SteadyState == 0
+      fprintf('B = %d S = %d\n',recObj.DidIBreak,recObj.SteadyState)
     end
     % record
-    AconcStdy(ii,:) = RecObj.Afinal;
-    CconcStdy(ii,:) = RecObj.Cfinal;
-    FluxVsT{ii} = RecObj.Flux2Res_rec;
-    AccumVsT{ii} = RecObj.FluxAccum_rec;
+    AconcStdy(ii,:) = recObj.Afinal;
+    CconcStdy(ii,:) = recObj.Cfinal;
+    FluxVsT{ii} = recObj.Flux2Res_rec;
+    AccumVsT{ii} = recObj.FluxAccum_rec;
     fprintf('Finished %d \n', ii );
-    catch err
-      fprintf('%s',err.getReport('extended') );
-    end 
+  catch err
+    fprintf('%s',err.getReport('extended') );
   end
-else
-  ii = 1;
-  % set params
-  p1Temp = paramNuLlp(ii);
-  KonBt  = paramKonBt(ii);
-  Koff  = paramKoff(ii);
-  [RecObj] = ...
-    ChemDiffMain('', paramObj, timeObj, flagsObj, analysisFlags, [p1Temp KonBt Koff Bt]);
-  if RecObj.DidIBreak == 1 || RecObj.SteadyState == 0
-    fprintf('B = %d S = %d\n',RecObj.DidIBreak,RecObj.SteadyState)
-  end
-  % record
-  AconcStdy(ii,:) = RecObj.Afinal;
-  CconcStdy(ii,:) = RecObj.Cfinal;
-  FluxVsT{ii} = RecObj.Flux2Res_rec;
-  AccumVsT{ii} = RecObj.FluxAccum_rec;
-  fprintf('Finished %d \n', ii );
 end
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
 AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
@@ -306,7 +300,16 @@ if saveMe
     movefile('*.jpg', dirname);
   end
   movefile(saveStrMat, dirname);
-  movefile(dirname, './steadyfiles/PDE' )
+  % dont overwrite directories
+  where2SavePath = [ './steadyfiles/PDE/' dirname ];
+  if exist(where2SavePath,'dir')
+    fprintf('You are trying to rewrite data. Renaming \n')
+    dirname = dirname(1:end-1);
+    dirnameOld = dirname;
+    dirname = [ datestr(now,'yyyymmdd') '_' dirname '_' num2str( randi(1000) ) ];
+    movefile(dirnameOld, dirname);
+  end
+movefile(dirname, './steadyfiles/PDE' )
 end
 % Print times
 Time = datestr(now);

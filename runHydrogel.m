@@ -29,6 +29,7 @@ else
   cpParams
   initParams
 end
+
 % hard code rand ind power to prevent directory overriding
 randSavePow = 4;
 % Copy master parameters input object
@@ -84,59 +85,25 @@ NLcoup = flags.NLcoup; trial = paramObj.trial;
 % Loops over all run
 fprintf('Starting loop over runs\n');
 ticID = tic;
-if numRuns > 1
+if numRuns > 1 && flags.ParforFlag
   recObj = 0;
   parobj = gcp;
+  numWorkers = parobj.NumWorkers;
   fprintf('I have hired %d workers\n',parobj.NumWorkers);
   % Turn off graphics
   fprintf('Using parfor: turning off graphics\n')
-  analysisFlags.QuickMovie = 0; analysisFlags.TrackAccumFromFluxPlot = 0;
-  analysisFlags.PlotMeLastConc = 0; analysisFlags.PlotMeAccum = 0;
-  analysisFlags.PlotMeWaveFrontAccum = 0; analysisFlags.PlotMeLastConcAccum = 0;
-  analysisFlags.CheckConservDen = 0; analysisFlags.ShowRunTime = 0;
-  parfor ii = 1:numRuns
-    % Assign parameters
-    paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
-    % Name it
-    if boundDiff
-      dirname = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
-        Nx, A_BC, C_BC, NLcoup,...
-        paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
-    else
-      dirname = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
-        Nx, A_BC, C_BC, NLcoup,...
-        paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
-    end
-    filename = [dirname '.mat'];
-    where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
-    fprintf('\nStarting %s \n', filename);
-    % Run main code
-    [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
-    fprintf('Finished %s \n', filename);
-    % Move things to runfiles
-    if SaveMe
-      if exist(where2SavePath,'dir')
-        fprintf('You are trying to rewrite data. Renaming \n')
-        rng('shuffle');
-        where2SavePath = [where2SavePath '_' ...
-        num2str( randi(10^randSavePow), ['%.' num2str(randSavePow+1) 'd'] ) ];
-      end
-      fprintf('Saving at %s \n', where2SavePath);
-      mkdir(where2SavePath)
-      movefile(filename, where2SavePath)
-      if ~isempty( dir( ['*' filename '*.avi'] ) )
-        movefile(['*' dirname '*.avi'], where2SavePath);
-      end
-      if ~isempty( dir( ['*' dirname '*.fig'] ) )
-        movefile(['*' filename '*.fig'], where2SavePath);
-      end
-      if ~isempty( dir( ['*' dirname '*.jpg '] ) )
-        movefile(['*' filename '*.jpg'], where2SavePath);
-      end
-    end
-  end % parfor
+  analysisFlags.QuickMovie           = 0;  % Time evolv. Movie
+  analysisFlags.PlotAccumFlux        = 0;  % Plot flux vs time
+  analysisFlags.PlotMeLastConc       = 0;  % Concentration at end time
+  analysisFlags.PlotMeAccum          = 0;  % Concentration at Outlet vs time
+  analysisFlags.PlotMeWaveFrontAccum = 0;  % Wavefront and accum
+  analysisFlags.PlotMeLastConcAccum  = 0;  % Conc at end time and accum
 else
-  ii = 1;
+  fprintf('Not using parfor\n')
+  numWorkers = 0;
+end
+koffVaryRun = koffVary;
+parfor (ii=1:numRuns, numWorkers)
   % Assign parameters
   paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
   % Name it
@@ -150,18 +117,18 @@ else
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
   end
   filename = [dirname '.mat'];
-  where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
+  where2SavePath = [pwd '/runfiles/' dirname];
   fprintf('\nStarting %s \n', filename);
   % Run main code
-  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
+  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec,...
+    koffVaryRun);
   fprintf('Finished %s \n', filename);
   % Move things to runfiles
   if SaveMe
     if exist(where2SavePath,'dir')
       fprintf('You are trying to rewrite data. Renaming \n')
-      rng('shuffle');
-      where2SavePath = [where2SavePath '_' ...
-        num2str( randi(10^randSavePow), ['%.' num2str(randSavePow+1) 'd'] ) ];
+      where2SavePath = [pwd '/runfiles/' ...
+        datestr(now,'yyyymmdd') '_' dirname '_' num2str( randi(1000) )];
     end
     fprintf('Saving at %s \n', where2SavePath);
     mkdir(where2SavePath)
@@ -176,7 +143,7 @@ else
       movefile(['*' filename '*.jpg'], where2SavePath);
     end
   end
-end % numRuns > 1
+end % parfor
 % Print time info
 runTime = toc(ticID);
 dateTime =  datestr(now);

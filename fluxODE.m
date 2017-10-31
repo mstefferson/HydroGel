@@ -100,8 +100,8 @@ fprintf('Building parameter mat \n');
 [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
 % Run the loops
-paramNuLlp  = paramMat(1,:); 
-paramKonBt  = paramMat(2,:); 
+paramNuLlp  = paramMat(1,:);
+paramKonBt  = paramMat(2,:);
 paramKoff = paramMat(3,:);
 % save names
 saveStrFM = 'flxss'; %flux map
@@ -125,9 +125,10 @@ if plotSteadyFlag
   p3name = paramObj.kinVar2strTex;
 end
 % Specify necessary parameters for parfor
-linearEqn = ~flags.NLcoup;
+nlEqn = flags.NLcoup;
 Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
 Bt = paramObj.Bt; Nx = paramObj.Nx; Lbox = paramObj.Lbox;
+koffVaryCell = koffVary;
 if strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
   BCstr = 'DirVn';
 elseif strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
@@ -146,43 +147,29 @@ CconcStdy = zeros( numRuns, Nx );
 % Calculated things
 x = linspace(0, Lbox, Nx) ;
 dx  = x(2) - x(1);
-if numRuns > 1
-  parfor ii = 1:numRuns
-    % set params
-    p1Temp = paramNuLlp(ii);
-    KonBt  = paramKonBt(ii);
-    Koff  = paramKoff(ii);
-    Kon = KonBt ./ Bt;
-    if boundTetherDiff
-      Dc =  boundTetherDiffCalc( p1Temp, Koff, Da);
-      nu = Dc ./ Da;
-    else
-      nu = p1Temp;
-    end
-    [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-      Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
-    % calc flux
-    flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
-    % record
-    AconcStdy(ii,:) = AnlOde;
-    CconcStdy(ii,:) = CnlOde;
-    jMax(ii) = flux;
-  end
+if numRuns > 1 && flags.ParforFlag
+  recObj = 0;
+  parobj = gcp;
+  numWorkers = parobj.NumWorkers;
+  fprintf('I have hired %d workers\n',parobj.NumWorkers);
 else
-  ii = 1;
+  fprintf('Not using parfor\n')
+  numWorkers = 0;
+end
+% set bound diffusion or not
+if boundTetherDiff
+  nuCell{1} = 'bound';
+else
+  nuCell{1} = 'const';
+end
+parfor (ii=1:numRuns, numWorkers)
   % set params
   p1Temp = paramNuLlp(ii);
   KonBt  = paramKonBt(ii);
   Koff  = paramKoff(ii);
-  Kon = KonBt ./ Bt;
-  if boundTetherDiff
-    Dc =  boundTetherDiffCalc( p1Temp, Koff, Da);
-    nu = Dc ./ Da;
-  else
-    nu = p1Temp;
-  end
+  Kon = KonBt ./ Bt;  
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-    Kon,Koff,nu,AL,AR,Bt,Lbox,BCstr,Nx,linearEqn);
+    Kon,Koff,AL,AR,Bt,Lbox,BCstr,Nx, nlEqn, koffVaryCell, nuCell, p1Temp);
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
@@ -190,6 +177,7 @@ else
   CconcStdy(ii,:) = CnlOde;
   jMax(ii) = flux;
 end
+
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
 AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
 CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
@@ -228,7 +216,7 @@ if saveMe
   kinVar2 = paramObj.kinVar2;
   kinVar2str = paramObj.kinVar2str;
   save(saveStrMat, 'fluxSummary', 'p1Vec', 'p1name', 'kinVar1', 'kinVar1str', ...
-  'kinVar2', 'kinVar2str');
+    'kinVar2', 'kinVar2str');
   % make dirs and move
   if plotSteadyFlag || plotMapFlag
     movefile('*.fig', dirname);

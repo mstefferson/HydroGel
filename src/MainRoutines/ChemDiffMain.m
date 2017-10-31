@@ -1,7 +1,8 @@
 % ChemDiffMain
 % Handles all BCs
 
-function [recObj] = ChemDiffMain( filename, paramObj,timeObj, flags, analysisFlags, pVec )
+function [recObj] = ChemDiffMain( filename, paramObj,timeObj, flags, ...
+  analysisFlags, pVec, koffVaryCell )
 % get parameters from vec
 paramObj.KonBt = pVec(2);
 paramObj.Koff = pVec(3);
@@ -16,12 +17,23 @@ if paramObj.Kon == 0
 else
   paramObj.Ka = paramObj.Kon / paramObj.Koff;
 end
+% build koffVary
+koffClass = VaryKoffClass( paramObj.Koff, koffVaryCell, paramObj.Nx );
+% if Koff varyies 
+paramObj.Koff = koffClass.Koff;
+paramSize = size( paramObj.Koff );
+paramObj.Kon  = paramObj.Kon .* ones( paramSize  );
+paramObj.KonBt  = paramObj.KonBt .* ones( paramSize );
+paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
 % Calculate D if you're suppose to
 if flags.BoundTetherDiff
   paramObj.Llp = pVec(1);
   paramObj.Dc =  boundTetherDiffCalc( paramObj.Llp, paramObj.Koff, paramObj.Da );
+  if length( paramObj.Dc ) == 1
+    paramObj.Dc = paramObj.Dc .* ones( paramSize );
+  end
 else
-  paramObj.Dc = pVec(1) * paramObj.Da;
+  paramObj.Dc = pVec(1) * paramObj.Da .* ones( paramSize );
   paramObj.Llp = 0;
 end
 paramObj.nu = paramObj.Dc ./  paramObj.Da;
@@ -65,7 +77,7 @@ if flags.SaveMe
 else
   runSave = [];
 end
-% track things regardless of saving 
+% track things regardless of saving
 if TrackFlux
   FluxAccum_rec = zeros(1,timeObj.N_rec);
   Flux2Res_rec = zeros(1,timeObj.N_rec);
@@ -91,10 +103,14 @@ if flags.BtDepDiff == 1
   [paramObj.Da,paramObj.Dc] = BtDepDiffBuilder(paramObj.Bt, paramObj.Btc, ...
     paramObj.Da,paramObj.Dc);
 end
-v = [A';C'];
+try
+  v = [A;C];
+catch
+  keyboard
+end
 % Concentration records
-A_rec(:,1)   = A;
-C_rec(:,1)   = C;
+A_rec(:,1)   = v(1:Nx);
+C_rec(:,1)   = v(Nx+1:2*Nx);
 j_record = 2;
 % Store the "accumulation" from the flux
 if TrackFlux
@@ -107,6 +123,7 @@ end
 [Lop]  =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.Kon,paramObj.Koff,...
   paramObj.Da,paramObj.Dc, paramObj.Lr, A_BC,C_BC);
 [LMcn,RMcn] = MatMakerCN(  Lop, timeObj.dt, 2 * Nx );
+
 % NonLinear Include endpoints Dirichlet, then set = 0
 if flags.NLcoup
   [NLchem]   = CoupChemNLCalc(v,paramObj.Kon,Nx);
@@ -166,12 +183,12 @@ for t = 1:timeObj.N_time - 1 % t * dt  = time
     paramObj.AL, paramObj.AR, CL, CR);
   % Save stuff
   if (mod(t,timeObj.N_count)== 0)
-      A_rec(:,j_record)   = v(1:Nx);
-      C_rec(:,j_record)   = v(Nx+1:2*Nx);
-      if  TrackFlux % Just do Euler stepping for now
-        Flux2Res_rec(1,j_record) = Flux2Res;
-        FluxAccum_rec(1,j_record) = FluxAccum;
-      end
+    A_rec(:,j_record)   = v(1:Nx);
+    C_rec(:,j_record)   = v(Nx+1:2*Nx);
+    if  TrackFlux % Just do Euler stepping for now
+      Flux2Res_rec(1,j_record) = Flux2Res;
+      FluxAccum_rec(1,j_record) = FluxAccum;
+    end
     if flags.SaveMe
       if  TrackFlux % Just do Euler stepping for now
         runSave.Flux2Res_rec(1,j_record) = Flux2Res;
@@ -213,13 +230,13 @@ if TrackFlux % Just do Euler stepping for now
   Flux2Res     = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
 end
 if ~SteadyState || ~DidIBreak
-  if (mod(t,timeObj.N_count)==0) 
+  if (mod(t,timeObj.N_count)==0)
     v     = vNext;
     A_rec(:,j_record)   = v(1:Nx);
     C_rec(:,j_record)   = v(Nx+1:2*Nx);
     Flux2Res_rec(1,j_record) = Flux2Res;
     FluxAccum_rec(1,j_record) = FluxAccum;
-    if flags.SaveMe  
+    if flags.SaveMe
       if TrackFlux % Just do Euler stepping for now
         runSave.Flux2Res_rec(1,j_record) = Flux2Res;
         runSave.FluxAccum_rec(1,j_record) = FluxAccum;
@@ -227,27 +244,27 @@ if ~SteadyState || ~DidIBreak
       runSave.A_rec(:,j_record)   = v(1:Nx);
       runSave.C_rec(:,j_record)   = v(Nx+1:2*Nx);
     end
-end
-fprintf('Finished time loop\n');
-% update time and sizes
-TimeRec = timeObj.t_rec .* [0:j_record-1];
-A_rec = A_rec(:,1:j_record);
-C_rec = C_rec(:,1:j_record);
-if TrackFlux % Just do Euler stepping for now
-  Flux2Res_rec = Flux2Res_rec(1,1:j_record);
-  FluxAccum_rec = FluxAccum_rec(1,1:j_record);
-end
-% Show run time
-if analysisFlags.ShowRunTime
-  RunTime = toc(RunTimeID);
-  fprintf('Run time %.2g min\n', RunTime / 60);
-  fprintf('Sim Time Ran = %.4f\n', TimeRec(end) );
-end
-% Run analysis
-[recObj] = AnalysisMaster( filename, runSave, ...
-  A_rec, C_rec, Flux2Res_rec, FluxAccum_rec,...
-  v(1:Nx), v(Nx+1:2*Nx), ...
-  SteadyState, DidIBreak,...
-  analysisFlags, paramObj, flags, timeObj, gridObj, TimeRec);
-fprintf('Finished run \n');
+  end
+  fprintf('Finished time loop\n');
+  % update time and sizes
+  TimeRec = timeObj.t_rec .* [0:j_record-1];
+  A_rec = A_rec(:,1:j_record);
+  C_rec = C_rec(:,1:j_record);
+  if TrackFlux % Just do Euler stepping for now
+    Flux2Res_rec = Flux2Res_rec(1,1:j_record);
+    FluxAccum_rec = FluxAccum_rec(1,1:j_record);
+  end
+  % Show run time
+  if analysisFlags.ShowRunTime
+    RunTime = toc(RunTimeID);
+    fprintf('Run time %.2g min\n', RunTime / 60);
+    fprintf('Sim Time Ran = %.4f\n', TimeRec(end) );
+  end
+  % Run analysis
+  [recObj] = AnalysisMaster( filename, runSave, ...
+    A_rec, C_rec, Flux2Res_rec, FluxAccum_rec,...
+    v(1:Nx), v(Nx+1:2*Nx), ...
+    SteadyState, DidIBreak,...
+    analysisFlags, paramObj, flags, timeObj, gridObj, TimeRec);
+  fprintf('Finished run \n');
 end
