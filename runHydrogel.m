@@ -5,7 +5,6 @@
 function recObj = runHydrogel(graphicsFlag)
 % Add path
 addpath( genpath( pwd ) );
-
 if nargin == 0
   graphicsFlag = 0;
 end
@@ -36,6 +35,9 @@ randSavePow = 4;
 paramObj = paramMaster;
 timeObj = timeMaster;
 flagsObj = flags;
+% Build timeObj
+[timeObj] = TimeObjMakerRD(timeObj.dt,timeObj.t_tot,...
+  timeObj.t_rec,timeObj.ss_epsilon);
 % if Nx is too large, reset to something reasonable
 if paramObj.Nx > 256; paramObj.Nx = 128; end
 % Get correct kinetic params
