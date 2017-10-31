@@ -24,17 +24,21 @@
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
 
-function [fluxSummary] = fluxPDE( plotVstFlag, plotSteadyFlag, plotMapMaxFlag, ...
-  plotMapSlopeFlag, plotMapTimeFlag, saveMe, dirname )
+function [fluxSummary] = fluxPDE( plotVstFlag, plotSteadyFlag,...
+  plotMapMaxFlag, plotMapSlopeFlag, plotMapTimeFlag, saveMe, ...
+  dirname, paramFile)
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin < 6
+if nargin <= 6
   if saveMe == 1
     dirname = ['fluxODE_' num2str( randi( 100 ) )];
   else
     dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
+end
+if nargin <= 7
+  paramFile = 'initParams.m';
 end
 % fix flags
 if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
@@ -56,9 +60,16 @@ Time = datestr(now);
 fprintf('Starting fluxPDE: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'initParams.m','file')
-  initParams;
+if exist( paramFile,'file')
+  fprintf('Init file: %s\n', paramFile);
+  run( paramFile );
+elseif exists( 'initParams.m', file')
+  fprintf('Could not find init file: %s. Running initParams\n', ...
+    paramFile);
+  run( 'initParams.m');
 else
+  fprintf('Could not find init file: %s or initParams. Copying and running template\n', ...
+    paramFile);
   cpParams
   initParams
 end
@@ -70,13 +81,17 @@ boundTetherDiff = flags.BoundTetherDiff;
 % Looped over parameters
 % p1 either nu or Llp
 if boundTetherDiff
-  p1name = '$$ Ll_p $$';
+  p1nameTex = '$$ Ll_p $$';
+  p1name = 'Llp ';
   p1Vec = paramObj.Llp;
 else
-  p1name = '$$ \nu $$';
+  p1nameTex = '$$ \nu $$';
+  p1name = 'nu ';
   p1Vec = paramObj.nu;
 end
 paramObj.nu = p1Vec;
+paramObj.diffName = p1name;
+paramObj.diffNameTex = p1nameTex;
 numP1 = length(p1Vec);
 % Fix N if it's too low and make sure Bt isn't a vec
 if ( paramObj.Nx > 256 ); paramObj.Nx = 128; end
@@ -138,7 +153,8 @@ if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
 end
 if plotSteadyFlag || plotVstFlag
   pfixed = paramObj.Bt;
-  pfixedStr = '$$ B_t $$';
+  pfixedStr = 'B_t';
+  pfixedTex = '$$ B_t $$';
   p2name = paramObj.kinVar1strTex;
   p3name = paramObj.kinVar2strTex;
 end
@@ -193,7 +209,7 @@ parfor (ii=1:numRuns, numWorkers)
     Koff  = paramKoff(ii);
     [recObj] = ...
       ChemDiffMain('', paramObj, timeObj, flagsObj, ...
-        analysisFlags, [p1Temp KonBt Koff Bt], koffVaryRun);
+      analysisFlags, [p1Temp KonBt Koff Bt], koffVaryRun);
     if recObj.DidIBreak == 1 || recObj.SteadyState == 0
       fprintf('B = %d S = %d\n',recObj.DidIBreak,recObj.SteadyState)
     end
@@ -309,7 +325,7 @@ if saveMe
     dirname = [ datestr(now,'yyyymmdd') '_' dirname '_' num2str( randi(1000) ) ];
     movefile(dirnameOld, dirname);
   end
-movefile(dirname, './steadyfiles/PDE' )
+  movefile(dirname, './steadyfiles/PDE' )
 end
 % Print times
 Time = datestr(now);

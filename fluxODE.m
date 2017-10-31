@@ -17,16 +17,19 @@
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
 function [ fluxSummary ] = ...
-  fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname )
+  fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname, paramFile )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin < 3
+if nargin <= 3
   if saveMe == 1
     dirname = ['fluxODE_' num2str( randi( 100 ) )];
   else
     dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
+end
+if nargin <= 4
+  paramFile = 'initParams.m';
 end
 % Add paths and output dir
 addpath( genpath('./src') );
@@ -37,9 +40,16 @@ Time = datestr(now);
 fprintf('Starting fluxODE: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'initParams.m','file')
-  initParams;
+if exist( paramFile,'file')
+  fprintf('Init file: %s\n', paramFile);
+  run( paramFile );
+elseif exists( 'initParams.m', file')
+  fprintf('Could not find init file: %s. Running initParams\n', ...
+    paramFile);
+  run( 'initParams.m');
 else
+  fprintf('Could not find init file: %s or initParams. Copying and running template\n', ...
+    paramFile);
   cpParams
   initParams
 end
@@ -50,13 +60,17 @@ boundTetherDiff = flags.BoundTetherDiff;
 % Looped over parameters
 % p1 either nu or Llp
 if boundTetherDiff
-  p1name = '$$ Ll_p $$';
+  p1nameTex = '$$ Ll_p $$';
+  p1name = 'Llp ';
   p1Vec = paramObj.Llp;
 else
-  p1name = '$$ \nu $$';
+  p1nameTex = '$$ \nu $$';
+  p1name = 'nu ';
   p1Vec = paramObj.nu;
 end
 paramObj.nu = p1Vec;
+paramObj.diffName = p1name;
+paramObj.diffNameTex = p1nameTex;
 numP1 = length(p1Vec);
 % Fix N if it's too low and make sure Bt isn't a vec
 if ( paramObj.Nx < 1000 ); paramObj.Nx = 1000; end
@@ -120,9 +134,10 @@ if plotMapFlag
 end
 if plotSteadyFlag
   pfixed = paramObj.Bt;
-  pfixedStr = '$$ B_t $$';
-  p2name = paramObj.kinVar1strTex;
-  p3name = paramObj.kinVar2strTex;
+  pfixedStrTex = '$$ B_t $$';
+  pfixedStr = 'B_t';
+  p2name = paramObj.kinVar1str;
+  p3name = paramObj.kinVar2str;
 end
 % Specify necessary parameters for parfor
 nlEqn = flags.NLcoup;
