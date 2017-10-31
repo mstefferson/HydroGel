@@ -28,6 +28,7 @@ else
   cpParams
   initParams
 end
+
 % hard code rand ind power to prevent directory overriding
 randSavePow = 4;
 % Copy master parameters input object
@@ -103,6 +104,7 @@ else
   fprintf('Not using parfor\n')
   numWorkers = 0;
 end
+koffVaryRun = koffVary;
 parfor (ii=1:numRuns, numWorkers)
   % Assign parameters
   paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
@@ -117,18 +119,18 @@ parfor (ii=1:numRuns, numWorkers)
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
   end
   filename = [dirname '.mat'];
-  where2SavePath    = sprintf('%s/%s/%s',pwd,'runfiles',dirname);
+  where2SavePath = [pwd '/runfiles/' dirname];
   fprintf('\nStarting %s \n', filename);
   % Run main code
-  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec);
+  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec,...
+    koffVaryRun);
   fprintf('Finished %s \n', filename);
   % Move things to runfiles
   if SaveMe
     if exist(where2SavePath,'dir')
       fprintf('You are trying to rewrite data. Renaming \n')
-      rng('shuffle');
-      where2SavePath = [where2SavePath '_' ...
-      num2str( randi(10^randSavePow), ['%.' num2str(randSavePow+1) 'd'] ) ];
+      where2SavePath = [pwd '/runfiles/' ...
+        datestr(now,'yyyymmdd') '_' dirname '_' num2str( randi(1000) )];
     end
     fprintf('Saving at %s \n', where2SavePath);
     mkdir(where2SavePath)

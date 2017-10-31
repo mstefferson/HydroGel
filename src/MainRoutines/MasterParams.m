@@ -51,6 +51,11 @@ timeMaster.t_rec   = timeMaster.t_tot / 100;  % time interval for recording dyna
 timeMaster.ss_epsilon = 1e-6;  % steady state condition
 timeMaster.NumPlots = 10; % For the accumulation plot subroutine
 
+% koff vary
+% {'const'}  or {}
+% {'outletboundary', multVal}
+koffVary = {};
+
 % Binding flag 0: constant. 1: Square blurr
 paramMaster.alpha  = 0.1;  % length scale (frac of box) where binding sites change
 % Turn on if diffusion depends on Bt. If Bt varies spatially,

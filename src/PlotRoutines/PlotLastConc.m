@@ -1,5 +1,5 @@
 function PlotLastConc(...
-    Ass,Css,x,Paramstr,Gridstr,Concstr,trial)
+    Ass,Css,x,paramStr,gridStr,concStr )
   
 %Plot Concentration at final time step
 
@@ -7,12 +7,11 @@ figure()
 plot(x,Ass,x,Css,x,Ass+Css )
 legend('A','C','A + C')
 xlabel('x'); ylabel('Concentration');
-titstr =  sprintf('Concentration at last time point trial %d', trial);
+titstr =  ['Concen. ' gridStr];
 title(titstr)
 try
-  textbp(Paramstr)
-  textbp(Concstr)
-  textbp(Gridstr)
+  textbp(paramStr)
+  textbp(concStr)
 catch err
     fprintf('%s', err.getReport('extended')) ;
 end

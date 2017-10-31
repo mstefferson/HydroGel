@@ -4,12 +4,18 @@
 function [A,Alin,C,Clin,CL,CR] = ...
     IntConcMaker(AL, AR, Bt, Ka, Lbox, x,NLEq)
 
-% [A,Ass,Ap,ApFT] = IntConcAcalcExp(AL, AR, L_box,x,lambda);
-% [A,Ass,Ap,ApFT] = IntConcAtanhStep(AL, AR, L_box,x,lambda);
 [A,Alin] = IntConcAcalcStep(AL, AR, Lbox,x);
-% keyboard
+
+% turn A to col vector
+if isrow(A)
+  A = A';
+end
 
 [C,Clin,CL,CR] = IntConcCcalcEql(A,AL,AR,Bt,Ka,NLEq,Lbox,x);
-% C(1) = 0; C(end) = 0;
+
+% turn C to col vector
+if isrow(C)
+  C = C';
+end
 
 end
