@@ -108,7 +108,7 @@ if strcmp( nuStr, 'bound' )
   Dc =  boundTetherDiffCalc( nuPval, Koff, 1);
   nu = Dc;
 elseif strcmp( nuStr, 'const' )
-  nu = nuPVal;
+  nu = nuPval;
 end
 % y = [A C dA/dx dC/dx]
 %form y' = f(x,y)
@@ -129,7 +129,7 @@ if strcmp( nuStr, 'bound' )
   Dc =  boundTetherDiffCalc( nuPval, koffTemp, 1);
   nu = Dc;
 elseif strcmp( nuStr, 'const' )
-  nu = nuPVal;
+  nu = nuPval;
 end
 % solve for derivative
 dydx = ...
