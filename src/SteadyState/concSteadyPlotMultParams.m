@@ -28,7 +28,7 @@ for ii = 1:length(pvec1)
     hold(ax1,'on');
     ax1.XLabel.String = '$$ x $$';
     ax1.YLabel.String = '$$ A $$';
-    ax1.YLim = [ Amat(1,1,1,end) Amat(1,1,1,1)  ];
+    ax1.YLim = [ Amat{1,1,1}(end) Amat{1,1,1}(1) ];
     ax2 = subplot(numRows,numCols,2);
     hold(ax2,'on');
     ax2.XLabel.String = '$$ x $$';
@@ -39,9 +39,9 @@ for ii = 1:length(pvec1)
     ax3.YLabel.String = '$$ A + C $$';
     % Plot it
     for kk = 1:length(pvec3)
-      plot( ax1, x, reshape( Amat(ii,jj,kk,:), [xr yr] ) );
-      plot( ax2, x, reshape( Cmat(ii,jj,kk,:), [xr yr] ) );
-      plot( ax3, x, reshape( Amat(ii,jj,kk,:) + Cmat(ii,jj,kk,:) , [xr yr] ) );
+      plot( ax1, x, Amat{ii,jj,kk} );
+      plot( ax2, x, Cmat{ii,jj,kk} );
+      plot( ax3, x, Amat{ii,jj,kk} + Cmat{ii,jj,kk} );
       legcell{kk} = [ p3name ' = ' num2str( pvec3(kk), '%.0e' ) ];
     end
     axV = [ax1 ax2 ax3];

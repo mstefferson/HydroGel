@@ -31,27 +31,20 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 %Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
 % konBt, koff, Ka
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
-paramMaster.nu     = [1]; % vec Dc/Da aka nu 
+paramMaster.nu     = [0 1]; % vec Dc/Da aka nu 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-saturatedFlag = 1;
-betaTest = 1;
-% saturated
-if saturatedFlag
-  paramMaster.KonBt  = [1e1];  % vec konBt (time scale)
+smallBt = 1;
+if smallBt
+  paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
   paramMaster.Koff   = []; % vec koff (time scale)
-  paramMaster.Ka   = [1e8]; % vec binding affinity (time scale) 
-% unsaturated
-else
-  paramMaster.KonBt  = [1e1];  % vec konBt (time scale)
-  paramMaster.Koff   = []; % vec koff (time scale)
-  paramMaster.Ka   = [1e5]; % vec binding affinity (time scale) 
+  paramMaster.Ka   = [1e6 1e8]; % vec binding affinity (time scale) 
+  paramMaster.Bt     = [5e-6];  % vec molar (old: 1e-2) (new: 1e-3)
 end
-if betaTest
-  paramMaster.KonBt  = [1e1 1e2 1e3 1e4 1e5];  % vec konBt (time scale)
+  paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
   paramMaster.Koff   = []; % vec koff (time scale)
-  paramMaster.Ka   = [1e4 1e5 1e6 1e7 1e8]; % vec binding affinity (time scale) 
-end
-paramMaster.Bt     = [2e-5];  % vec molar (old: 1e-2) (new: 1e-3)
+  paramMaster.Ka   = [1e6 1e8]; % vec binding affinity (time scale) 
+  paramMaster.Bt     = [5e-6];  % vec molar (old: 1e-2) (new: 1e-3)
+  
 paramMaster.Llp    = 1e-2; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet

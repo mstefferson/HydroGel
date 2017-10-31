@@ -157,8 +157,8 @@ end
 % Flux matrix
 jMax = zeros( 1, numRuns);
 % Store steady state solutions;
-AconcStdy = zeros( numRuns, Nx );
-CconcStdy = zeros( numRuns, Nx );
+AconcStdy = cell( numRuns, 1 );
+CconcStdy = cell( numRuns, 1 );
 % Calculated things
 x = linspace(0, Lbox, Nx) ;
 dx  = x(2) - x(1);
@@ -188,14 +188,14 @@ parfor (ii=1:numRuns, numWorkers)
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
-  AconcStdy(ii,:) = AnlOde;
-  CconcStdy(ii,:) = CnlOde;
+  AconcStdy{ii} = AnlOde;
+  CconcStdy{ii} = CnlOde;
   jMax(ii) = flux;
 end
 
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
 jMax = reshape( jMax, [numP1, numP2, numP3] );
 % Get flux diff and normalize it
 jDiff = Da * ( AL - AR ) / Lbox;

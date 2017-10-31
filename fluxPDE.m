@@ -179,8 +179,8 @@ koffVaryRun = koffVary;
 FluxVsT = cell( numRuns, 1 );
 AccumVsT = cell( numRuns, 1 );
 % Store steady state solutions;
-AconcStdy = zeros( numRuns, Nx );
-CconcStdy = zeros( numRuns, Nx );
+AconcStdy = cell( numRuns, 1 );
+CconcStdy = cell( numRuns, 1 );
 % Run Diff first
 pVec =[0 0 0 0];
 % always set dt scale to one to prevent unnecessarily long runs
@@ -214,8 +214,8 @@ parfor (ii=1:numRuns, numWorkers)
       fprintf('B = %d S = %d\n',recObj.DidIBreak,recObj.SteadyState)
     end
     % record
-    AconcStdy(ii,:) = recObj.Afinal;
-    CconcStdy(ii,:) = recObj.Cfinal;
+    AconcStdy{ii} = recObj.Afinal;
+    CconcStdy{ii} = recObj.Cfinal;
     FluxVsT{ii} = recObj.Flux2Res_rec;
     AccumVsT{ii} = recObj.FluxAccum_rec;
     fprintf('Finished %d \n', ii );
@@ -224,8 +224,8 @@ parfor (ii=1:numRuns, numWorkers)
   end
 end
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
 % keyboard
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
