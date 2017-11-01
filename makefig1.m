@@ -4,8 +4,8 @@ ntMax = 1000;
 fontSize = 20;
 % set-up figure
 fidId = 1;
-close(fidId);
 figure(fidId);
+clf(fidId);
 % Plot it
 ah1 = gca;
 ah1.FontSize = fontSize;
@@ -38,6 +38,6 @@ ah1.XLim = [fluxSummary.timeVec(1) fluxSummary.timeVec(nt)];
 % legend
 h = legend(ah1,legcell,'location','best');
 h.Interpreter = 'latex';
-h.Title.String = '$$ K_D (\mu M)$$';
+h.Title.String = '$$ K_D \, ( \mathrm{ \mu M } )$$';
 h.Position = [0.7289, 0.3418, 0.2135, 0.4349];
 end

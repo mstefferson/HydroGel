@@ -12,10 +12,12 @@ if any( resultsId == 1 )
   saveExt = '.mat';
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
-  save( [saveName], 'fluxSummary' )
-  movefile( [saveName saveExt], dataPath );
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
 end
 % figure 2
 if any( resultsId == 2 )
@@ -24,10 +26,12 @@ if any( resultsId == 2 )
   saveExt = '.mat';
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
-  save( [saveName], 'fluxSummary' )
-  movefile( [saveName saveExt], dataPath );
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
 end
 
 end
