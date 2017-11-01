@@ -35,7 +35,7 @@ paramMaster.nu     = [0]; % vec Dc/Da aka nu
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.KonBt  = [1e4];  % vec konBt (time scale)
 paramMaster.Koff   = []; % vec koff (time scale)
-paramMaster.Ka   = [1e3 1e4 1e5 1e6]; % vec binding affinity (time scale) 
+paramMaster.Ka   = [1e3 1e4 1e5]; % vec binding affinity (time scale) 
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Llp    = 0; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
@@ -45,19 +45,17 @@ paramMaster.AR     = 0; % concentration of outlet
 % time
 tfac        = 1; % run time factor in relation to box diffusion time
 dtfac       = 1; % dt factor in relation to VN stability condition
-dt          = dtfac * ( (paramMaster.Lbox/paramMaster.Nx)^2 / paramMaster.Da ); % time step
-t_tot       = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
-t_rec       = t_tot / 100;  % time interval for recording dynamics
-ss_epsilon  = 1e-6;  % steady state condition
-NumPlots    = 10; % For the accumulation plot subroutine
+timeMaster.dt = dtfac * ( (paramMaster.Lbox/paramMaster.Nx)^2 / paramMaster.Da ); % time step
+timeMaster.t_tot   = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
+timeMaster.t_rec   = timeMaster.t_tot / 100;  % time interval for recording dynamics
+timeMaster.ss_epsilon = 1e-6;  % steady state condition
+timeMaster.NumPlots = 10; % For the accumulation plot subroutine
 
 % koff vary
 % {'const'}  or {}
 % {'outletboundary', multVal}
 koffVary = {'outletboundary', 2};
 
-% Build timeObj
-[timeMaster] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
 % Binding flag 0: constant. 1: Square blurr
 paramMaster.alpha  = 0.1;  % length scale (frac of box) where binding sites change
 % Turn on if diffusion depends on Bt. If Bt varies spatially,

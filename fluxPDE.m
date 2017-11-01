@@ -299,10 +299,11 @@ fluxSummary.jMax = jMax;
 fluxSummary.jNorm = jNorm;
 fluxSummary.djdtHm = djdtHm;
 fluxSummary.tHm = tHm;
-fluxSummary.AconcStdy = AconcStdy;
-fluxSummary.CconcStdy = CconcStdy;
-fluxSummary.FluxVsT = FluxVsT;
-fluxSummary.FluxVsTDiff = FluxVsTDiff;
+fluxSummary.aConcStdy = AconcStdy;
+fluxSummary.cConcStdy = CconcStdy;
+fluxSummary.jVsT = FluxVsT;
+fluxSummary.jVsTDiff = FluxVsTDiff;
+fluxSummary.jDiff = jDiff;
 fluxSummary.paramObj = paramObj;
 fluxSummary.timeVec = TimeVec;
 % Save

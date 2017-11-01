@@ -221,8 +221,9 @@ end
 % store everything
 fluxSummary.jMax = jMax;
 fluxSummary.jNorm = jNorm;
-fluxSummary.AconcStdy = AconcStdy;
-fluxSummary.CconcStdy = CconcStdy;
+fluxSummary.jDiff = jDiff;
+fluxSummary.aConcStdy = AconcStdy;
+fluxSummary.cConcStdy = CconcStdy;
 fluxSummary.paramObj = paramObj;
 % save data
 if saveMe
