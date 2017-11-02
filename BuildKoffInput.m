@@ -27,7 +27,7 @@ classdef BuildKoffInput < handle
       obj = obj.buildCell( );
     end
     
-    function obj = rebuildBulkVal( obj, koffNew)
+    function obj = rebuildKoff( obj, koffNew)
       % set koff
       obj.setBulkVal( koffNew );
       % build cell

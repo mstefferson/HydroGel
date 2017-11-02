@@ -1,31 +1,32 @@
 % ChemDiffMain
 % Handles all BCs
 
-function [recObj] = ChemDiffMain( filename, paramObj,timeObj, flags, ...
-  analysisFlags, pVec, koffVaryCell )
+function [recObj] = ChemDiffMain( filename, paramObj, timeObj, flags, ...
+  analysisFlags, pVec )
 % get parameters from vec
 paramObj.KonBt = pVec(2);
-paramObj.Koff = pVec(3);
+paramObj.KoffInd = pVec(3);
 paramObj.Bt = pVec(4);
-if paramObj.KonBt == 0
-  paramObj.Kon = 0;
-else
-  paramObj.Kon = paramObj.KonBt ./ paramObj.Bt;
-end
-if paramObj.Kon == 0
-  paramObj.Ka = 0;
-else
-  paramObj.Ka = paramObj.Kon / paramObj.Koff;
+% Blur Density check
+if flags.BindSiteDistFlag == 1
+  [paramObj.Bt] = BinitGelSquareBlur(paramObj.Bt, paramObj.sigma, x);
 end
 % build koffVary
-koffCell = paramObj.KoffObj.InfoCell{ pVec(3) };
-koffClass = VaryKoffClass( koffCell, paramObj.Nx );
-% if Koff varyies 
-paramObj.Koff = koffClass.Koff;
+if pVec(3) == 0
+  paramObj.Koff = zeros( paramObj.Nx, 1 );
+else
+  koffCell = paramObj.KoffObj.InfoCell{ pVec(3) };
+  koffClass = VaryKoffClass( koffCell, paramObj.Nx );
+  % if Koff varies, build spatially dep variables
+  paramObj.Koff = koffClass.Koff;
+end
 paramSize = size( paramObj.Koff );
-paramObj.Kon  = paramObj.Kon .* ones( paramSize  );
 paramObj.KonBt  = paramObj.KonBt .* ones( paramSize );
+paramObj.Kon  = paramObj.KonBt ./ paramObj.Bt;
 paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
+if paramObj.Kon == 0
+  paramObj.Ka = zeros( paramSize );
+end
 % Calculate D if you're suppose to
 if flags.BoundTetherDiff
   paramObj.Llp = pVec(1);
@@ -95,10 +96,6 @@ C_rec   = zeros(Nx,timeObj.N_rec);
   IntConcMaker(paramObj.AL, paramObj.AR, paramObj.Bt, ...
   paramObj.Ka, paramObj.Lbox, x,flags.NLcoup);% A = Alin;
 C(1) = 0; C(end) = 0;
-% Blur Density check
-if flags.BindSiteDistFlag == 1
-  [paramObj.Bt] = BinitGelSquareBlur(paramObj.Bt, paramObj.sigma, x);
-end
 % Density dependent diffusion
 if flags.BtDepDiff == 1
   [paramObj.Da,paramObj.Dc] = BtDepDiffBuilder(paramObj.Bt, paramObj.Btc, ...
