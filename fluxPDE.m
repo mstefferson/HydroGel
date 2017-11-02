@@ -64,9 +64,11 @@ else
 end
 % Copy master parameters input object
 paramObj = paramMaster;
-timeObj = timeMaster;
 flagsObj = flags;
 boundTetherDiff = flags.BoundTetherDiff;
+% Build timeObj
+[timeObj] = TimeObjMakerRD(timeMaster.dt,timeMaster.t_tot,...
+  timeMaster.t_rec,timeMaster.ss_epsilon);
 % Looped over parameters
 % p1 either nu or Llp
 if boundTetherDiff
@@ -170,7 +172,8 @@ pVec =[0 0 0 0];
 % always set dt scale to one to prevent unnecessarily long runs
 dtfac       = 1;
 dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
-[timeObjDiff] = TimeObjMakerRD(dt,t_tot,t_rec,ss_epsilon,NumPlots);
+[timeObjDiff] = TimeObjMakerRD(dt,timeObj.t_tot,timeObj.t_rec,...
+  timeObj.ss_epsilon);
 [recObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, ...
   analysisFlags, pVec, koffVary );
 FluxVsTDiff = recObj.Flux2Res_rec;
@@ -214,7 +217,7 @@ CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
 % time
-TimeVec = (0:timeObj.N_rec-1) * t_rec;
+TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 % Find Maxes and such
 [jMax, ~, djdtHm, tHm] = ...
   findFluxProperties( FluxVsT, AccumVsT, timeObj, ...
