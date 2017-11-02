@@ -18,7 +18,8 @@ else
   paramObj.Ka = paramObj.Kon / paramObj.Koff;
 end
 % build koffVary
-koffClass = VaryKoffClass( paramObj.Koff, koffVaryCell, paramObj.Nx );
+koffCell = paramObj.KoffObj.InfoCell{ pVec(3) };
+koffClass = VaryKoffClass( koffCell, paramObj.Nx );
 % if Koff varyies 
 paramObj.Koff = koffClass.Koff;
 paramSize = size( paramObj.Koff );

@@ -30,21 +30,38 @@ else
   initParams
 end
 
-% hard code rand ind power to prevent directory overriding
-randSavePow = 4;
 % Copy master parameters input object
 paramObj = paramMaster;
 timeObj = timeMaster;
 flagsObj = flags;
 % if Nx is too large, reset to something reasonable
 if paramObj.Nx > 256; paramObj.Nx = 128; end
+% build koff
+koffObj = BuildKoffInput( paramObj.Koff, koffVary );
 % Get correct kinetic params
-[~, kinParams] =  kineticParams( paramObj.KonBt, paramObj.Koff, paramObj.Ka, paramObj.Bt );
+if flags.BoundTetherDiff 
+  nuVec = paramObj.Llp;
+else
+  nuVec = paramObj.nu;
+end
+% [kinParams] =  kineticParams( nuVec,paramObj.KonBt, koffObj.KoffAllRuns, ...
+%   paramObj.Ka, paramObj.Bt );
+% % rebuild koff in case it's the least varied input
+% koffObj.rebuildKoff( unique( kinParams.koff ));
+% Rerun
+[ kinParams, koffObj ] =  kineticParams( nuVec, paramObj.KonBt, koffObj, ...
+  paramObj.Ka, paramObj.Bt );
+% set parameters
 paramObj.KonBt = kinParams.konBt;
-paramObj.Koff = kinParams.koff;
+paramObj.Koff = koffObj.BulkValAllRuns;
+paramObj.KoffObj = koffObj;
 paramObj.Ka = kinParams.kA;
 paramObj.Bt = kinParams.Bt;
-paramObj.fixedVar = kinParams.fixedVar;
+% % Make paramMat
+% fprintf('Building parameter mat \n');
+% [paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
+% paramObj.fixedVar = kinParams.fixedVar;
+% keyboard
 if strcmp( kinParams.fixedVar, 'kA')
   paramObj.kinVar1 = paramObj.KonBt;
   paramObj.kinVar2 = paramObj.Koff;
@@ -64,19 +81,19 @@ if graphicsFlag == 0 || flags.SaveMe == 0
   analysisFlags.PlotMeWaveFrontAccum = 0;  % Wavefront and accum
   analysisFlags.PlotMeLastConcAccum  = 0;  % Conc at end time and accum
 end
+% For some reason, param_mat gets "sliced". Create vectors to get arround
+paramNuLlp  = kinParams.nu;
+paramKonBt  = kinParams.konBt;
+paramKoffInds = kinParams.koffInds;
+paramBt   = kinParams.Bt;
+numRuns = kinParams.numRuns;
+
 % Display everything
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)
 disp(flags); disp(paramObj); disp(analysisFlags); disp(timeObj);
-% Make paramMat
-fprintf('Building parameter mat \n');
-[paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
 fprintf('Executing %d runs \n\n', numRuns);
-% For some reason, param_mat gets "sliced". Create vectors to get arround
-paramNuLlp  = paramMat(1,:);
-paramKonBt  = paramMat(2,:);
-paramKoff = paramMat(3,:);
-paramBt   = paramMat(4,:);
+
 % pulls and some variables flags out here
 SaveMe = flags.SaveMe;
 boundDiff = flags.BoundTetherDiff;
@@ -102,10 +119,10 @@ else
   fprintf('Not using parfor\n')
   numWorkers = 0;
 end
-koffVaryRun = koffVary;
+%koffVaryRun = koffVary;
 parfor (ii=1:numRuns, numWorkers)
   % Assign parameters
-  paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoff(ii) paramBt(ii) ];
+  paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoffInds(ii) paramBt(ii) ];
   % Name it
   if boundDiff
     dirname = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
@@ -120,8 +137,7 @@ parfor (ii=1:numRuns, numWorkers)
   where2SavePath = [pwd '/runfiles/' dirname];
   fprintf('\nStarting %s \n', filename);
   % Run main code
-  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec,...
-    koffVaryRun);
+  [recObj] = ChemDiffMain(filename, paramObj, timeObj, flagsObj, analysisFlags, paramvec );
   fprintf('Finished %s \n', filename);
   % Move things to runfiles
   if SaveMe
