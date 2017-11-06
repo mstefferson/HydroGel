@@ -47,5 +47,20 @@ if any( resultsId == 3 )
   movefile( fullName, dataPath );
 end
 
+% figure 4: boundary koff, non-linear
+if any( resultsId == 4 )
+  fluxSummary = fluxODE(0,0,0,'blah','initParamsFig4');
+  saveName = 'fig4_data';
+  saveExt = '.mat';
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+end
+
 end
 

@@ -24,3 +24,11 @@ if exist( data2load, 'file'  )
 else
   fprintf('No data to run for fig 3. Run paperResultsMaker\n');
 end
+% figure 3: density profiles
+data2load = [paperDataPath 'fig4_data.mat'];
+if exist( data2load, 'file'  )
+  load( data2load ) 
+  makefig4( fluxSummary ); 
+else
+  fprintf('No data to run for fig 4. Run paperResultsMaker\n');
+end
