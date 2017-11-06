@@ -180,8 +180,8 @@ end
 numP1 = kinParams.numP1;
 numP2 = kinParams.numP2;
 numP3 = kinParams.numP3;
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
 % keyboard
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );

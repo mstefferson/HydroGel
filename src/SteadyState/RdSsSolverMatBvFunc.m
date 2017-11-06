@@ -118,7 +118,11 @@ global Kon Koff Bt nuStr nuPval nlfac xb
 % y = [A C dA/dx dC/dx]
 %form y' = f(x,y)
 % get koff value. factor of two since h(0) = 1/2
-koffTemp = Koff .* ( 1 + 2  * koffMult * heaviside( x - xb) );
+if x == xb
+  koffTemp = Koff * koffMult;
+else
+  koffTemp = Koff;
+end
 % get diffusion coeff
 if strcmp( nuStr, 'bound' )
   Dc =  boundTetherDiffCalc( nuPval, koffTemp, 1);

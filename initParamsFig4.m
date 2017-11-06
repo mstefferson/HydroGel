@@ -37,7 +37,7 @@ paramMaster.nu     = [0] ; % vec Dc/Da aka nu
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.KonBt  = [1e4];  % vec konBt (time scale)
 paramMaster.Koff   = []; % vec koff (time scale)
-paramMaster.Ka     = logspace(3, 8, 14); % vec binding affinity (time scale) 
+paramMaster.Ka     = logspace(3, 9, 14); % vec binding affinity (time scale) 
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Llp    = [1e-2]; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
