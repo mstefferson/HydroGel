@@ -3,6 +3,7 @@ classdef BuildKoffInput < handle
   properties
     Type = '';
     BulkVal = 0;
+    NumMult = 0;
     BulkValAllRuns = 0;
     InfoCell = 0;
     Inputs = 0;
@@ -42,22 +43,23 @@ classdef BuildKoffInput < handle
     function obj = buildCell( obj )
       % get parameters based on type
       if strcmp( obj.Type, 'const' )
-        numBulkVal = length( obj.BulkVal );
-        totBulkVal = numBulkVal;
+        numBulk = length( obj.BulkVal );
+        numMult = 1;
+        totBulkVal = numBulk;
         obj.InfoCell = cell( 1, totBulkVal );
         obj.BulkValAllRuns = obj.BulkVal;
-        for ii = 1:numBulkVal
+        for ii = 1:numBulk
           obj.InfoCell{ii}{1} = obj.Type;
           obj.InfoCell{ii}{2} = obj.BulkVal(ii);
         end
       elseif strcmp( obj.Type, 'outletboundary' )
-        numBulkVal = length( obj.BulkVal );
-        numInfoCell = length( obj.Inputs{2} );
-        totBulkVal = numBulkVal * numInfoCell;
+        numBulk = length( obj.BulkVal );
+        numMult = length( obj.Inputs{2} );
+        totBulkVal = numBulk * numMult;
         obj.InfoCell = cell( 1, totBulkVal );
         counter = 1;
-        for ii = 1:numBulkVal
-          for jj = 1:numInfoCell
+        for ii = 1:numBulk
+          for jj = 1:numMult
             obj.BulkValAllRuns(counter) = obj.BulkVal(ii);
             obj.InfoCell{counter}{1} = obj.Type;
             obj.InfoCell{counter}{2} = obj.BulkVal(ii);
@@ -69,6 +71,7 @@ classdef BuildKoffInput < handle
         fprintf('Do not recognize koff cell\n')
         error('Do not recognize koff cell')
       end
+      obj.NumMult = numMult;
       obj.Inds = 1:totBulkVal;
       obj.NumTot = totBulkVal;
     end % build cell
