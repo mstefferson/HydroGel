@@ -80,66 +80,21 @@ boundTetherDiff = flags.BoundTetherDiff;
 % Build timeObj
 [timeObj] = TimeObjMakerRD(timeMaster.dt,timeMaster.t_tot,...
   timeMaster.t_rec,timeMaster.ss_epsilon);
-% Looped over parameters
-% p1 either nu or Llp
-if boundTetherDiff
-  p1nameTex = '$$ Ll_p $$';
-  p1name = 'Llp ';
-  p1Vec = paramObj.Llp;
-else
-  p1nameTex = '$$ \nu $$';
-  p1name = 'nu ';
-  p1Vec = paramObj.nu;
-end
-paramObj.nu = p1Vec;
-paramObj.diffName = p1name;
-paramObj.diffNameTex = p1nameTex;
-numP1 = length(p1Vec);
 % Fix N if it's too low and make sure Bt isn't a vec
 if ( paramObj.Nx > 256 ); paramObj.Nx = 128; end
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
-% Get correct kinetic params
-[~, kinParams] =  kineticParams( paramObj.KonBt, paramObj.Koff, paramObj.Ka, paramObj.Bt );
-paramObj.KonBt = kinParams.konBt;
-paramObj.Koff = kinParams.koff;
-paramObj.Ka = kinParams.kA;
-paramObj.Bt = kinParams.Bt;
-paramObj.fixedVar = kinParams.fixedVar;
-if strcmp( kinParams.fixedVar, 'kA')
-  paramObj.kinVar1 = paramObj.KonBt;
-  paramObj.kinVar1str = 'konBt';
-  paramObj.kinVar1strTex = '$$ k_{on} B_t \tau $$';
-  paramObj.kinVar2 = paramObj.Koff;
-  paramObj.kinVar2str = 'koff';
-  paramObj.kinVar2strTex = '$$ k_{off} \tau $$';
-elseif strcmp( kinParams.fixedVar, 'koff')
-  paramObj.kinVar1 = paramObj.KonBt;
-  paramObj.kinVar1str = 'konBt';
-  paramObj.kinVar1strTex = '$$ k_{on} B_t \tau $$';
-  paramObj.kinVar2 = paramObj.Ka;
-  paramObj.kinVar2str = 'Ka';
-  paramObj.kinVar2strTex = '$$ K_A $$';
-else % 'konBt'
-  paramObj.kinVar1 = paramObj.Koff;
-  paramObj.kinVar1strTex = '$$ k_{off} \tau $$';
-  paramObj.kinVar1str = 'koff';
-  paramObj.kinVar2 = paramObj.Ka;
-  paramObj.kinVar2str = 'Ka';
-  paramObj.kinVar2strTex = '$$ K_A $$';
-end
-numP2 = length( paramObj.kinVar1 );
-numP3 = length( paramObj.kinVar2 );
-% Make paramMat
-fprintf('Building parameter mat \n');
-[paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
-fprintf('Executing %d runs \n\n', numRuns);
+% set-up params
+pfixed = paramObj.Bt;
+pfixedStr = '$$ B_t $$';
+[paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
 % Run the loops
-paramNuLlp  = paramMat(1,:);
-paramKonBt  = paramMat(2,:);
-paramKoff = paramMat(3,:);
+paramNuLlp  = kinParams.nuLlp;
+paramKonBt  = kinParams.konBt;
+paramKoffInds = kinParams.koffInds;
+numRuns = kinParams.numRuns;
 % save string and some plot labels
 saveStrVsT = 'flxvst'; %flux and accumulation vs time
 saveStrFM = 'flxss'; %flux map
@@ -150,15 +105,12 @@ if saveMe
   mkdir(dirname)
 end
 if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
-  xlab = paramObj.kinVar2strTex; % columns
-  ylab = paramObj.kinVar1strTex;  % rows
+  xlab = kinParams.kinVar2strTex; % columns
+  ylab = kinParams.kinVar1strTex;  % rows
 end
 if plotSteadyFlag || plotVstFlag
-  pfixed = paramObj.Bt;
-  pfixedStr = 'B_t';
-  pfixedTex = '$$ B_t $$';
-  p2name = paramObj.kinVar1strTex;
-  p3name = paramObj.kinVar2strTex;
+  p2name = kinParams.kinVar1strTex;
+  p3name = kinParams.kinVar2strTex;
 end
 % "Analysis" subroutines
 analysisFlags.QuickMovie=0; analysisFlags.TrackAccumFromFlux= 1;
@@ -175,8 +127,6 @@ flagsObj.SaveMe = 0;
 fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)
 disp(paramObj); disp(analysisFlags); disp(timeObj);
-% you need to have koffVary show in script to work
-koffVaryRun = koffVary;
 % Edits here. Change params and loop over
 FluxVsT = cell( numRuns, 1 );
 AccumVsT = cell( numRuns, 1 );
@@ -184,14 +134,14 @@ AccumVsT = cell( numRuns, 1 );
 AconcStdy = cell( numRuns, 1 );
 CconcStdy = cell( numRuns, 1 );
 % Run Diff first
-pVec =[0 0 0 0];
+pVec =[0 0 0 1];
 % always set dt scale to one to prevent unnecessarily long runs
 dtfac       = 1;
 dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
 [timeObjDiff] = TimeObjMakerRD(dt,timeObj.t_tot,timeObj.t_rec,...
   timeObj.ss_epsilon);
 [recObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, ...
-  analysisFlags, pVec, koffVary );
+  analysisFlags, pVec);
 FluxVsTDiff = recObj.Flux2Res_rec;
 AccumVsTDiff = recObj.FluxAccum_rec;
 % loop over runs
@@ -209,10 +159,10 @@ parfor (ii=1:numRuns, numWorkers)
     % set params
     p1Temp = paramNuLlp(ii);
     KonBt  = paramKonBt(ii);
-    Koff  = paramKoff(ii);
+    Koff  = paramKoffInds(ii);
     [recObj] = ...
       ChemDiffMain('', paramObj, timeObj, flagsObj, ...
-      analysisFlags, [p1Temp KonBt Koff Bt], koffVaryRun);
+        analysisFlags, [p1Temp KonBt Koff Bt] );
     if recObj.DidIBreak == 1 || recObj.SteadyState == 0
       fprintf('B = %d S = %d\n',recObj.DidIBreak,recObj.SteadyState)
     end
@@ -227,8 +177,11 @@ parfor (ii=1:numRuns, numWorkers)
   end
 end
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
+numP1 = kinParams.numP1;
+numP2 = kinParams.numP2;
+numP3 = kinParams.numP3;
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
 % keyboard
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
@@ -237,7 +190,7 @@ TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 % Find Maxes and such
 [jMax, ~, djdtHm, tHm] = ...
   findFluxProperties( FluxVsT, AccumVsT, timeObj, ...
-  length(p1Vec), length(paramObj.kinVar1), length(paramObj.kinVar2) );
+  length(kinParams.p1Vec), length(kinParams.kinVar1), length(kinParams.kinVar2) );
 % Get norm
 jDiff = Da * ( AL - AR ) / Lbox;
 jNorm = jMax ./  jDiff;
@@ -245,21 +198,23 @@ jNorm = jMax ./  jDiff;
 % flux vs time
 if plotVstFlag
   plotBoth = 0;
-  ah1titl = [paramObj.kinVar1strTex ' = ' ] ;
-  ah2titl = [p1name ' = ' ] ;
+  ah1titl = [kinParams.kinVar1strTex ' = ' ] ;
+  ah2titl = [kinParams.p1name ' = ' ] ;
   fluxAll2plot = FluxVsT;
   fluxDiff2plot = FluxVsTDiff;
   if plotBoth
     fluxAccumVsTimePlotMultParams( ...
       fluxAll2plot, AccumVsT, fluxDiff2plot, AccumVsTDiff, ...
       jDiff, TimeVec, ...
-      p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
-      p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
+      kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
+      kinParams.p3name, pfixed, pfixedStr, ...
+      ah1titl, ah2titl, saveMe, saveStrVsT )
   else
     fluxVsTimePlotMultParams( ...
       fluxAll2plot ,fluxDiff2plot, jDiff, TimeVec, ...
-      p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
-      p3name, pfixed, pfixedStr, ah1titl, ah2titl, saveMe, saveStrVsT )
+      kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
+      kinParams.kinVar2str, pfixed, pfixedStr, ...
+      ah1titl, ah2titl, saveMe, saveStrVsT )
     ylabel( ' $$ j / j_{diff, steady} $$' );
     xlabel( ' $$ t / \tau $$ ' );
   end
@@ -268,30 +223,32 @@ end
 if plotSteadyFlag
   x = linspace( 0, Lbox, paramObj.Nx );
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    p1Vec, paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
+    kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
+    kinParams.p1name, kinParams.kinVar1str, kinParams.kinVar2str, ...
     pfixed, pfixedStr, saveMe, saveStrSS )
 end
 % Surface plot: max flux
 if plotMapMaxFlag
   titleSort = '$$ j_{max} / j_{diff} $$; ';
-  titstr = [ titleSort p1name ' = '] ;
-  surfLoopPlotter( jNorm, p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
-    xlab, ylab,  titstr, saveMe, saveStrFM)
+  titstr = [ titleSort kinParams.p1name ' = '] ;
+  surfLoopPlotter( jNorm, kinParams.p1Vec, kinParams.kinVar1, ...
+    kinParams.kinVar2, xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 % Surface plot: flux slope
 if plotMapSlopeFlag
   titleSort = 'Slope, $$ \frac{dj}{dt} $$, at Half Max Flux; ';
-  titstr = [ titleSort p1name ' = '] ;
+  titstr = [ titleSort kinParams.p1name ' = '] ;
   saveStr = [saveStrFM '_slopeHm'];
-  surfLoopPlotter( djdtHm, p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
+  surfLoopPlotter( djdtHm, kinParams.p1Vec, ...
+    kinParams.kinVar1, kinParams.kinVar2, ...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 % Surface plot: time to flux
 if plotMapTimeFlag
   titleSort = 'Time at Half Max Flux; ';
-  titstr = [ titleSort p1name ' = '] ;
+  titstr = [ titleSort kinParams.p1name ' = '] ;
   saveStr = [saveStrFM '_tHm'];
-  surfLoopPlotter( tHm, p1Vec, paramObj.kinVar1, paramObj.kinVar2, ...
+  surfLoopPlotter( tHm, kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 % store everything
@@ -305,15 +262,11 @@ fluxSummary.jVsT = FluxVsT;
 fluxSummary.jVsTDiff = FluxVsTDiff;
 fluxSummary.jDiff = jDiff;
 fluxSummary.paramObj = paramObj;
+fluxSummary.kinParams = kinParams;
 fluxSummary.timeVec = TimeVec;
 % Save
 if saveMe
-  kinVar1 = paramObj.kinVar1;
-  kinVar1str = paramObj.kinVar1str;
-  kinVar2 = paramObj.kinVar2;
-  kinVar2str = paramObj.kinVar2str;
-  save(saveStrMat, 'fluxSummary', 'p1Vec', 'p1name', 'kinVar1','kinVar1str',...
-    'kinVar2', 'kinVar2str', 'TimeVec');
+  save(saveStrMat, 'fluxSummary');
   % make dirs and move
   if plotSteadyFlag || plotMapFlag
     movefile('*.fig', dirname);

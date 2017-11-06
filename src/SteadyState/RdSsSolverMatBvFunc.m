@@ -1,17 +1,17 @@
 % homodiffsolver. Rescaled by diffusive time
 function [Ass,Css,x] = RdSsSolverMatBvFunc(...
-  KonVal,KoffVal,ALval,ARval,Btval,Lboxval,BCstrVal,Nx, ...
-  nlEqn, koffVaryCell, nuStrInpt, nuPvalInpt)
+  konVal, koffCell, nuCell, ALval,ARval,Btval,Lboxval,BCstrVal,Nx, ...
+  nlEqn)
 global AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac nuStr nuPval
 
 % set BC
 BCstr = BCstrVal; % 'Dir','Vn','DirVn'
 
 %Parameter you can edit
-nuStr = nuStrInpt;
-nuPval = nuPvalInpt;
-Kon = KonVal;
-Koff  = KoffVal;
+nuStr = nuCell{1};
+nuPval = nuCell{2};
+Kon = konVal;
+Koff  = koffCell{2};
 AL  = ALval;
 AR  = ARval ;
 Bt  = Btval;
@@ -27,11 +27,6 @@ if nlEqn
   nlfac = 1;
 else
   nlfac = 0;
-end
-
-% handle koff
-if isempty( koffVaryCell )
-  koffVaryCell = { 'const' };
 end
 
 % Calculated parameters/linear solutions
@@ -51,11 +46,11 @@ else %solve the coupled ODE
   
   % Solve it
   options = [];
-  if strcmp( koffVaryCell{1}, 'const' )
+  if strcmp( koffCell{1}, 'const' )
     sol = bvp4c(@odeCoupledDiffChem,@resbcfunc,solinit,options);
-  elseif strcmp( koffVaryCell{1}, 'outletboundary' )
+  elseif strcmp( koffCell{1}, 'outletboundary' )
     sol = bvp4c(@odeCoupledDiffChemOutletBoundary,@resbcfunc,solinit,options,...
-      koffVaryCell{2} );
+      koffCell{3} );
   end
   
   % Now  get numerical value

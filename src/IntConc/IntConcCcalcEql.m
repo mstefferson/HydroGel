@@ -2,15 +2,14 @@ function [C,Clin,CL,CR] = IntConcCcalcEql(A,AL,AR,Bt,Ka,NLEqn,Lbox,x)
 
 if isfinite(Ka) % koff = 0 
     if NLEqn %Nonlinear
-        C   = Ka .* (A * Bt)  ./ (1 + Ka .* A);
-        CL  = Ka .* (AL * Bt) ./ (1 + Ka .* AL);
-        CR  = Ka .* (AR * Bt) ./ (1 + Ka .* AR);
+        C   = Ka .* (A .* Bt)  ./ (1 + Ka .* A);
+        CL  = Ka .* (AL * Bt(1)) ./ (1 + Ka(1) .* AL);
+        CR  = Ka .* (AR * Bt(end)) ./ (1 + Ka(end) .* AR);
         %     Cchem = Ka .* (Alin * Bt) ;
     else %Linear
-        C   = Ka .* (A * Bt) ;
-        CL  = Ka .* (AL * Bt) ;
-        CR  = Ka .* (AR * Bt) ;
-        
+        C   = Ka .* (A .* Bt) ;
+        CL  = Ka .* (AL .* Bt(1)) ;
+        CR  = Ka .* (AR .* Bt(end)) ;      
         %     Cchem = Ka .* (Alin * Bt)./ (1 + Ka .* Alin);
     end % end if linear    
     

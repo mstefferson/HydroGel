@@ -57,66 +57,20 @@ end
 paramObj = paramMaster;
 flagsObj = flags;
 boundTetherDiff = flags.BoundTetherDiff;
-% Looped over parameters
-% p1 either nu or Llp
-if boundTetherDiff
-  p1nameTex = '$$ Ll_p $$';
-  p1name = 'Llp ';
-  p1Vec = paramObj.Llp;
-else
-  p1nameTex = '$$ \nu $$';
-  p1name = 'nu ';
-  p1Vec = paramObj.nu;
-end
-paramObj.nu = p1Vec;
-paramObj.diffName = p1name;
-paramObj.diffNameTex = p1nameTex;
-numP1 = length(p1Vec);
-% Fix N if it's too low and make sure Bt isn't a vec
-if ( paramObj.Nx < 1000 ); paramObj.Nx = 1000; end
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
 end
-% Get correct kinetic params
-[~, kinParams] =  kineticParams( paramObj.KonBt, paramObj.Koff, paramObj.Ka, paramObj.Bt );
-paramObj.KonBt = kinParams.konBt;
-paramObj.Koff = kinParams.koff;
-paramObj.Ka = kinParams.kA;
-paramObj.Bt = kinParams.Bt;
-paramObj.fixedVar = kinParams.fixedVar;
-if strcmp( kinParams.fixedVar, 'kA')
-  paramObj.kinVar1 = paramObj.KonBt;
-  paramObj.kinVar1str = 'konBt';
-  paramObj.kinVar1strTex = '$$ k_{on} B_t $$';
-  paramObj.kinVar2 = paramObj.Koff;
-  paramObj.kinVar2str = 'koff';
-  paramObj.kinVar2strTex = '$$ k_{off}$$';
-elseif strcmp( kinParams.fixedVar, 'koff')
-  paramObj.kinVar1 = paramObj.KonBt;
-  paramObj.kinVar1str = 'konBt';
-  paramObj.kinVar1strTex = '$$ k_{on} B_t $$';
-  paramObj.kinVar2 = paramObj.Ka;
-  paramObj.kinVar2str = 'Ka';
-  paramObj.kinVar2strTex = '$$ K_A $$';
-else % 'konBt'
-  paramObj.kinVar1 = paramObj.Koff;
-  paramObj.kinVar1strTex = '$$ k_{off}$$';
-  paramObj.kinVar1str = 'koff';
-  paramObj.kinVar2 = paramObj.Ka;
-  paramObj.kinVar2str = 'Ka';
-  paramObj.kinVar2strTex = '$$ K_A $$';
-end
-numP2 = length( paramObj.kinVar1 );
-numP3 = length( paramObj.kinVar2 );
-% Make paramMat
-fprintf('Building parameter mat \n');
-[paramMat, numRuns] = MakeParamMat( paramObj, flagsObj );
-fprintf('Executing %d runs \n\n', numRuns);
+% set-up params
+pfixed = paramObj.Bt;
+BtFixed = paramObj.Bt;
+pfixedStr = '$$ B_t $$';
+[paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
 % Run the loops
-paramNuLlp  = paramMat(1,:);
-paramKonBt  = paramMat(2,:);
-paramKoff = paramMat(3,:);
+paramNuLlp  = kinParams.nuLlp;
+paramKonBt  = kinParams.konBt;
+paramKoffInds = kinParams.koffInds;
+numRuns = kinParams.numRuns;
 % save names
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
@@ -129,21 +83,18 @@ if plotMapFlag
   colormap( viridis );
   close(randI)
   % labels
-  ylab = paramObj.kinVar1strTex; % rows
-  xlab = paramObj.kinVar2strTex; % columns
+  ylab = kinParams.kinVar1strTex; % rows
+  xlab = kinParams.kinVar2strTex; % columns
 end
 if plotSteadyFlag
-  pfixed = paramObj.Bt;
-  pfixedStrTex = '$$ B_t $$';
-  pfixedStr = 'B_t';
-  p2name = paramObj.kinVar1str;
-  p3name = paramObj.kinVar2str;
+  p1name = kinParams.p1name;
+  p2name = kinParams.kinVar1strTex;
+  p3name = kinParams.kinVar2strTex;
 end
 % Specify necessary parameters for parfor
 nlEqn = flags.NLcoup;
 Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
 Bt = paramObj.Bt; Nx = paramObj.Nx; Lbox = paramObj.Lbox;
-koffVaryCell = koffVary;
 if strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
   BCstr = 'DirVn';
 elseif strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
@@ -172,19 +123,28 @@ else
   numWorkers = 0;
 end
 % set bound diffusion or not
-if boundTetherDiff
-  nuCell{1} = 'bound';
-else
-  nuCell{1} = 'const';
+nuCell = cell(1, numRuns);
+for ii = 1:numRuns
+  if boundTetherDiff
+  nuCell{ii} = {'bound', paramNuLlp(ii)};
+  else
+  nuCell{ii} = {'const', paramNuLlp(ii)};
+  end
 end
+% set up koff cell
+koffCell = cell( 1, numRuns );
+for ii = 1:numRuns
+  koffCell{ii} = paramObj.KoffObj.InfoCell{ paramKoffInds(ii) };
+end
+
 parfor (ii=1:numRuns, numWorkers)
   % set params
-  p1Temp = paramNuLlp(ii);
+  nuCellTemp = nuCell{ii};
   KonBt  = paramKonBt(ii);
-  Koff  = paramKoff(ii);
-  Kon = KonBt ./ Bt;  
+  koffCellTemp = koffCell{ ii };
+  Kon = KonBt ./ BtFixed;  
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-    Kon,Koff,AL,AR,Bt,Lbox,BCstr,Nx, nlEqn, koffVaryCell, nuCell, p1Temp);
+    Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, nlEqn );
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
@@ -194,8 +154,11 @@ parfor (ii=1:numRuns, numWorkers)
 end
 
 % reshape to more intutive size---> Mat( p1, p2, p3, : )
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
+numP1 = kinParams.numP1;
+numP2 = kinParams.numP2;
+numP3 = kinParams.numP3;
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
 jMax = reshape( jMax, [numP1, numP2, numP3] );
 % Get flux diff and normalize it
 jDiff = Da * ( AL - AR ) / Lbox;
@@ -203,21 +166,21 @@ jNorm = jMax ./  jDiff;
 % Steady states
 if plotSteadyFlag
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    p1Vec,  paramObj.kinVar1, paramObj.kinVar2, p1name, p2name, p3name, ...
+    kinParams.p1Vec,  kinParams.kinVar1, kinParams.kinVar2, ...
+    p1name, p2name, p3name, ...
     pfixed, pfixedStr, saveMe, saveStrSS )
 end
 % Surface plot
 if plotMapFlag
   if flags.BoundTetherDiff
-    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(Bt) '; $$ Ll_p = $$ '];
+    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ Ll_p = $$ '];
   else
-    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(Bt) '; $$ \nu = $$ ' ];
+    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ \nu = $$ ' ];
   end
   save
-  surfLoopPlotter( jNorm, p1Vec, paramObj.kinVar1, paramObj.kinVar2,...
+  surfLoopPlotter( jNorm, kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end
-
 % store everything
 fluxSummary.jMax = jMax;
 fluxSummary.jNorm = jNorm;
@@ -225,14 +188,10 @@ fluxSummary.jDiff = jDiff;
 fluxSummary.aConcStdy = AconcStdy;
 fluxSummary.cConcStdy = CconcStdy;
 fluxSummary.paramObj = paramObj;
+fluxSummary.kinParams = kinParams;
 % save data
 if saveMe
-  kinVar1 = paramObj.kinVar1;
-  kinVar1str = paramObj.kinVar1str;
-  kinVar2 = paramObj.kinVar2;
-  kinVar2str = paramObj.kinVar2str;
-  save(saveStrMat, 'fluxSummary', 'p1Vec', 'p1name', 'kinVar1', 'kinVar1str', ...
-    'kinVar2', 'kinVar2str');
+  save(saveStrMat, 'fluxSummary');
   % make dirs and move
   if plotSteadyFlag || plotMapFlag
     movefile('*.fig', dirname);
