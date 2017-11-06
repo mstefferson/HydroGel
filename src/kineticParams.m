@@ -20,10 +20,12 @@ ind3 = 4;
 if indMax == 1
   % store str info
   runParams.fixedVar = 'kA';
-  runParams.kinVarCell1 = num2cell( konBt );
+  runParams.kinVarInput1 = konBt;
   runParams.kinVar1 = konBt;
-  runParams.kinVarCell2 = koffObj.InfoCell;
+  runParams.kinVarCell1 = num2cell( konBt );
+  runParams.kinVarInput2 = koffObj.BulkValAllRuns;
   runParams.kinVar2 = koffObj.BulkValAllRuns;
+  runParams.kinVarCell2 = koffObj.InfoCell;
   runParams.kinVar1str = 'konBt';
   runParams.kinVar1strTex = '$$ k_{on} B_t \tau $$';
   runParams.kinVar2str = 'koff';
@@ -39,16 +41,18 @@ if indMax == 1
   % konBt and ka vary
 elseif indMax == 2
   % get multiplier from koff if it exists
-  otherParamRep = koffObj.NumTot / koffObj.NumBulkVal;
+  otherParamRep = koffObj.NumMult;
   kAStore = reshape( repmat( kA, [ otherParamRep 1] ), ...
     [1 otherParamRep * length(kA) ] );
   % store str info
   runParams.fixedVar = 'koff';
   runParams.koffMult = otherParamRep;
-  runParams.kinVarCell1 = konBt;
-  runParams.kinVar1 = num2cell( konBt );
-  runParams.kinVarCell2 = num2cell( kAStore );
+  runParams.kinVarInput1 = konBt;
+  runParams.kinVar1 = konBt;
+  runParams.kinVarCell1 = num2cell( konBt );
+  runParams.kinVarInput2 = kA;
   runParams.kinVar2 = kAStore;
+  runParams.kinVarCell2 = num2cell( kAStore );
   runParams.kinVar1str = 'konBt';
   runParams.kinVar1strTex = '$$ k_{on} B_t \tau $$';
   runParams.kinVar2str = 'Ka';
@@ -65,8 +69,7 @@ elseif indMax == 2
   koffRuns = koffObj.BulkValAllRuns;
   koffInds = koffObj.Inds;
   % rep other parameters based on new number of koff
-  otherParamRep = koffObj.NumTot / koffObj.NumBulkVal;
-  % rep other parameters
+  otherParamRep = koffObj.NumMult;
   nuRuns = reshape( repmat( nuRuns, [ otherParamRep 1] ), ...
     [1 koffObj.NumTot] );
   BtRuns = reshape( repmat( BtRuns, [ otherParamRep 1] ), ...
@@ -79,8 +82,10 @@ elseif indMax == 2
 else
   % store str info
   runParams.fixedVar = 'konBt';
+  runParams.kinVarInput1 = koffObj.BulkValAllRuns;
   runParams.kinVar1 = koffObj.BulkValAllRuns;
   runParams.kinVarCell1 = koffObj.InfoCell;
+  runParams.kinVarInput2 = kA;
   runParams.kinVar2 = kA;
   runParams.kinVarCell2 = num2cell( kA );
   runParams.kinVar1strTex = '$$ k_{off} \tau $$';

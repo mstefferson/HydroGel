@@ -157,8 +157,8 @@ end
 numP1 = kinParams.numP1;
 numP2 = kinParams.numP2;
 numP3 = kinParams.numP3;
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
 jMax = reshape( jMax, [numP1, numP2, numP3] );
 % Get flux diff and normalize it
 jDiff = Da * ( AL - AR ) / Lbox;
