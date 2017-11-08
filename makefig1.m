@@ -4,8 +4,10 @@ ntMax = 1000;
 fontSize = 20;
 % set-up figure
 fidId = 1;
-figure(fidId);
+fig = figure(fidId);
 clf(fidId);
+fig.WindowStyle = 'normal';
+fig.Position = [680 501 695 477];
 % Plot it
 ah1 = gca;
 ah1.FontSize = fontSize;
@@ -32,12 +34,12 @@ for kk = 1:length(kDvec )
   legcell{kk+1} = num2str( 1e6 * kDvec(kk), '%d' ) ;
 end
 %fix
-xlabel(ah1,'time $$ t / \tau $$');
-ylabel(ah1,'normalized flux $$ j / j_{Diff} $$');
+xlabel(ah1,'Time $$ t / \tau $$');
+ylabel(ah1,'Selectivity $$ S $$');
 ah1.XLim = [fluxSummary.timeVec(1) fluxSummary.timeVec(nt)];
 % legend
 h = legend(ah1,legcell,'location','best');
 h.Interpreter = 'latex';
 h.Title.String = '$$ K_D \, ( \mathrm{ \mu M } )$$';
-h.Position = [0.7289, 0.3418, 0.2135, 0.4349];
+h.Position = [0.8036    0.3476    0.1849    0.4380];
 end

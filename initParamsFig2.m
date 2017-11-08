@@ -24,7 +24,7 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
-Nx    = 128;  % Internal gridpoints
+Nx    = 1280;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox);
 % paramMaster.Nx = 10 * paramMaster.Lbox;
 % Scale by box. Careful!!!
@@ -37,7 +37,7 @@ paramMaster.nu     = [0] ; % vec Dc/Da aka nu
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.KonBt  = [1e4];  % vec konBt (time scale)
 paramMaster.Koff   = []; % vec koff (time scale)
-paramMaster.Ka     = logspace(3, 9, 14); % vec binding affinity (time scale) 
+paramMaster.Ka     = logspace(3, 9, 8*7 ); % vec binding affinity (time scale) 
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Llp    = [ 1e-3 1e-2 5e-2 1e-1 Inf ]; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])

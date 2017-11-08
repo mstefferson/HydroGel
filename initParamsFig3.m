@@ -24,7 +24,7 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
-Nx    = 128;  % Internal gridpoints
+Nx    = 1280;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox); % Scale by box. Careful!!!
 paramMaster.Lr = 10; % Reservoir length if there is one
 

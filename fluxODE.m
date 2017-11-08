@@ -71,6 +71,10 @@ paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
 paramKoffInds = kinParams.koffInds;
 numRuns = kinParams.numRuns;
+% warn about low N
+if paramObj.Nx < 1000
+  fprintf('Warning, very low number of grid points\n')
+end
 % save names
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state

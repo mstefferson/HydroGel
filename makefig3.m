@@ -2,43 +2,22 @@ function makefig3( fluxSummary )
 % scale and params
 x = linspace(0,1,fluxSummary.paramObj.Nx );
 % Some tunable parameters
-fontSize = 6;
+fontSize = 14;
 % set params
 % row1: nu = 0 unsaturated
 % row2: nu = 1 unsaturated
 % row3: nu = 1 saturated
 subplotInds = [1 1 1; 2 1 1; 2 1 2];
-% set-up figure
-fidId = 30;
-figure(fidId);
+% % set-up figure
+fidId = 3;
+fig = figure(fidId);
 clf(fidId);
-% Plot it
+fig.WindowStyle = 'normal';
+fig.Position = [251 637 876 221];
 ah1 = gca;
-ah1.FontSize = fontSize;
 axis square
-% subplot them all
-subplotMe2(subplotInds, x, fluxSummary.aConcStdy, fluxSummary.cConcStdy,...
-  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc)
-% stack
-ax = gca;
-fig = ax.Parent;
-pause(3);
-stackPlots( fig, 3 )
-% include derivative
-% set-up figure
-fidId = 31;
-figure(fidId);
-clf(fidId);
-ah1 = gca;
-ah1.FontSize = fontSize;
-axis square
-subplotMe3(subplotInds, x, fluxSummary.aConcStdy, fluxSummary.cConcStdy,...
-  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc);
-% stack
-ax = gca;
-fig = ax.Parent;
-pause(3);
-stackPlots( fig, 3 )
+subplotMeShare(subplotInds, x, fluxSummary.aConcStdy, fluxSummary.cConcStdy,...
+  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc, fontSize);
 
 function subplotMe2( subplotinds, x, aStdy, cStdy, aScale, cScale )
 row = 2;
@@ -92,6 +71,68 @@ for id = 1:3
   plotMeTfDeriv( axTemp, xSlope, data, titCell{row*id-row+3} )
 end
 
+% A and C in the same plot using plotyy
+function [ayy] = subplotMeShareYy( ...
+  subplotinds, x, aStdy, cStdy, aScale, cScale, fontSize )
+row = 1;
+col = 3;
+row1data = cStdy;
+row2data = aStdy;
+titCell= {'A','B','C'};
+for id = 1:3
+  % top row complex
+  axTemp = subplot(row,col,id);
+  dataC = row1data{ ...
+    subplotinds(id,1), subplotinds(id,2), subplotinds(id,3) };
+  dataC = dataC ./ cScale;
+  dataA = row2data{ ...
+    subplotinds(id,1), subplotinds(id,2), subplotinds(id,3) };
+  dataA = dataA ./ aScale;
+  [ayy] = plotyy( axTemp, x, dataA, x, dataC );
+  ayy(1).YLim = [0 1];
+  ayy(2).YLim = [0 1];
+  ayy(1).YTick = 0:0.2:1;
+  ayy(2).YTick = 0:0.2:1;
+  ylabel(ayy(1),'$$ A(x) / A_L $$')
+  ylabel(ayy(2),'$$ C(x) / B_t $$')
+  xlabel(ayy(1), '$$x$$')
+  ayy(1).FontSize = fontSize;
+  ayy(2).FontSize = fontSize;
+  title( ayy(1), titCell{id} )
+  axis(ayy(1),'square'); axis(ayy(2),'square');
+end
+
+% A and C in the same plot using plot
+function subplotMeShare( ...
+  subplotinds, x, aStdy, cStdy, aScale, cScale, fontSize )
+titlePos = [0.05 1];
+row = 1;
+col = 3;
+row1data = cStdy;
+row2data = aStdy;
+titCell= {'A','B','C'};
+for id = 1:3
+  % top row complex
+  axTemp = subplot(row,col,id);
+  dataC = row1data{ ...
+    subplotinds(id,1), subplotinds(id,2), subplotinds(id,3) };
+  dataC = dataC ./ cScale;
+  dataA = row2data{ ...
+    subplotinds(id,1), subplotinds(id,2), subplotinds(id,3) };
+  dataA = dataA ./ aScale;
+  plot( axTemp, x, dataA, x, dataC );
+  axTemp.YLim = [0 1];
+  axTemp.YTick = 0:0.2:1;
+  ylabel(axTemp, 'Scaled Density Profile')
+  xlabel(axTemp, 'Position $$x$$')
+  axTemp.FontSize = fontSize;
+  title( axTemp, titCell{id},'position', titlePos )
+  axis(axTemp,'square'); 
+end
+legcell = {'$$ A(x) / A_L $$', '$$ C(x) / B_t $$'};
+hl = legend( axTemp, legcell );
+hl.Interpreter = 'latex';
+hl.Position = [0.8946 0.4797 0.1018 0.1572];
 
 function plotMeComplex( ax, x, data, titleStr)
 plot( ax, x, data );
