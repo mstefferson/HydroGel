@@ -57,6 +57,5 @@ h = legend( legcell, 'location','best');
 h.Interpreter = 'latex';
 h.Title.String = legTitle;
 h.Position = [0.8422 0.3879 0.1456 0.3334];
-keyboard
 end
 

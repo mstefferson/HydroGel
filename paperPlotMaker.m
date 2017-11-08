@@ -41,3 +41,13 @@ if any( plotId == 4 )
     fprintf('No data to run for fig 4. Run paperResultsMaker\n');
   end
 end
+% figure 6: selectivity vs nu
+if any( plotId == 6 )
+  data2load = [paperDataPath 'fig6_data.mat'];
+  if exist( data2load, 'file'  )
+    load( data2load ) 
+    makefig6( fluxSummary ); 
+  else
+    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+  end
+end

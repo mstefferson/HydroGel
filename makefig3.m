@@ -1,6 +1,8 @@
 function makefig3( fluxSummary )
 % scale and params
+xScale = 100;
 x = linspace(0,1,fluxSummary.paramObj.Nx );
+x = xScale * x;
 % Some tunable parameters
 fontSize = 14;
 % set params
@@ -124,7 +126,7 @@ for id = 1:3
   axTemp.YLim = [0 1];
   axTemp.YTick = 0:0.2:1;
   ylabel(axTemp, 'Scaled Density Profile')
-  xlabel(axTemp, 'Position $$x$$')
+  xlabel(axTemp, 'Position $$x  \, ( \mathrm{ nm } )$$')
   axTemp.FontSize = fontSize;
   title( axTemp, titCell{id},'position', titlePos )
   axis(axTemp,'square'); 

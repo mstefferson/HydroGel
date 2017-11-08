@@ -42,7 +42,7 @@ ax.XLim = [ min(kDvec) max(kDvec) ];
 ax.XTick = kdScale * [ 1e-9 1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 ax.YLim = [0 40];
 xlabel('$$ K_D  \, ( \mathrm{ \mu M } ) $$')
-ylabel('Selectivity ($$ j / j_{Diff} $$)')
+ylabel('Selectivity $$ S $$')
 h = legend( legcell, 'location','best');
 h.Interpreter = 'latex';
 h.Title.String = legTitle;
