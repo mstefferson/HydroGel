@@ -141,12 +141,21 @@ for ii = 1:numRuns
   koffCell{ii} = paramObj.KoffObj.InfoCell{ paramKoffInds(ii) };
 end
 
+NxSave = Nx;
 parfor (ii=1:numRuns, numWorkers)
   % set params
   nuCellTemp = nuCell{ii};
   KonBt  = paramKonBt(ii);
   koffCellTemp = koffCell{ ii };
   Kon = KonBt ./ BtFixed;  
+  % temp, fix Nx for extreme value for paper
+  Ka = Kon / koffCellTemp{2};
+  if nuCellTemp{2} > 0.75 && Ka > 10^(7.5)
+    Nx = 100*1280;
+  else
+    Nx = NxSave;
+  end
+  dx  = Lbox/Nx;
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
     Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, nlEqn );
   % calc flux
