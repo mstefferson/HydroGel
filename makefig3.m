@@ -1,4 +1,4 @@
-function makefig3( fluxSummary )
+function makefig3( fluxSummary, fatWays )
 % scale and params
 xScale = 100;
 x = linspace(0,1,fluxSummary.paramObj.Nx );
@@ -11,15 +11,26 @@ fontSize = 14;
 % row3: nu = 1 saturated
 subplotInds = [1 1 1; 2 1 1; 2 1 2];
 % % set-up figure
-fidId = 3;
-fig = figure(fidId);
-clf(fidId);
+% figId = 3;
+figId = randi(1000);
+fig = figure(figId);
+clf(figId);
 fig.WindowStyle = 'normal';
-fig.Position = [251 637 876 221];
-ah1 = gca;
+if fatWays
+  fig.Position = [251 637 876 221];
+else
+  fig.Position = [638 265 489 440];
+end
 axis square
+% plot it
 subplotMeShare(subplotInds, x, fluxSummary.aConcStdy, fluxSummary.cConcStdy,...
-  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc, fontSize);
+  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc, fontSize, fatWays);
+% stack ti
+if ~fatWays
+  pause(1)
+  stackPlots( fig, 1 )
+end
+
 
 function subplotMe2( subplotinds, x, aStdy, cStdy, aScale, cScale )
 row = 2;
@@ -106,13 +117,19 @@ end
 
 % A and C in the same plot using plot
 function subplotMeShare( ...
-  subplotinds, x, aStdy, cStdy, aScale, cScale, fontSize )
+  subplotinds, x, aStdy, cStdy, aScale, cScale, fontSize, fatWays )
 titlePos = [0.05 1];
-row = 1;
-col = 3;
+if fatWays
+  row = 1;
+  col = 3;
+else
+  row = 3;
+  col = 1;
+end
 row1data = cStdy;
 row2data = aStdy;
-titCell= {'A','B','C'};
+titCell= {'','',''};
+%titCell= {'A','B','C'};
 for id = 1:3
   % top row complex
   axTemp = subplot(row,col,id);
@@ -125,16 +142,29 @@ for id = 1:3
   plot( axTemp, x, dataA, x, dataC );
   axTemp.YLim = [0 1];
   axTemp.YTick = 0:0.2:1;
-  ylabel(axTemp, 'Scaled Density Profile')
+  if fatWays
+    ylabel(axTemp, 'Scaled Density Profile')
+  else
+    ylabel(axTemp, 'Density Profile')
+  end
   xlabel(axTemp, 'Position $$x  \, ( \mathrm{ nm } )$$')
   axTemp.FontSize = fontSize;
   title( axTemp, titCell{id},'position', titlePos )
-  axis(axTemp,'square'); 
+  axis(axTemp,'square');
 end
-legcell = {'$$ A(x) / A_L $$', '$$ C(x) / B_t $$'};
-hl = legend( axTemp, legcell );
-hl.Interpreter = 'latex';
-hl.Position = [0.8946 0.4797 0.1018 0.1572];
+
+if fatWays
+  legcell = {'$$ T(x) / T_L $$', '$$ C(x) / N_t $$'};
+  hl = legend( axTemp, legcell );
+  hl.Interpreter = 'latex';
+  hl.Position = [0.8946 0.4797 0.1018 0.1572];
+else
+  legcell = {'$$ T(x) / T_L $$', '$$ C(x) / N_t $$'};
+  hl = legend( axTemp, legcell );
+  hl.Interpreter = 'latex';
+  hl.Position = [0.732 0.746 0.108 0.157];
+end
+
 
 function plotMeComplex( ax, x, data, titleStr)
 plot( ax, x, data );

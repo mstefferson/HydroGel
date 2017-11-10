@@ -10,6 +10,7 @@
 *.avi
 *~
 *.mat
+*.png
 *.jpg
 *.fig
 *.out
