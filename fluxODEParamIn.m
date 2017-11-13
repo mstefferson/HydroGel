@@ -17,30 +17,25 @@
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
 function [ fluxSummary ] = ...
-  fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname, paramFile )
+  fluxODE( paramFile, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin <= 3
+if nargin == 1
+  saveMe = 0;
+end
+if nargin == 2
   if saveMe == 1
     dirname = ['fluxODE_' num2str( randi( 100 ) )];
-  else
-    dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
 end
-if nargin <= 4
-  paramFile = 'initParams.m';
-end
 % check if parameter file or parameter matrix
-if strcmp( paramFile(end-1:end), '.m' )
-  paramScript = 1;
-elseif strcmp( paramFile(end-3:end), '.mat' )
+if strcmp( paramFile(end-3:end), '.mat' )
   paramLoad = paramFile;
-  paramFile = 'initParams.m';
+  paramFile = 'initParams';
   paramScript = 0;
 else
-  fprintf('Do not recognize parameter input\n')
-  error('Do not recognize parameter input\n')
+  paramScript = 1;
 end
 % Add paths and output dir
 addpath( genpath('./src') );
@@ -79,14 +74,15 @@ pfixedStr = '$$ B_t $$';
 if paramScript == 1
   [paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
 else
-
+  [paramObj, runParams] = ...
+    paramInputMaster( paramObj, paramFile, flags )
 end
 % Run the loops
 paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
 paramKoffInds = kinParams.koffInds;
-numRuns = kinParams.numRuns;
 % warn about low N
+numRuns = kinParams.numRuns;
 if paramObj.Nx < 1000
   fprintf('Warning, very low number of grid points\n')
 end
@@ -176,30 +172,9 @@ end
 numP1 = kinParams.numP1;
 numP2 = kinParams.numP2;
 numP3 = kinParams.numP3;
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
-jMax = reshape( jMax, [numP1, numP2, numP3] );
 % Get flux diff and normalize it
 jDiff = Da * ( AL - AR ) / Lbox;
 jNorm = jMax ./  jDiff;
-% Steady states
-if plotSteadyFlag
-  concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
-    kinParams.p1Vec,  kinParams.kinVar1, kinParams.kinVar2, ...
-    p1name, p2name, p3name, ...
-    pfixed, pfixedStr, saveMe, saveStrSS )
-end
-% Surface plot
-if plotMapFlag
-  if flags.BoundTetherDiff
-    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ Ll_p = $$ '];
-  else
-    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ \nu = $$ ' ];
-  end
-  save
-  surfLoopPlotter( jNorm, kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2,...
-    xlab, ylab,  titstr, saveMe, saveStrFM )
-end
 % store everything
 fluxSummary.jMax = jMax;
 fluxSummary.jNorm = jNorm;

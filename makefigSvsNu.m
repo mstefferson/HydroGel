@@ -1,10 +1,10 @@
-function makefig6( fluxSummary )
+function makefigSvsNu( fluxSummary )
 % scale factor
 kdScale = 1e6;
 % Some tunable parameters
 fontSize = 20;
 % set-up figure
-fidId = 6;
+fidId = randi(1000);
 fig = figure(fidId);
 clf(fidId);
 fig.WindowStyle = 'normal';
