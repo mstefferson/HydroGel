@@ -3,26 +3,19 @@ function makefigSvsKdLinear( linSummary )
 kdScale = 1e6;
 % Some tunable parameters
 fontSize = 20;
+selectivityLims = [0 50];
 % set-up figure
-fidId = 2;
+fidId = randi(1000);
 fig = figure(fidId);
 clf(fidId);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
-fig.Position = [591 134 567 414];
+fig.Position = [615 118 543 430];
 xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 
 % make subplot
 makeLinPlot( linSummary, ...
-  xTick, fontSize );
-if 0
-  fidId = 20;
-  fig = figure(fidId);
-  clf(fidId);
-  fig.WindowStyle = 'normal';
-  makeLinPlot( fluxSummary, linSummary, kdScale, lScale, ...
-    xTick, fontSize );
-end
+  xTick, fontSize, selectivityLims );
 
 function [kdVec, lplcVec, jNorm, kdVecLin, jNormLin ] = ...
   getDataFluxLin( linSummary )
@@ -40,7 +33,7 @@ function [ legcell, legTitle ] = buildLegend( lplcVec )
 [ numLpLc ] = length( lplcVec );
 % legend set-up
 legcell = cell( 1, numLpLc );
-legTitle = ' $$ l_c l_p \, (\mathrm{ nm^2 })$$ ';
+legTitle = ' $$ l_c \, (\mathrm{ nm })$$ ';
 % build legend
 for ii = 1:numLpLc
   if  lplcVec(ii) > 5e3 
@@ -51,20 +44,20 @@ for ii = 1:numLpLc
 end
 
 function makeLinPlot( linSummary, ...
-  xTick, fontSize )
+  xTick, fontSize, selectivityLims )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
+ax.Box = 'on';
+ax.LineWidth = 1;
 axis square
 hold all
 % get linear data
 [kdVec, lplcVec, jNorm, kdVecLin, jNormLin ] = getDataFluxLin( linSummary );
 % plot all it linear in linear regime
-plotSelectivityVsKd( ax, kdVecLin, jNormLin, xTick, 1, '-' )
+plotSelectivityVsKd( ax, kdVecLin, jNormLin, xTick, selectivityLims, 1, '-' )
 % plot all it linear but faded
-plotSelectivityVsKd( ax, kdVec, jNorm, xTick, 0.1, '-' )
-% build legend
-% [legcell,legTitle]  = buildLegend( lplcVec );
+plotSelectivityVsKd( ax, kdVec, jNorm, xTick, selectivityLims, 0.1, '-' )
 % plot div
 plotLinDiv( ax, kdVec )
 % build legend and clear
@@ -72,13 +65,15 @@ plotLinDiv( ax, kdVec )
 hl = legend( legcell );
 hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
+hl.Position = [0.8400 0.3637 0.1502 0.3257];
 
 function plotLinDiv( ax, kdVec )
 slopeBig = 1000;
 linDiv = slopeBig * ( kdVec - 1 );
 plot( ax, kdVec, linDiv, 'k:' );
 
-function plotSelectivityVsKd( ax, kdVec, jNorm, xTick, transparFac, lineStyle )
+function plotSelectivityVsKd( ax, kdVec, jNorm, xTick, selectivityLims,...
+  transparFac, lineStyle )
 % set-up title position
 % plot it
 inds = 1:length(kdVec);
@@ -94,7 +89,7 @@ ax = gca;
 ax.XScale = 'log';
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
-ax.YLim = [0 50];
+ax.YLim = selectivityLims;
 axis square
 xlabel(ax,'Dissociation constant $$ K_D  \, ( \mathrm{ \mu M } ) $$')
 ylabel(ax,'Selectivity $$ S $$')

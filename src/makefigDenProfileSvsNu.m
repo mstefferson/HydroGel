@@ -1,8 +1,9 @@
 function makefigDenProfileSvsNu( fluxSummaryDenProfile, fluxSummarySvsNu )
 % scale and params
+selectivityLims = [0 40];
 xScale = 100;
 % Some tunable parameters
-fontSize = 14;
+fontSize = 20;
 row = 3;
 col = 3;
 % set params
@@ -49,8 +50,9 @@ rightVal = sum( axRight.Position( [1 3] ) );
 width = rightVal - cornerStart(1);
 height = topVal - cornerStart(2);
 fixedPos = [ cornerStart width height];
-% plot it fig 6
-subplotMeFigSvsNu(fluxSummarySvsNu, fontSize, row, col, fixedPos);
+% plot it S vs nu
+subplotMeFigSvsNu(fluxSummarySvsNu, fontSize, selectivityLims,row, col,...
+  fixedPos);
 
 % A and C in the same plot using plot
 function hl = subplotMeDenProfile( ...
@@ -79,10 +81,11 @@ end
 legcell = {'$$ T(x) / T_L $$', '$$ C(x) / N_t $$'};
 hl = legend( axTemp, legcell );
 hl.Interpreter = 'latex';
-hl.Position = [0.2362 0.8401 0.0976 0.0696];
+hl.Position = [0.2330 0.8407 0.1040 0.0748];
 
 
-function subplotMeFigSvsNu( fluxSummary, fontSize, row, col, fixedPos )
+function subplotMeFigSvsNu( fluxSummary, fontSize, selectivityLims,...
+  row, col, fixedPos )
 
 kdScale = 1e6;
 % Plot it
@@ -117,13 +120,15 @@ for ii = 1:numKa
 end
 ah1.XLim = [ min(nuVec) max(nuVec) ];
 % axis square
-ah1.YLim = [0 50];
+ah1.YLim = selectivityLims;
 ah1.Position = fixedPos;
 ah1.FontSize = fontSize;
 ah1.Box = 'on';
+ah1.LineWidth = 1;
 xlabel('Bound Diffusion $$ D_B/D_F $$')
 ylabel('Selectivity $$ S $$')
 hl = legend( legcell, 'location','best');
 hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
-hl.Position = [0.8196 0.7395 0.0802 0.1751];
+hl.Position = [0.9126 0.4434 0.0802 0.1842];
+

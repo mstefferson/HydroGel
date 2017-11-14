@@ -18,6 +18,8 @@ fig.Position = [409 218 695 477];
 % Plot it
 ah1 = gca;
 ah1.FontSize = fontSize;
+ah1.Box = 'on';
+ah1.LineWidth = 1;
 axis square
 hold all
 % set params

@@ -64,7 +64,7 @@ function [ legcell, legTitle ] = buildLegend( lplcVec )
 [ numLpLc ] = length( lplcVec );
 % legend set-up
 legcell = cell( 1, numLpLc );
-legTitle = ' $$ l_c l_p \, (\mathrm{ nm^2 })$$ ';
+legTitle = ' $$ l_c \, (\mathrm{ nm })$$ ';
 % build legend
 for ii = 1:numLpLc
   if isinf( lplcVec(ii) )

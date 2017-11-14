@@ -6,25 +6,19 @@ lScaleWant = 1e-9;
 lScale = (lScaleActual / lScaleWant)^2;
 % Some tunable parameters
 fontSize = 20;
+selectivityLims = [0 40];
 % set-up figure
 fidId = 2;
 fig = figure(fidId);
 clf(fidId);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
-fig.Position = [25 171 1133 377];
+fig.Position = [158 104 975 466];
 xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 % make subplot
 makeSubPlot( fluxSummary, tetherCalc, kdScale, lScale, ...
-  xTick, fontSize );
-if 0
-  fidId = 20;
-  fig = figure(fidId);
-  clf(fidId);
-  fig.WindowStyle = 'normal';
-  makeSamePlot( fluxSummary, linSummary, kdScale, lScale, ...
-    xTick, titleCell, fontSize );
-end
+  xTick, fontSize, selectivityLims );
+
 
 function [kdVec, lplcVec, jNorm ] = getDataFluxSummary( ...
   fluxSummary, kdScale, lScale )
@@ -51,7 +45,7 @@ function [ legcell, legTitle ] = buildLegend( lplcVec )
 [ numLpLc ] = length( lplcVec );
 % legend set-up
 legcell = cell( 1, numLpLc );
-legTitle = ' $$ l_c l_p \, (\mathrm{ nm^2 })$$ ';
+legTitle = ' $$ l_c \, (\mathrm{ nm })$$ ';
 % build legend
 for ii = 1:numLpLc
   if isinf( lplcVec(ii) )
@@ -62,10 +56,16 @@ for ii = 1:numLpLc
 end
 
 function makeSubPlot( fluxSummary, tetherCalc, kdScale, lScale, ...
-  xTick, fontSize )
+  xTick, fontSize, selectivityLims )
 % Plot non-linear first on subplot 2
 ah1 = subplot(1,2,2);
 ah1.FontSize = fontSize;
+ah1.Box = 'on';
+ah1.LineWidth = 1;
+ah1.YLim = selectivityLims;
+ah1.XTick = xTick;
+ah1.XScale = 'log';
+ah1.XLim = [ min(xTick) max(xTick) ];
 axis square
 hold all
 % get data
@@ -74,21 +74,24 @@ hold all
 % build legend
 [legcell,legTitle]  = buildLegend( lplcVec );
 % plot it non-linear
-plotSelectivityVsKd( ah1, kdVec, jNorm, xTick, '-' )
+plotSelectivityVsKd( ah1, kdVec, jNorm, xTick, selectivityLims, '-' )
 % build legend now so lines are correctly colored
 h = legend( legcell, 'location','best');
 h.Interpreter = 'latex';
 h.Title.String = legTitle;
-h.Position = [0.8861 0.3210 0.0911 0.3899];
+h.Position = [0.9115 0.3538 0.0836 0.3005];
 % Plot linear next on subplot 1
 ah2 = subplot(1,2,1);
 ah2.FontSize = fontSize;
+ah2.Box = 'on';
+ah2.LineWidth = 1;
 axis square
 hold all
 plotNuVsKd( ah2,tetherCalc.kd, ...
   tetherCalc.lplc, tetherCalc.nu, xTick, '-' )
 
-function plotSelectivityVsKd( ax, kdVec, jNorm, xTick, lineStyle )
+function plotSelectivityVsKd( ax, kdVec, jNorm, xTick, selectivityLims,...
+  lineStyle )
 % set-up title position
 % plot it
 inds = 1:length(kdVec);
@@ -100,11 +103,11 @@ for ii = 1:numLpLc
   p.Color = [colorArray(ii,:)];
   p.LineStyle = lineStyle;
 end
-ax = gca;
-ax.XScale = 'log';
-ax.XLim = [ min(xTick) max(xTick) ];
-ax.XTick = xTick;
-ax.YLim = [0 50];
+% ax = gca;
+% ax.XScale = 'log';
+% ax.XLim = [ min(xTick) max(xTick) ];
+% ax.XTick = xTick;
+% ax.YLim = selectivityLims;
 axis square
 xlabel(ax,'Dissociation constant $$ K_D  \, ( \mathrm{ \mu M } ) $$')
 ylabel(ax,'Selectivity $$ S $$')
