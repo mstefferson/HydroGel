@@ -1,10 +1,10 @@
-function makefig3( fluxSummary3, fluxSummary6 )
+function makefigDenProfileSvsNu( fluxSummaryDenProfile, fluxSummarySvsNu )
 % scale and params
 xScale = 100;
-x = linspace(0,1,fluxSummary3.paramObj.Nx );
-x = xScale * x;
 % Some tunable parameters
 fontSize = 14;
+row = 3;
+col = 3;
 % set params
 % row1: nu = 0 unsaturated
 % row2: nu = 1 unsaturated
@@ -16,33 +16,48 @@ figId = randi(1000);
 fig = figure(figId);
 clf(figId);
 fig.WindowStyle = 'normal';
+fig.Position = [108 60 1032 638];
 axis square
-% plot it fig 3
-fluxSummary = fluxSummary3;
-subplotMeFig3(subplotInds, x, fluxSummary.aConcStdy, fluxSummary.cConcStdy,...
-  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc, fontSize);
 % fake plots
-subplot(3,2,2); plot(1:10);
-subplot(3,2,4); plot(1:10);
-subplot(3,2,6); plot(1:10);
+for ii = 1:row*col
+  ax = subplot(row,col,ii); plot(1:10);
+  ax.FontSize = fontSize;
+  % corner
+  if ii == row*col - 1
+    axCorner = gca;
+  end
+  % right
+  if ii == row*col
+    axRight = gca;
+  end
+  % top
+  if ii == 2
+    axTop  = gca;
+  end
+end
+% plot it fig 3
+fluxSummary = fluxSummaryDenProfile;
+subplotMeDenProfile(subplotInds, xScale, fluxSummary.aConcStdy, fluxSummary.cConcStdy,...
+  fluxSummary.paramObj.AL, fluxSummary.paramObj.Btc, fontSize, row, col);
 % stack it
 pause(1)
-stackPlots( fig, 2 )
+stackPlots( fig, col )
+% build correct position
+cornerStart = axCorner.Position(1:2);
+topVal = sum( axTop.Position( [2 4] ) );
+rightVal = sum( axRight.Position( [1 3] ) );
+width = rightVal - cornerStart(1);
+height = topVal - cornerStart(2);
+fixedPos = [ cornerStart width height];
 % plot it fig 6
-subplotMeFig6(fluxSummary6, fontSize);
-% stack it
-% pause(1)
-% stackPlots( fig, 2 )
-
+subplotMeFigSvsNu(fluxSummarySvsNu, fontSize, row, col, fixedPos);
 
 % A and C in the same plot using plot
-function subplotMeFig3( ...
-  subplotinds, x, aStdy, cStdy, aScale, cScale, fontSize )
-row = 3;
-col = 2;
+function hl = subplotMeDenProfile( ...
+  subplotinds, xScale, aStdy, cStdy, aScale, cScale, fontSize, row, col )
 row1data = cStdy;
 row2data = aStdy;
-for id = 1:3
+for id = 1:row
   % top row complex
   axTemp = subplot(row,col, 1+(id-1)*col);
   dataC = row1data{ ...
@@ -51,6 +66,7 @@ for id = 1:3
   dataA = row2data{ ...
     subplotinds(id,1), subplotinds(id,2), subplotinds(id,3) };
   dataA = dataA ./ aScale;
+  x = linspace(0, xScale, length(dataA) );
   plot( axTemp, x, dataA, x, dataC );
   axTemp.YLim = [0 1];
   axTemp.YTick = 0:0.2:1;
@@ -63,15 +79,16 @@ end
 legcell = {'$$ T(x) / T_L $$', '$$ C(x) / N_t $$'};
 hl = legend( axTemp, legcell );
 hl.Interpreter = 'latex';
-hl.Position = [0.732 0.746 0.108 0.157];
+hl.Position = [0.2362 0.8401 0.0976 0.0696];
 
-function subplotMeFig6( fluxSummary, fontSize )
 
-row = 3;
-col = 2;
+function subplotMeFigSvsNu( fluxSummary, fontSize, row, col, fixedPos )
+
 kdScale = 1e6;
 % Plot it
-ah1 = subplot( row, col, (1:3)*col);
+filledInds = ( 0:(row-1) ) * col + 1;
+subInds = setdiff( 1:row*col, filledInds );
+ah1 = subplot( row, col, subInds );
 ah1.FontSize = fontSize;
 hold all
 % set params
@@ -98,13 +115,15 @@ end
 for ii = 1:numKa
   plot( nuVec, jSelect(:,ii) )
 end
-ax = gca;
-ax.XLim = [ min(nuVec) max(nuVec) ];
-axis square
-ax.YLim = [0 50];
+ah1.XLim = [ min(nuVec) max(nuVec) ];
+% axis square
+ah1.YLim = [0 50];
+ah1.Position = fixedPos;
+ah1.FontSize = fontSize;
+ah1.Box = 'on';
 xlabel('Bound Diffusion $$ D_B/D_F $$')
 ylabel('Selectivity $$ S $$')
 hl = legend( legcell, 'location','best');
 hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
-
+hl.Position = [0.8196 0.7395 0.0802 0.1751];

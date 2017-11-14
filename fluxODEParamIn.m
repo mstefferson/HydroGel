@@ -17,25 +17,17 @@
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
 function [ fluxSummary ] = ...
-  fluxODE( paramFile, saveMe, dirname )
+  fluxODEParamIn( paramInput, paramFile, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin == 1
+if nargin == 2
   saveMe = 0;
 end
 if nargin == 2
   if saveMe == 1
     dirname = ['fluxODE_' num2str( randi( 100 ) )];
   end
-end
-% check if parameter file or parameter matrix
-if strcmp( paramFile(end-3:end), '.mat' )
-  paramLoad = paramFile;
-  paramFile = 'initParams';
-  paramScript = 0;
-else
-  paramScript = 1;
 end
 % Add paths and output dir
 addpath( genpath('./src') );
@@ -71,12 +63,8 @@ end
 pfixed = paramObj.Bt;
 BtFixed = paramObj.Bt;
 pfixedStr = '$$ B_t $$';
-if paramScript == 1
-  [paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
-else
-  [paramObj, runParams] = ...
-    paramInputMaster( paramObj, paramFile, flags )
-end
+[paramObj, kinParams] = ...
+  paramLoadMaster( paramObj, paramInput, flags );
 % Run the loops
 paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
@@ -91,21 +79,6 @@ saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'FluxAtSS.mat'; % matlab files
 if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end
-if plotMapFlag
-  % set colormap
-  randI = randi(100000);
-  figure(randI)
-  colormap( viridis );
-  close(randI)
-  % labels
-  ylab = kinParams.kinVar1strTex; % rows
-  xlab = kinParams.kinVar2strTex; % columns
-end
-if plotSteadyFlag
-  p1name = kinParams.p1name;
-  p2name = kinParams.kinVar1strTex;
-  p3name = kinParams.kinVar2strTex;
-end
 % Specify necessary parameters for parfor
 nlEqn = flags.NLcoup;
 Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
@@ -141,9 +114,9 @@ end
 nuCell = cell(1, numRuns);
 for ii = 1:numRuns
   if boundTetherDiff
-  nuCell{ii} = {'bound', paramNuLlp(ii)};
+    nuCell{ii} = {'bound', paramNuLlp(ii)};
   else
-  nuCell{ii} = {'const', paramNuLlp(ii)};
+    nuCell{ii} = {'const', paramNuLlp(ii)};
   end
 end
 % set up koff cell
@@ -152,12 +125,13 @@ for ii = 1:numRuns
   koffCell{ii} = paramObj.KoffObj.InfoCell{ paramKoffInds(ii) };
 end
 
-parfor (ii=1:numRuns, numWorkers)
+% parfor (ii=1:numRuns, numWorkers)
+for ii=1:numRuns
   % set params
   nuCellTemp = nuCell{ii};
   KonBt  = paramKonBt(ii);
   koffCellTemp = koffCell{ ii };
-  Kon = KonBt ./ BtFixed;  
+  Kon = KonBt ./ BtFixed;
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
     Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, nlEqn );
   % calc flux
@@ -183,6 +157,7 @@ fluxSummary.aConcStdy = AconcStdy;
 fluxSummary.cConcStdy = CconcStdy;
 fluxSummary.paramObj = paramObj;
 fluxSummary.kinParams = kinParams;
+fluxSummary.paramInput = paramInput;
 % save data
 if saveMe
   save(saveStrMat, 'fluxSummary');

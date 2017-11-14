@@ -1,9 +1,10 @@
 % Id Key
 %
-% 1: initParamsJvsT
-% 2: initParamsSvsKd (course and fine)
-% 3: initParamsDenProfile 
-% 4: initParamsSvsNu (course and fine)
+% 1: JvsT
+% 2: Nu vs Kd and S vs Kd (course and fine)
+% 3: den Profile and S vs Nu (course and fine)
+% 4: selectivity scatter plot
+% 5: linear S vs Kd 
 %
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
@@ -41,14 +42,15 @@ if any( plotId == 1 )
   end
 end
 
-% figure 2: selectivity vs kd
+% figure 2: nu vs kd selectivity vs kd
 if any( plotId == 2 )
   currId = 2;
-  data2load = [paperDataPath 'figSvsKd_data.mat'];
-  if exist( data2load, 'file'  )
-    load( data2load ) 
-    load( [paperDataPath 'figSvsKd_data_linear.mat']) 
-    makefigSvsKd( fluxSummary, fluxLin ); 
+  data2load1 = [paperDataPath 'figSvsKd_data.mat'];
+  data2load2 = [paperDataPath 'figNuVsKd_data.mat'];
+  if exist( data2load1, 'file'  ) && exist( data2load2, 'file' )
+    load( data2load1 ) 
+    load( data2load2 )
+    makefigNuVsKdSvsKd( fluxSummary, tetherCalc ); 
   else
     fprintf('No data to run for fig 2. Run paperResultsMaker\n');
   end
@@ -61,8 +63,8 @@ if any( plotId == 2 )
   end
 end
 
-% figure 4: combine figure 3 and 6
-if any( plotId == 4 )
+% figure 3: combine density profile and S vs nu
+if any( plotId == 3 )
   currId = 4;
   data2load3 = [paperDataPath 'figDenProfile_data.mat'];
   data2load6 = [paperDataPath 'figSvsNu_data.mat'];
@@ -84,13 +86,13 @@ if any( plotId == 4 )
   end
 end
 
-% temp figure 6:
-if any( plotId == 6 )
-  currId = 4;
-  data2load6 = [paperDataPath 'figSvsNu_data.mat'];
-  if exist( data2load6, 'file' )
-    load( data2load6 )
-    makefigSvsNu( fluxSummary ); 
+% figure 4: scatter plot of param input. Not a paper fig
+if any( plotId == 4 )
+  currId = 5;
+  data2load = [paperDataPath 'selectivityFromInput_data.mat'];
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigScatterSelectivity( selectivity ); 
   else
     fprintf('No data to run for fig 6. Run paperResultsMaker\n');
   end
@@ -103,3 +105,21 @@ if any( plotId == 6 )
   end
 end
 
+% figure 5: S vs Kd (linear) for supplements
+if any( plotId == 5 )
+  currId = 4;
+  data2load6 = [paperDataPath 'figSvsKd_data_linear.mat'];
+  if exist( data2load6, 'file' )
+    load( data2load6 )
+    makefigSvsKdLinear( fluxLin ); 
+  else
+    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
