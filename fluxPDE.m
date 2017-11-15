@@ -120,8 +120,9 @@ disp(paramObj); disp(analysisFlags); disp(timeObj);
 FluxVsT = cell( numRuns, 1 );
 AccumVsT = cell( numRuns, 1 );
 % Store steady state solutions;
-AconcStdy = zeros( numRuns, Nx );
-CconcStdy = zeros( numRuns, Nx );
+AconcStdy = cell( numRuns, 1 );
+CconcStdy = cell( numRuns, 1 );
+AOutletVsT = cell( numRuns, 1 );
 % Run Diff first
 pVec =[0 0 0 1];
 % always set dt scale to one to prevent unnecessarily long runs
@@ -133,6 +134,7 @@ dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
   analysisFlags, pVec);
 FluxVsTDiff = recObj.Flux2Res_rec;
 AccumVsTDiff = recObj.FluxAccum_rec;
+AOutletVsTDiff = recObj.A_rec(end,:);
 % loop over runs
 if numRuns > 1 && flags.ParforFlag
   recObj = 0;
@@ -143,7 +145,8 @@ else
   fprintf('Not using parfor\n')
   numWorkers = 0;
 end
-parfor (ii=1:numRuns, numWorkers)
+% parfor (ii=1:numRuns, numWorkers)
+for ii=1:numRuns
   try
     % set params
     p1Temp = paramNuLlp(ii);
@@ -156,10 +159,11 @@ parfor (ii=1:numRuns, numWorkers)
       fprintf('B = %d S = %d\n',recObj.DidIBreak,recObj.SteadyState)
     end
     % record
-    AconcStdy(ii,:) = recObj.Afinal;
-    CconcStdy(ii,:) = recObj.Cfinal;
+    AconcStdy{ii} = recObj.Afinal;
+    CconcStdy{ii} = recObj.Cfinal;
     FluxVsT{ii} = recObj.Flux2Res_rec;
     AccumVsT{ii} = recObj.FluxAccum_rec;
+    AOutletVsT{ii} = recObj.A_rec( end, : );
     fprintf('Finished %d \n', ii );
   catch err
     fprintf('%s',err.getReport('extended') );
@@ -169,11 +173,12 @@ end
 numP1 = kinParams.numP1;
 numP2 = kinParams.numP2;
 numP3 = kinParams.numP3;
-AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3, Nx] );
-CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3, Nx] );
+AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
+CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
 % keyboard
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
+AOutletVsT = reshape( AOutletVsT, [numP1, numP2, numP3] );
 % time
 TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 % Find Maxes and such
@@ -249,6 +254,8 @@ fluxSummary.AconcStdy = AconcStdy;
 fluxSummary.CconcStdy = CconcStdy;
 fluxSummary.FluxVsT = FluxVsT;
 fluxSummary.FluxVsTDiff = FluxVsTDiff;
+fluxSummary.AOutletVsTDiff = AOutletVsTDiff;
+fluxSummary.AOutletVsT = AOutletVsT;
 fluxSummary.paramObj = paramObj;
 fluxSummary.kinParams = kinParams;
 fluxSummary.timeVec = TimeVec;
