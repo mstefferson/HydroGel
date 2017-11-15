@@ -12,6 +12,7 @@
 *.mat
 *.png
 *.jpg
+*.png
 *.fig
 *.out
 *.OU
