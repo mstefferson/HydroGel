@@ -1,3 +1,4 @@
+
 % Handles all of the analysis
 function [recObj] = AnalysisMaster( filename, runSave, ...
   A_rec, C_rec, Flux2Res_rec, FluxAccum_rec,...
@@ -31,9 +32,8 @@ end
 if analysisFlags.QuickMovie
   try
     videoName = ['concMov_' filename '.avi'];
-    ConcenMovieMakerTgthr1D(videoName, A_rec, C_rec,...
-      GridObj.x, TimeRec, paramObj.Nx, paramObj.Kon, paramObj.Koff,...
-      paramObj.Dnl, paramObj.Da, paramObj.Dc, paramObj.Bt, paramObj.Ka, flags.SaveMe);
+    ConcenMovieMakerTgthr1D(videoName, A_rec, C_rec, paramObj.Bt,...
+      GridObj.x, TimeRec, paramStr, gridStr, concStr, flags.SaveMe);
   catch err
     fprintf('Error writing video\n')
     fprintf('%s',err.getReport('extended') );
@@ -61,7 +61,7 @@ if analysisFlags.PlotMeAccum
   figure()
   plot(TimeRec,A_rec(end,:)/paramObj.AL )
   titstr = sprintf('Normalized concentration at the outlet/end of gel');
-  xlabel('Time'); ylabel('A(x+L_{box}) / A_L');
+  xlabel('Time $$ t $$'); ylabel('$$ A(x=L_{box}) / A_L $$');
   title(titstr)
 end
 % Plot wave from and accumulation

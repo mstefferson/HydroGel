@@ -9,7 +9,7 @@ elseif strcmp(A_BC,'Dir') && strcmp(C_BC,'Dir')
 elseif strcmp(A_BC,'Vn') && strcmp(C_BC,'Vn')
 [Lop] = LopMakerRdVn(N,dx,Bt,kon,koff,Da,Dc);
 elseif strcmp(A_BC,'Res') && strcmp(C_BC,'Vn')
-[Lop] = LopMakerRdAResCvnChemOnEnd(N,dx,Bt,kon,koff,Da,Dc,Lr);
+[Lop] = LopMakerRdAResCVn(N,dx,Bt,kon,koff,Da,Dc,Lr);
 elseif strcmp(A_BC,'PBC') && strcmp(C_BC,'PBC')
 [Lop] = LopMakerRdVn(N,dx,Bt,kon,koff,Da,Dc);
 end

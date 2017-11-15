@@ -11,6 +11,7 @@ titstr =  ['Concen. ' gridStr];
 title(titstr)
 try
   textbp(paramStr)
+  textbp(gridStr)
   textbp(concStr)
 catch err
     fprintf('%s', err.getReport('extended')) ;

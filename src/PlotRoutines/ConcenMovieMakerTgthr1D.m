@@ -1,6 +1,6 @@
 function [M_All] = ...
-  ConcenMovieMakerTgthr1D(videoName, A_rec, C_rec,...
-  x, TimeRec, N, Kon, Koff, Dnl, Da, Dc, Bt, Ka, saveMe)
+  ConcenMovieMakerTgthr1D(videoName, A_rec, C_rec, Bt,...
+  x, TimeRec, paramStr, gridStr, concStr, saveMe)
 % set-up movies differently depending on save
 nFrames = length(TimeRec);
 if saveMe
@@ -39,19 +39,21 @@ uLimF2 = max(Bt) + max(Bt) / 10;
 set(Fig,'renderer','zbuffer')
 %Titles
 TitlStr1 = sprintf('[A]+[C]');
-TitlStr2 = sprintf('B');
+TitlStr2 = sprintf('$$ B_t $$');
 % If Bt is constant, have it a vec for plotting
 if length(Bt) == 1
   Bt = Bt * ones(1, length(x) );
 end
 % loop over frames
 for ii = 1:nFrames
+  % get the time
+  timeStr = [ ' t = ' num2str( TimeRec(ii), '%.2f' ) ];
   % plot A,C
   subplot(ax1)
   LinObj = plot(x, ...
     [A_rec(:,ii)'; C_rec(:,ii)'; A_rec(:,ii)' + C_rec(:,ii)' ]  );
   LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2; LinObj(3).LineWidth = 2;
-  title(TitlStr1)
+  title([ TitlStr1 timeStr ] )
   xlabel('x');ylabel('Concentration');
   set(gca,'YLim', [lLimF1 uLimF1] )
   hl = legend('A','C','A+C');
@@ -60,18 +62,31 @@ for ii = 1:nFrames
   subplot(ax2)
   LinObj = plot(x, [Bt;  ( Bt' - C_rec(:,ii) )' ] );
   LinObj(1).LineWidth = 2; LinObj(2).LineWidth = 2;
-  title(TitlStr2)
+  title([ TitlStr2 timeStr ] )
   xlabel('x');ylabel('Concentration');
   % legend
   hl = legend('$$B_t$$','$$B_{free}$$');
   hl.Interpreter = 'latex';
   set(gca,'YLim', [lLimF2 uLimF2] )
   % text
-  ParamStr = sprintf(...
-    ' t = %.1g \n $$B_t$$ = %.1g \n $$K_A$$ = %.1g \n $$D_A$$ = %.1g \n $$D_C$$ = %.1g \n $$\beta$$ = %.1g \n $$k_{on}$$ = %.1g \n $$k_{off}$$ = %.1g \n ', ...
-    TimeRec(ii), max(Bt), Ka(1), Da, Dc(1), Dnl,Kon(1), Koff(1) );
-  tl = text(0,0,ParamStr);
-  tl.Position =  [0.4743 mean(Bt)/2 0];
+  %paramStr1 = sprintf(...
+    %'t = %.1g \n $$B_t$$ = %.1g \n $$K_A$$ = %.1g \n $$D_A$$ = %.1g \n', ...
+    %TimeRec(ii), max(Bt), Ka(1), Da );
+  %paramStr2 = sprintf(...
+    %'$$D_C$$ = %.1g \n $$ \beta $$ = %.1g \n',  Dc(1), Dnl );
+  %paramStr3 = sprintf(...
+    %'$$k_{on}$$ = %.1g \n $$k_{off}$$ = %.1g \n ', Kon(1), Koff(1) );
+  %paramStr = [paramStr1 paramStr2 paramStr3];
+  %tl = text(0,0,paramStr);
+  %tl.Position =  [0.4743 mean(Bt)/2 0];
+  %tl.Interpreter = 'latex';
+  try
+    textbp(paramStr)
+    textbp(gridStr)
+    textbp(concStr)
+  catch err
+      fprintf('%s', err.getReport('extended')) ;
+  end
   % pause, draw, and record
   drawnow; pause( 0.01 );
   if saveMe
