@@ -1,10 +1,15 @@
 % makefigAOutletRes
 %
 function makefigAOutletRes( fluxSummary )
+
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
 %yLab = 'Selectivity $$ S $$';
 yLab = 'Res. Accumulation';
+fontSize = 16;
+ntMax = 1000;
+% scales
+tScale = 10; % tau = 0.01, get time in ms 
 fidId = randi(1000);
 fig = figure(fidId);
 clf(fidId);
@@ -23,17 +28,19 @@ kDvec =  1 ./ fluxSummary.paramObj.Ka;
 legcell = cell( length(kDvec)+1, 1 );
 legcell{1} = 'No binding';
 % diffusion
-accum2plot = aOutletVsTDiff;
+accum2plot = fluxSummary.aOutletVsTDiff;
+nt = length( accum2plot );
+nt = min( ntMax, nt );
 time = tScale * fluxSummary.timeVec(1:nt);
-p = plot( ah1, time, flux2plot(1:nt),'k:');
+p = plot( ah1, time, accum2plot(1:nt),'k:');
 p.LineWidth = 3;
 % Loop over plots
 for kk = 1:length(kDvec )
   accum2plot = fluxSummary.aOutletVsT{1,1,kk};
-  nt = length( flux2plot );
+  nt = length( accum2plot );
   nt = min( ntMax, nt );
   time = tScale * fluxSummary.timeVec(1:nt);
-  p = plot( ah1, time, flux2plot(1:nt) );
+  p = plot( ah1, time, accum2plot(1:nt) );
   p.LineWidth = 3;
   legcell{kk+1} = num2str( 1e6 * kDvec(kk), '%d' ) ;
 end

@@ -5,6 +5,7 @@
 % 3: den Profile and S vs Nu (course and fine)
 % 4: linear S vs Kd 
 % 5: selectivity scatter plot
+% 6: outlet res accumulation
 %
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
@@ -125,12 +126,12 @@ if any( plotId == 5 )
 end
 
 % figure 6: outlet accumulation. Not a paper fig
-if any( plotId == 5 )
-  currId = 5;
-  data2load = [paperDataPath 'selectivityFromInput_data.mat'];
+if any( plotId == 6 )
+  currId = 6;
+  data2load = [paperDataPath 'figResAccum_data.mat'];
   if exist( data2load, 'file' )
     load( data2load )
-    makefigOutletRes( selectivity ); 
+    makefigAOutletRes( fluxSummary ); 
   else
     fprintf('No data to run for fig 6. Run paperResultsMaker\n');
   end

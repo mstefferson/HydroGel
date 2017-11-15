@@ -63,7 +63,7 @@ fprintf('Initiating parameters\n');
 if exist( paramFile,'file')
   fprintf('Init file: %s\n', paramFile);
   run( paramFile );
-elseif exists( 'initParams.m', file')
+elseif exist( 'initParams.m', 'file')
   fprintf('Could not find init file: %s. Running initParams\n', ...
     paramFile);
   run( 'initParams.m');
