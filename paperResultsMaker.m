@@ -6,6 +6,7 @@
 % 4: initParamsSvsNu (course and fine)
 % 5: paramInput selectivity calc
 % 6: nu vs Kd (Laura's script)
+% 7: outlet reservoir accumulation 
 %
 
 function paperResultsMaker( resultsId )
@@ -115,6 +116,20 @@ if any( resultsId == 6 )
   end
   fullName = [saveName saveExt];
   save( fullName, 'tetherCalc' )
+  movefile( fullName, dataPath );
+end
+% 7: Reservior accumulation
+if any( resultsId == 7 )
+  fluxSummary = fluxPDE(0,0,0,0,0,0,'blah','initParamsOutletResAccum');
+  saveName = 'figResAccum_data';
+  saveExt = '.mat';
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
 end
 

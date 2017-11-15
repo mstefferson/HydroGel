@@ -124,3 +124,22 @@ if any( plotId == 5 )
   end
 end
 
+% figure 6: outlet accumulation. Not a paper fig
+if any( plotId == 5 )
+  currId = 5;
+  data2load = [paperDataPath 'selectivityFromInput_data.mat'];
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigOutletRes( selectivity ); 
+  else
+    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+

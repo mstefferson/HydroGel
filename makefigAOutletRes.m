@@ -1,9 +1,10 @@
-function plotAOutletRes( fluxSummary )
-subplotInds = [1 1 1; 2 1 1; 2 1 2];
+% makefigAOutletRes
+%
+function makefigAOutletRes( fluxSummary )
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
 %yLab = 'Selectivity $$ S $$';
-yLab = 'Accumulation';
+yLab = 'Res. Accumulation';
 fidId = randi(1000);
 fig = figure(fidId);
 clf(fidId);
@@ -22,5 +23,27 @@ kDvec =  1 ./ fluxSummary.paramObj.Ka;
 legcell = cell( length(kDvec)+1, 1 );
 legcell{1} = 'No binding';
 % diffusion
-accum2plot = fluxSummary.
-
+accum2plot = aOutletVsTDiff;
+time = tScale * fluxSummary.timeVec(1:nt);
+p = plot( ah1, time, flux2plot(1:nt),'k:');
+p.LineWidth = 3;
+% Loop over plots
+for kk = 1:length(kDvec )
+  accum2plot = fluxSummary.aOutletVsT{1,1,kk};
+  nt = length( flux2plot );
+  nt = min( ntMax, nt );
+  time = tScale * fluxSummary.timeVec(1:nt);
+  p = plot( ah1, time, flux2plot(1:nt) );
+  p.LineWidth = 3;
+  legcell{kk+1} = num2str( 1e6 * kDvec(kk), '%d' ) ;
+end
+%fix
+xlabel(ah1,xLab);
+ylabel(ah1,yLab);
+ah1.XLim = [time(1) time(nt)];
+% legend
+h = legend(ah1,legcell,'location','best');
+h.Interpreter = 'latex';
+h.Title.String = '$$ K_D \, ( \mathrm{ \mu M } )$$';
+h.Position = [0.8288 0.4319 0.1367 0.2342];
+end

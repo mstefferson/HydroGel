@@ -1,4 +1,4 @@
-function makefig1( fluxSummary )
+function makefigJvsT( fluxSummary )
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
 %yLab = 'Selectivity $$ S $$';

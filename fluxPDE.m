@@ -133,6 +133,7 @@ AccumVsT = cell( numRuns, 1 );
 % Store steady state solutions;
 AconcStdy = cell( numRuns, 1 );
 CconcStdy = cell( numRuns, 1 );
+aOutletVsT = cell( numRuns, 1 );
 % Run Diff first
 pVec =[0 0 0 1];
 % always set dt scale to one to prevent unnecessarily long runs
@@ -144,6 +145,7 @@ dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
   analysisFlags, pVec);
 FluxVsTDiff = recObj.Flux2Res_rec;
 AccumVsTDiff = recObj.FluxAccum_rec;
+aOutletVsTDiff = recObj.A_rec(end,:);
 % loop over runs
 if numRuns > 1 && flags.ParforFlag
   recObj = 0;
@@ -154,7 +156,8 @@ else
   fprintf('Not using parfor\n')
   numWorkers = 0;
 end
-parfor (ii=1:numRuns, numWorkers)
+% parfor (ii=1:numRuns, numWorkers)
+for ii=1:numRuns
   try
     % set params
     p1Temp = paramNuLlp(ii);
@@ -171,6 +174,7 @@ parfor (ii=1:numRuns, numWorkers)
     CconcStdy{ii} = recObj.Cfinal;
     FluxVsT{ii} = recObj.Flux2Res_rec;
     AccumVsT{ii} = recObj.FluxAccum_rec;
+    aOutletVsT{ii} = recObj.A_rec( end, : );
     fprintf('Finished %d \n', ii );
   catch err
     fprintf('%s',err.getReport('extended') );
@@ -185,6 +189,7 @@ CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
 % keyboard
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
+aOutletVsT = reshape( aOutletVsT, [numP1, numP2, numP3] );
 % time
 TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 % Find Maxes and such
@@ -261,6 +266,8 @@ fluxSummary.cConcStdy = CconcStdy;
 fluxSummary.jVsT = FluxVsT;
 fluxSummary.jVsTDiff = FluxVsTDiff;
 fluxSummary.jDiff = jDiff;
+fluxSummary.aOutletVsTDiff = aOutletVsTDiff;
+fluxSummary.aOutletVsT = aOutletVsT;
 fluxSummary.paramObj = paramObj;
 fluxSummary.kinParams = kinParams;
 fluxSummary.timeVec = TimeVec;
