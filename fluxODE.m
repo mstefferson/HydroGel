@@ -150,11 +150,12 @@ parfor (ii=1:numRuns, numWorkers)
   Kon = KonBt ./ BtFixed;  
   % temp, fix Nx for extreme value for paper
   Ka = Kon / koffCellTemp{2};
-  if nuCellTemp{2} > 0.75 && Ka > 10^(7.5)
-    Nx = 100*1280;
-  else
-    Nx = NxSave;
-  end
+  %if nuCellTemp{2} > 0.75 && Ka > 10^(7.5)
+    %Nx = 100*1280;
+  %else
+    %Nx = NxSave;
+  %end
+  Nx = NxSave;
   dx  = Lbox/Nx;
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
     Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, nlEqn );

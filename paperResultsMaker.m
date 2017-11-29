@@ -7,6 +7,8 @@
 % 5: paramInput selectivity calc
 % 6: nu vs Kd (Laura's script)
 % 7: outlet reservoir accumulation 
+% 8: Selectivity heatmap Kd vs Nu
+% 9: Selectivity heatmap Kd vs Lc
 %
 
 function paperResultsMaker( resultsId )
@@ -17,6 +19,8 @@ if ~exist( dataPath,'dir' )
 end
 % figure 1: selectivity vs time
 if any( resultsId == 1 )
+  currId = 1;
+  fprintf('making plot %d \n', currId );
   fluxSummary = fluxPDE(0,0,0,0,0,0,'blah','initParamsJvsT');
   saveName = 'figJvsT_data';
   saveExt = '.mat';
@@ -31,6 +35,8 @@ if any( resultsId == 1 )
 end
 % figure 2: selectivity vs kd
 if any( resultsId == 2 )
+  currId = 2;
+  fprintf('making plot %d \n', currId );
   fluxSummary = fluxODE(0,0,0,'blah','initParamsSvsKd');
   saveName = 'figSvsKd_data';
   saveExt = '.mat';
@@ -45,6 +51,8 @@ if any( resultsId == 2 )
 end
 % figure 3: density profiles
 if any( resultsId == 3 )
+  currId = 3;
+  fprintf('making plot %d \n', currId );
   fluxSummary = fluxODE(0,0,0,'blah','initParamsDenProfile');
   saveName = 'figDenProfile_data';
   saveExt = '.mat';
@@ -61,6 +69,8 @@ end
 
 % figure 4: boundary koff, non-linear
 if any( resultsId == 4 )
+  currId = 4;
+  fprintf('making plot %d \n', currId );
   fluxSummary = fluxODE(0,0,0,'blah','initParamsSvsNu');
   saveName = 'figSvsNu_data';
   saveExt = '.mat';
@@ -76,6 +86,8 @@ end
 
 % 5: parameter input. 
 if any( resultsId == 5 )
+  currId = 5;
+  fprintf('making plot %d \n', currId );
   loadId = '20171110_param.mat';
   fileId = 'initParamsSelectivityFromInput';
   load( ['paperParamInput/' loadId ]);
@@ -105,6 +117,8 @@ if any( resultsId == 5 )
 end
 % 6: Laura's script
 if any( resultsId == 6 )
+  currId = 6;
+  fprintf('making plot %d \n', currId );
   [tetherCalc.nu, tetherCalc.kd,tetherCalc.lplc] = makeTetherDBs;
   tetherCalc.nu = tetherCalc.nu.';
   saveName = 'figNuVsKd_data';
@@ -120,8 +134,42 @@ if any( resultsId == 6 )
 end
 % 7: Reservior accumulation
 if any( resultsId == 7 )
+  currId = 7;
+  fprintf('making plot %d \n', currId );
   fluxSummary = fluxPDE(0,0,0,0,0,0,'blah','initParamsOutletResAccum');
   saveName = 'figResAccum_data';
+  saveExt = '.mat';
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+end
+% 8: Selectivity heat map, Kd vs Nu
+if any( resultsId == 8 )
+  currId = 8;
+  fprintf('making plot %d \n', currId );
+  fluxSummary = fluxODE(0,0,0,'blah','initParamsSheatmapKdNu');
+  saveName = 'figResSheatmapKdNu_data';
+  saveExt = '.mat';
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+end
+% 9: Selectivity heat map, Kd vs lclp
+if any( resultsId == 9 )
+  currId = 9;
+  fprintf('making plot %d \n', currId );
+  fluxSummary = fluxODE(0,0,0,'blah','initParamsSheatmapKdLclp');
+  saveName = 'figResSheatmapKdLcLp_data';
   saveExt = '.mat';
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )

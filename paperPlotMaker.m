@@ -6,6 +6,8 @@
 % 4: linear S vs Kd 
 % 5: selectivity scatter plot
 % 6: outlet res accumulation
+% 7: Selectivity heatmap Kd vs Nu
+% 8: Selectivity heatmap Kd vs Lc
 %
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
@@ -32,7 +34,7 @@ if any( plotId == 1 )
     load( data2load ) 
     makefigJvsT(fluxSummary ); 
   else
-    fprintf('No data to run for fig 1. Run paperResultsMaker\n');
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
   % save it
   if saveFlag
@@ -53,7 +55,7 @@ if any( plotId == 2 )
     load( data2load2 )
     makefigNuVsKdSvsKd( fluxSummary, tetherCalc ); 
   else
-    fprintf('No data to run for fig 2. Run paperResultsMaker\n');
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
   % save it
   if saveFlag
@@ -76,7 +78,7 @@ if any( plotId == 3 )
     fluxSummary6 = fluxSummary;
     makefigDenProfileSvsNu( fluxSummary3, fluxSummary6 ); 
   else
-    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
   % save it
   if saveFlag
@@ -95,7 +97,7 @@ if any( plotId == 4 )
     load( data2load6 )
     makefigSvsKdLinear( fluxLin ); 
   else
-    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
   % save it
   if saveFlag
@@ -114,7 +116,7 @@ if any( plotId == 5 )
     load( data2load )
     makefigScatterSelectivity( selectivity ); 
   else
-    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
   % save it
   if saveFlag
@@ -133,7 +135,45 @@ if any( plotId == 6 )
     load( data2load )
     makefigAOutletRes( fluxSummary ); 
   else
-    fprintf('No data to run for fig 6. Run paperResultsMaker\n');
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+
+% figure 7: seletivity heatmap. Kd and nu
+if any( plotId == 7 )
+  currId = 7;
+  data2load = [paperDataPath 'figResSheatmapKdNu_data.mat'];
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigSheatmap( fluxSummary, 'nu' ); 
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+
+% figure 8: seletivity heatmap. Kd and lplc
+if any( plotId == 8 )
+  currId = 8;
+  data2load = [paperDataPath 'figResSheatmapKdLcLp_data.mat'];
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigSheatmap( fluxSummary, 'lplc' ); 
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
   % save it
   if saveFlag
