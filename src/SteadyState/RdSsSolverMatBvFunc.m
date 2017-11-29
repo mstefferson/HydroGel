@@ -8,6 +8,7 @@ global AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac nuStr nuPval
 BCstr = BCstrVal; % 'Dir','Vn','DirVn'
 
 %Parameter you can edit
+debugFlag = 0;
 nuStr = nuCell{1};
 nuPval = nuCell{2};
 Kon = konVal;
@@ -27,6 +28,16 @@ if nlEqn
   nlfac = 1;
 else
   nlfac = 0;
+end
+
+if debugFlag
+  % print what you are running
+  if strcmp( nuStr, 'lplc' ) || strcmp( nuStr, 'nu' )
+    fprintf('Running %s with val %g\n', nuStr,nuPval);
+  else
+    fprintf('Cannot find nu type\n');
+    error('Cannot find nu type\n');
+  end
 end
 
 % Calculated parameters/linear solutions
@@ -99,10 +110,10 @@ end
 function dydx = odeCoupledDiffChem(~, y)
 global Kon Koff Bt nuStr nuPval nlfac
 % get diffusion coeff
-if strcmp( nuStr, 'bound' )
+if strcmp( nuStr, 'lplc' )
   Dc =  boundTetherDiffCalc( nuPval, Koff, 1);
   nu = Dc;
-elseif strcmp( nuStr, 'const' )
+elseif strcmp( nuStr, 'nu' )
   nu = nuPval;
 end
 % y = [A C dA/dx dC/dx]
@@ -124,10 +135,10 @@ else
   koffTemp = Koff;
 end
 % get diffusion coeff
-if strcmp( nuStr, 'bound' )
+if strcmp( nuStr, 'lplc' )
   Dc =  boundTetherDiffCalc( nuPval, koffTemp, 1);
   nu = Dc;
-elseif strcmp( nuStr, 'const' )
+elseif strcmp( nuStr, 'nu' )
   nu = nuPval;
 end
 % solve for derivative
