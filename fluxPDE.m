@@ -44,16 +44,20 @@
 %
 % [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname );
 
-function [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname )
+function [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin < 6
+totalInput = 5;
+if nargin < totalInput
   if saveMe == 1
     dirname = ['fluxPDE_' num2str( randi( 100 ) )];
   else
     dirname = ['tempFluxPDE_' num2str( randi( 100 ) ) ];
   end
+end
+if nargin <= totalInput
+  paramFile = 'initParams.m';
 end
 % move input structure fields to variables
 plotMapFlux  = plotFlag.plotMapFlux;
@@ -88,9 +92,16 @@ Time = datestr(now);
 fprintf('Starting fluxPDE: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
-if exist( 'initParams.m','file')
-  initParams;
+if exist( paramFile,'file')
+  fprintf('Init file: %s\n', paramFile);
+  run( paramFile );
+elseif exist( 'initParams.m', 'file')
+  fprintf('Could not find init file: %s. Running initParams\n', ...
+    paramFile);
+  run( 'initParams.m');
 else
+  fprintf('Could not find init file: %s or initParams. Copying and running template\n', ...
+    paramFile);
   cpParams
   initParams
 end
