@@ -3,17 +3,25 @@
 % It saves steady state solutions, makes plots, and has temporal info for the
 % flux. Loops over nu, KonBt, Koff.
 %
-% fluxPDE( plotVstFlag, plotSteadyFlag, plotmapMaxFlag, ...
-%  plotmapSlopeFlag, plotmapTimeFlag, saveMe, dirname )
+% fluxPDE( plotVsT, plotSteady, plotMapFlux, ...
+%  plotMapFluxSlope, plotMapFluxTime, saveMe, dirname )
 %
 % Inputs:
-% plotVstFlag: plot j vs t for various koff and konbt
-% plotSteadyFlag: plot concentration profiles
-% plotmapMaxFlag: surface plot jmax vs koff and konbt
-% plotmapSlopeFlag: surface plot of dj/dt at jmax/2 vs koff and konbt
-% plotmapTimeFlag: surface plot of time until jmax/2 vs koff and konbt
+% plotFlag: structure of plot flags
+% storeFlag: structure of store flags
 % saveMe: save plots and outputs
 % dirname: directory name for saving
+%
+% plotFlag with fields
+% plotFlag.plotVsT: plot j vs t for various koff and konbt
+% plotFlag.plotSteady: plot concentration profiles
+% plotFlag.plotMapFlux: surface plot jmax vs koff and konbt
+% plotFlag.plotMapFluxSlope: surface plot of dj/dt at jmax/2 vs koff and konbt
+% plotFlag.plotMapFluxTime: surface plot of time until jmax/2 vs koff and konbt
+% 
+% storeFlag with fields
+% storeFlag.storeStdy: store steady state solution flag
+% storeFlag.storeTimeDep: store flux time dependence
 %
 % Outputs: fluxSummary with fields
 % jMax: matrix of steady state flux vs koff and konbt
@@ -23,21 +31,45 @@
 % AconcStdy: matrix of A steady state profile vs koff and konbt
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
+%
+% example run
+%
+% plotFlag.plotMapFlux = 1;
+% plotFlag.plotSteady = 1;
+% plotFlag.plotVsT = 1;
+% plotFlag.plotMapFluxSlope = 1;
+% plotFlag.plotMapFluxTime = 1;
+% storeFlag.storeStdy = 1;
+% storeFlag.storeTimeDep = 1;
+%
+% [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname );
 
-function [fluxSummary] = fluxPDE( plotVstFlag, plotSteadyFlag, plotMapMaxFlag, ...
-  plotMapSlopeFlag, plotMapTimeFlag, saveMe, dirname )
+function [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
 if nargin < 6
   if saveMe == 1
-    dirname = ['fluxODE_' num2str( randi( 100 ) )];
+    dirname = ['fluxPDE_' num2str( randi( 100 ) )];
   else
-    dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
+    dirname = ['tempFluxPDE_' num2str( randi( 100 ) ) ];
   end
 end
+% move input structure fields to variables
+plotMapFlux  = plotFlag.plotMapFlux;
+plotSteady = plotFlag.plotSteady;
+plotVsT = plotFlag.plotVsT;
+plotMapFluxSlope = plotFlag.plotMapFluxSlope;
+plotMapFluxTime = plotFlag.plotMapFluxTime;
+storeStdy = storeFlag.storeStdy;
+storeTimeDep = storeFlag.storeStdy;
+% can't plot steady if not storing
+plotSteady = storeStdy * plotSteady;
+plotVsT = storeTimeDep * plotVsT;
+plotMapFluxSlope = storeTimeDep * plotMapFluxSlope;
+plotMapFluxTime = storeTimeDep * plotMapFluxTime;
 % fix flags
-if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
+if plotMapFlux || plotMapFluxSlope || plotMapFluxTime
   plotMapFlag = 1;
   % set colormap
   randI = randi(100000);
@@ -88,16 +120,16 @@ numRuns = kinParams.numRuns;
 saveStrVsT = 'flxvst'; %flux and accumulation vs time
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
-saveStrMat = 'FluxAtSS.mat'; % matlab files
+saveStrMat = 'fluxSummary.mat'; % matlab files
 if saveMe
   dirname = [dirname '_nl' num2str( flagsObj.NLcoup ) '/'];
   mkdir(dirname)
 end
-if plotMapMaxFlag || plotMapSlopeFlag || plotMapTimeFlag
+if plotMapFlux || plotMapFluxSlope || plotMapFluxTime
   xlab = kinParams.kinVar2strTex; % columns
   ylab = kinParams.kinVar1strTex;  % rows
 end
-if plotSteadyFlag || plotVstFlag
+if plotSteady || plotVsT
   p2name = kinParams.kinVar1strTex;
   p3name = kinParams.kinVar2strTex;
 end
@@ -117,12 +149,13 @@ fprintf('trial:%d A_BC: %s C_BC: %s\n', ...
   paramObj.trial,paramObj.A_BC, paramObj.C_BC)
 disp(paramObj); disp(analysisFlags); disp(timeObj);
 % Edits here. Change params and loop over
+fluxEnd = zeros( numRuns, 1 );
 FluxVsT = cell( numRuns, 1 );
 AccumVsT = cell( numRuns, 1 );
+AOutletVsT = cell( numRuns, 1 );
 % Store steady state solutions;
 AconcStdy = cell( numRuns, 1 );
 CconcStdy = cell( numRuns, 1 );
-AOutletVsT = cell( numRuns, 1 );
 % Run Diff first
 pVec =[0 0 0 1];
 % always set dt scale to one to prevent unnecessarily long runs
@@ -159,11 +192,24 @@ for ii=1:numRuns
       fprintf('B = %d S = %d\n',recObj.DidIBreak,recObj.SteadyState)
     end
     % record
-    AconcStdy{ii} = recObj.Afinal;
-    CconcStdy{ii} = recObj.Cfinal;
-    FluxVsT{ii} = recObj.Flux2Res_rec;
-    AccumVsT{ii} = recObj.FluxAccum_rec;
-    AOutletVsT{ii} = recObj.A_rec( end, : );
+    if storeStdy
+      AconcStdy{ii} = recObj.Afinal;
+      CconcStdy{ii} = recObj.Cfinal;
+    else
+      AconcStdy{ii} = 0;
+      CconcStdy{ii} = 0;
+    end
+    % always store FluxMax
+    fluxEnd(ii) = recObj.Flux2Res_rec(end);
+    if storeTimeDep
+      FluxVsT{ii} = recObj.Flux2Res_rec;
+      AccumVsT{ii} = recObj.FluxAccum_rec;
+      AOutletVsT{ii} = recObj.A_rec( end, : );
+    else
+      FluxVsT{ii} = 0;
+      AccumVsT{ii} = 0;
+      AOutletVsT{ii} = 0;
+    end
     fprintf('Finished %d \n', ii );
   catch err
     fprintf('%s',err.getReport('extended') );
@@ -175,7 +221,7 @@ numP2 = kinParams.numP2;
 numP3 = kinParams.numP3;
 AconcStdy = reshape( AconcStdy, [numP1, numP2, numP3] );
 CconcStdy = reshape( CconcStdy, [numP1, numP2, numP3] );
-% keyboard
+fluxEnd = reshape( fluxEnd, [numP1, numP2, numP3] );
 FluxVsT = reshape( FluxVsT, [numP1, numP2, numP3] );
 AccumVsT = reshape( AccumVsT, [numP1, numP2, numP3] );
 AOutletVsT = reshape( AOutletVsT, [numP1, numP2, numP3] );
@@ -183,14 +229,14 @@ AOutletVsT = reshape( AOutletVsT, [numP1, numP2, numP3] );
 TimeVec = (0:timeObj.N_rec-1) * timeObj.t_rec;
 % Find Maxes and such
 [jMax, ~, djdtHm, tHm] = ...
-  findFluxProperties( FluxVsT, AccumVsT, timeObj, ...
+  findFluxProperties( fluxEnd, FluxVsT, AccumVsT, timeObj, ...
   length(kinParams.p1Vec), length(kinParams.kinVar1), length(kinParams.kinVar2) );
 % Get norm
 jDiff = Da * ( AL - AR ) / Lbox;
 jNorm = jMax ./  jDiff;
-%% Plotting stuff
+% Plotting stuff
 % flux vs time
-if plotVstFlag
+if plotVsT
   plotBoth = 0;
   ah1titl = [kinParams.kinVar1strTex ' = ' ] ;
   ah2titl = [kinParams.p1name ' = ' ] ;
@@ -214,7 +260,7 @@ if plotVstFlag
   end
 end
 % steady state solutions
-if plotSteadyFlag
+if plotSteady
   x = linspace( 0, Lbox, paramObj.Nx );
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
     kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
@@ -222,14 +268,14 @@ if plotSteadyFlag
     pfixed, pfixedStr, saveMe, saveStrSS )
 end
 % Surface plot: max flux
-if plotMapMaxFlag
+if plotMapFlux
   titleSort = '$$ j_{max} / j_{diff} $$; ';
   titstr = [ titleSort kinParams.p1name ' = '] ;
   surfLoopPlotter( jNorm, kinParams.p1Vec, kinParams.kinVar1, ...
     kinParams.kinVar2, xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 % Surface plot: flux slope
-if plotMapSlopeFlag
+if plotMapFluxSlope
   titleSort = 'Slope, $$ \frac{dj}{dt} $$, at Half Max Flux; ';
   titstr = [ titleSort kinParams.p1name ' = '] ;
   saveStr = [saveStrFM '_slopeHm'];
@@ -238,7 +284,7 @@ if plotMapSlopeFlag
     xlab, ylab,  titstr, saveMe, saveStr)
 end
 % Surface plot: time to flux
-if plotMapTimeFlag
+if plotMapFluxTime
   titleSort = 'Time at Half Max Flux; ';
   titstr = [ titleSort kinParams.p1name ' = '] ;
   saveStr = [saveStrFM '_tHm'];
@@ -263,7 +309,7 @@ fluxSummary.timeVec = TimeVec;
 if saveMe
   save(saveStrMat, 'fluxSummary');
   % make dirs and move
-  if plotSteadyFlag || plotMapFlag
+  if plotSteady || plotMapFlag
     movefile('*.fig', dirname);
     movefile('*.jpg', dirname);
   end

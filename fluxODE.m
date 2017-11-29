@@ -2,13 +2,20 @@
 % of the RD equation for various parameter configurations by solving the ODE ( dv/dt = 0 ).
 % Using this, it calculated the RHS flux and makes nice plots. Loops over
 % nu, KonBt, Koff.
-% fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname )
+% fluxODE( plotMapFlux, plotSteady, saveMe, dirname )
 %
 % Inputs:
-% plotMapFlag: surface plot jmax vs koff and konbt
-% plotSteadyFlag: plot concentration profiles
+% plotFlag: structure of plot flags
+% storeFlag: structure of store flags
 % saveMe: save plots and outputs
 % dirname: directory name for saving
+%
+% plotFlag with fields
+% plotFlag.plotMapFlux: surface plot jmax vs koff and konbt
+% plotFlag.plotSteady: plot concentration profiles
+%
+% storeFlag with fields
+% storeFlag.storeStdy: store steady state solution flag
 %
 % Outputs: fluxSummary with fields
 % jMax: matrix of steady state flux vs koff and konbt
@@ -16,22 +23,38 @@
 % AconcStdy: matrix of A steady state profile vs koff and konbt
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
+%
+% example run
+%
+% plotFlag.plotSteady = 1;
+% plotFlag.plotMapFlux = 1;
+% storeFlag.storeStdy = 1;
+%
+% [fluxSummary] = fluxODE( plotFlag, storeFlag, saveMe, dirname );
+%
 function [ fluxSummary ] = ...
-  fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname )
+  fluxODE( plotFlag, storeFlag, saveMe, dirname )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
-if nargin < 3
+totalInput = 5;
+if nargin < totalInput
   if saveMe == 1
     dirname = ['fluxODE_' num2str( randi( 100 ) )];
   else
     dirname = ['tempFluxODE_' num2str( randi( 100 ) ) ];
   end
 end
+% move input structure fields to variables
+plotMapFlux  = plotFlag.plotMapFlux;
+plotSteady = plotFlag.plotSteady;
+storeStdy = storeFlag.storeStdy;
+% can't plot steady if not storing
+plotSteady = storeStdy * plotSteady;
 % Add paths and output dir
 addpath( genpath('./src') );
-if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
-if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end;
+if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end
+if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end
 % print start time
 Time = datestr(now);
 fprintf('Starting fluxODE: %s\n', Time)
@@ -64,9 +87,12 @@ numRuns = kinParams.numRuns;
 % save names
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
-saveStrMat = 'FluxAtSS.mat'; % matlab files
-if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end
-if plotMapFlag
+saveStrMat = 'fluxSummary.mat'; % matlab files
+if saveMe; 
+  dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; 
+  mkdir( dirname );
+end
+if plotMapFlux
   % set colormap
   randI = randi(100000);
   figure(randI)
@@ -76,7 +102,7 @@ if plotMapFlag
   ylab = kinParams.kinVar1strTex; % rows
   xlab = kinParams.kinVar2strTex; % columns
 end
-if plotSteadyFlag
+if plotSteady
   p1name = kinParams.p1name;
   p2name = kinParams.kinVar1strTex;
   p3name = kinParams.kinVar2strTex;
@@ -138,8 +164,13 @@ parfor (ii=1:numRuns, numWorkers)
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
-  AconcStdy{ii} = AnlOde;
-  CconcStdy{ii} = CnlOde;
+  if storeStdy
+    AconcStdy{ii} = AnlOde;
+    CconcStdy{ii} = CnlOde;
+  else
+    AconcStdy{ii} = 0;
+    CconcStdy{ii} = 0;
+  end
   jMax(ii) = flux;
 end
 
@@ -154,14 +185,14 @@ jMax = reshape( jMax, [numP1, numP2, numP3] );
 jDiff = Da * ( AL - AR ) / Lbox;
 jNorm = jMax ./  jDiff;
 % Steady states
-if plotSteadyFlag
+if plotSteady
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
     kinParams.p1Vec,  kinParams.kinVar1, kinParams.kinVar2, ...
     p1name, p2name, p3name, ...
     pfixed, pfixedStr, saveMe, saveStrSS )
 end
 % Surface plot
-if plotMapFlag
+if plotMapFlux
   if flags.BoundTetherDiff
     titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ Ll_p = $$ '];
   else
@@ -182,7 +213,7 @@ fluxSummary.kinParams = kinParams;
 if saveMe
   save(saveStrMat, 'fluxSummary');
   % make dirs and move
-  if plotSteadyFlag || plotMapFlag
+  if plotSteady || plotMapFlux
     movefile('*.fig', dirname);
     movefile('*.jpg', dirname);
   end
