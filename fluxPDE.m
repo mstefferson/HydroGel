@@ -97,7 +97,6 @@ end
 % Copy master parameters input object
 paramObj = paramMaster;
 flagsObj = flags;
-boundTetherDiff = flags.BoundTetherDiff;
 % Build timeObj
 [timeObj] = TimeObjMakerRD(timeMaster.dt,timeMaster.t_tot,...
   timeMaster.t_rec,timeMaster.ss_epsilon);
@@ -110,7 +109,7 @@ end
 % set-up params
 pfixed = paramObj.Bt;
 pfixedStr = '$$ B_t $$';
-[paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
+[paramObj, kinParams] = paramInputMaster( paramObj, koffVary );
 % Run the loops
 paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
@@ -178,8 +177,7 @@ else
   fprintf('Not using parfor\n')
   numWorkers = 0;
 end
-% parfor (ii=1:numRuns, numWorkers)
-for ii=1:numRuns
+parfor (ii=1:numRuns, numWorkers)
   try
     % set params
     p1Temp = paramNuLlp(ii);
@@ -239,7 +237,7 @@ jNorm = jMax ./  jDiff;
 if plotVsT
   plotBoth = 0;
   ah1titl = [kinParams.kinVar1strTex ' = ' ] ;
-  ah2titl = [kinParams.p1name ' = ' ] ;
+  ah2titl = [kinParams.p1nameTex ' = ' ] ;
   fluxAll2plot = FluxVsT;
   fluxDiff2plot = FluxVsTDiff;
   if plotBoth
@@ -247,13 +245,13 @@ if plotVsT
       fluxAll2plot, AccumVsT, fluxDiff2plot, AccumVsTDiff, ...
       jDiff, TimeVec, ...
       kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
-      kinParams.p3name, pfixed, pfixedStr, ...
+      kinParams.p3nameTex, pfixed, pfixedStrTex, ...
       ah1titl, ah2titl, saveMe, saveStrVsT )
   else
     fluxVsTimePlotMultParams( ...
       fluxAll2plot ,fluxDiff2plot, jDiff, TimeVec, ...
       kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
-      kinParams.kinVar2str, pfixed, pfixedStr, ...
+      kinParams.kinVar2strTex, pfixed, pfixedStr, ...
       ah1titl, ah2titl, saveMe, saveStrVsT )
     ylabel( ' $$ j / j_{diff, steady} $$' );
     xlabel( ' $$ t / \tau $$ ' );
@@ -264,20 +262,20 @@ if plotSteady
   x = linspace( 0, Lbox, paramObj.Nx );
   concSteadyPlotMultParams( AconcStdy, CconcStdy, x, ...
     kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
-    kinParams.p1name, kinParams.kinVar1str, kinParams.kinVar2str, ...
+    kinParams.p1nameTex, kinParams.kinVar1strTex, kinParams.kinVar2strTex, ...
     pfixed, pfixedStr, saveMe, saveStrSS )
 end
 % Surface plot: max flux
 if plotMapFlux
-  titleSort = '$$ j_{max} / j_{diff} $$; ';
-  titstr = [ titleSort kinParams.p1name ' = '] ;
+  titleShort = '$$ j_{max} / j_{diff} $$; ';
+  titstr = [ titleShort kinParams.p1nameTex ' = '] ;
   surfLoopPlotter( jNorm, kinParams.p1Vec, kinParams.kinVar1, ...
     kinParams.kinVar2, xlab, ylab,  titstr, saveMe, saveStrFM)
 end
 % Surface plot: flux slope
 if plotMapFluxSlope
-  titleSort = 'Slope, $$ \frac{dj}{dt} $$, at Half Max Flux; ';
-  titstr = [ titleSort kinParams.p1name ' = '] ;
+  titleShort = 'Slope, $$ \frac{dj}{dt} $$, at Half Max Flux; ';
+  titstr = [ titleShort kinParams.p1nameTex ' = '] ;
   saveStr = [saveStrFM '_slopeHm'];
   surfLoopPlotter( djdtHm, kinParams.p1Vec, ...
     kinParams.kinVar1, kinParams.kinVar2, ...
@@ -285,8 +283,8 @@ if plotMapFluxSlope
 end
 % Surface plot: time to flux
 if plotMapFluxTime
-  titleSort = 'Time at Half Max Flux; ';
-  titstr = [ titleSort kinParams.p1name ' = '] ;
+  titleShort = 'Time at Half Max Flux; ';
+  titstr = [ titleShort kinParams.p1nameTex ' = '] ;
   saveStr = [saveStrFM '_tHm'];
   surfLoopPlotter( tHm, kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2, ...
     xlab, ylab,  titstr, saveMe, saveStr)

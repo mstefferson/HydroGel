@@ -38,7 +38,7 @@ flagsObj = flags;
 % if Nx is too large, reset to something reasonable
 if paramObj.Nx > 256; paramObj.Nx = 128; end
 % set-up params
-[paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
+[paramObj, kinParams] = paramInputMaster( paramObj, koffVary );
 % Turn off graphics in flag is zero
 if graphicsFlag == 0 || flags.SaveMe == 0
   analysisFlags.QuickMovie           = 0;  % Time evolv. Movie
@@ -61,7 +61,7 @@ disp(flags); disp(paramObj); disp(analysisFlags); disp(timeObj);
 fprintf('Executing %d runs \n\n', numRuns);
 % pulls and some variables flags out here
 SaveMe = flags.SaveMe;
-boundDiff = flags.BoundTetherDiff;
+boundDiffStr = paramObj.DbParam{1};
 Nx = paramObj.Nx; A_BC = paramObj.A_BC; C_BC = paramObj.C_BC;
 NLcoup = flags.NLcoup; trial = paramObj.trial;
 % Loops over all run
@@ -88,15 +88,9 @@ parfor (ii=1:numRuns, numWorkers)
   % Assign parameters
   paramvec = [ paramNuLlp(ii) paramKonBt(ii) paramKoffInds(ii) paramBt(ii) ];
   % Name it
-  if boundDiff
-    dirname = sprintf('HG_N%d_A%sC%sNL%d_Llp%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
-      Nx, A_BC, C_BC, NLcoup,...
+  dirname = sprintf('HG_N%d_A%sC%sNL%d_%s%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
+      Nx, A_BC, C_BC, NLcoup, boundDiffStr,...
       paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
-  else
-    dirname = sprintf('HG_N%d_A%sC%sNL%d_nu%.1g_konBt%d_koff%d_bt%.1g_t%.2d',...
-      Nx, A_BC, C_BC, NLcoup,...
-      paramvec(1), paramvec(2), paramvec(3), paramvec(4), trial);
-  end
   filename = [dirname '.mat'];
   where2SavePath = [pwd '/runfiles/' dirname];
   fprintf('\nStarting %s \n', filename);

@@ -27,18 +27,28 @@ paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
 if paramObj.Kon == 0
   paramObj.Ka = zeros( paramSize );
 end
+% Store value for quick look up
+paramObj.KonBtVal = mean( paramObj.KonBt );
+paramObj.KonVal = mean( paramObj.Kon );
+paramObj.KaVal = mean( paramObj.Ka );
+paramObj.KoffVal = mean( paramObj.Koff );
 % Calculate D if you're suppose to
-if flags.BoundTetherDiff
-  paramObj.Llp = pVec(1);
-  paramObj.Dc =  boundTetherDiffCalc( paramObj.Llp, paramObj.Koff, paramObj.Da );
+if strcmp( paramObj.DbParam{1}, 'lplc' )
+  paramObj.lclp = pVec(1);
+  paramObj.Dc =  boundTetherDiffCalc( paramObj.lclp, paramObj.Koff, paramObj.Da );
   if length( paramObj.Dc ) == 1
     paramObj.Dc = paramObj.Dc .* ones( paramSize );
   end
 else
   paramObj.Dc = pVec(1) * paramObj.Da .* ones( paramSize );
-  paramObj.Llp = 0;
 end
 paramObj.nu = paramObj.Dc ./  paramObj.Da;
+% Store value for quick look up
+paramObj.KonBtVal = mean( paramObj.KonBt );
+paramObj.KonVal = mean( paramObj.Kon );
+paramObj.KaVal = mean( paramObj.Ka );
+paramObj.KoffVal = mean( paramObj.Koff );
+paramObj.nuVal = mean( paramObj.nu );
 % Define commonly used variables
 Nx     = paramObj.Nx;
 DidIBreak = 0;

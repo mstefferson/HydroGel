@@ -69,7 +69,6 @@ end
 % Copy master parameters input object
 paramObj = paramMaster;
 flagsObj = flags;
-boundTetherDiff = flags.BoundTetherDiff;
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
@@ -78,7 +77,7 @@ end
 pfixed = paramObj.Bt;
 BtFixed = paramObj.Bt;
 pfixedStr = '$$ B_t $$';
-[paramObj, kinParams] = paramInputMaster( paramObj, koffVary, flags );
+[paramObj, kinParams] = paramInputMaster( paramObj, koffVary );
 % Run the loops
 paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
@@ -88,8 +87,8 @@ numRuns = kinParams.numRuns;
 saveStrFM = 'flxss'; %flux map
 saveStrSS = 'profileSS'; % steady state
 saveStrMat = 'fluxSummary.mat'; % matlab files
-if saveMe; 
-  dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; 
+if saveMe
+  dirname = [dirname '_nl' num2str( flagsObj.NLcoup )];
   mkdir( dirname );
 end
 if plotMapFlux
@@ -103,7 +102,7 @@ if plotMapFlux
   xlab = kinParams.kinVar2strTex; % columns
 end
 if plotSteady
-  p1name = kinParams.p1name;
+  p1name = kinParams.p1nameTex;
   p2name = kinParams.kinVar1strTex;
   p3name = kinParams.kinVar2strTex;
 end
@@ -141,11 +140,7 @@ end
 % set bound diffusion or not
 nuCell = cell(1, numRuns);
 for ii = 1:numRuns
-  if boundTetherDiff
-  nuCell{ii} = {'bound', paramNuLlp(ii)};
-  else
-  nuCell{ii} = {'const', paramNuLlp(ii)};
-  end
+  nuCell{ii} = { paramObj.DbParam{1}, paramNuLlp(ii) };
 end
 % set up koff cell
 koffCell = cell( 1, numRuns );
@@ -158,7 +153,7 @@ parfor (ii=1:numRuns, numWorkers)
   nuCellTemp = nuCell{ii};
   KonBt  = paramKonBt(ii);
   koffCellTemp = koffCell{ ii };
-  Kon = KonBt ./ BtFixed;  
+  Kon = KonBt ./ BtFixed;
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
     Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, nlEqn );
   % calc flux
@@ -193,12 +188,8 @@ if plotSteady
 end
 % Surface plot
 if plotMapFlux
-  if flags.BoundTetherDiff
-    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ Ll_p = $$ '];
-  else
-    titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed) '; $$ \nu = $$ ' ];
-  end
-  save
+  titstr = ['$$ j_{max} / j_{diff} $$; $$ B_t = $$ ' num2str(BtFixed)...
+    '; ' kinParams.p1nameTex ' = '];
   surfLoopPlotter( jNorm, kinParams.p1Vec, kinParams.kinVar1, kinParams.kinVar2,...
     xlab, ylab,  titstr, saveMe, saveStrFM )
 end
