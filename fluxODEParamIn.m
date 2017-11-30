@@ -54,7 +54,6 @@ end
 % Copy master parameters input object
 paramObj = paramMaster;
 flagsObj = flags;
-boundTetherDiff = flags.BoundTetherDiff;
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
@@ -63,8 +62,7 @@ end
 pfixed = paramObj.Bt;
 BtFixed = paramObj.Bt;
 pfixedStr = '$$ B_t $$';
-[paramObj, kinParams] = ...
-  paramLoadMaster( paramObj, paramInput, flags );
+[paramObj, kinParams] = paramLoadMaster( paramObj, paramInput );
 % Run the loops
 paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
@@ -112,12 +110,10 @@ else
 end
 % set bound diffusion or not
 nuCell = cell(1, numRuns);
+% set bound diffusion or not
+nuCell = cell(1, numRuns);
 for ii = 1:numRuns
-  if boundTetherDiff
-    nuCell{ii} = {'bound', paramNuLlp(ii)};
-  else
-    nuCell{ii} = {'const', paramNuLlp(ii)};
-  end
+  nuCell{ii} = { paramObj.DbParam{1}, paramNuLlp(ii) };
 end
 % set up koff cell
 koffCell = cell( 1, numRuns );

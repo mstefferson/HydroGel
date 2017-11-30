@@ -12,6 +12,17 @@
 %
 
 function paperResultsMaker( resultsId )
+% turn off  saving
+saveMe = 0;
+dirname = 'blah';
+saveExt = '.mat';
+% turn off all plot flags
+plotFlag.plotMapFlux = 0;
+plotFlag.plotSteady = 0;
+plotFlag.plotVsT = 0;
+plotFlag.plotMapFluxSlope = 0;
+plotFlag.plotMapFluxTime = 0;
+% turn store off/on based on run
 
 dataPath = 'paperData';
 if ~exist( dataPath,'dir' ) 
@@ -21,9 +32,11 @@ end
 if any( resultsId == 1 )
   currId = 1;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxPDE(0,0,0,0,0,0,'blah','initParamsJvsT');
+  storeFlag.storeStdy = 0;
+  storeFlag.storeTimeDep = 1;
+  paramFile = 'initParamsJvsT';
   saveName = 'figJvsT_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -37,9 +50,10 @@ end
 if any( resultsId == 2 )
   currId = 2;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxODE(0,0,0,'blah','initParamsSvsKd');
+  storeFlag.storeStdy = 0;
+  paramFile = 'initParamsSvsKd';
   saveName = 'figSvsKd_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -53,9 +67,10 @@ end
 if any( resultsId == 3 )
   currId = 3;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxODE(0,0,0,'blah','initParamsDenProfile');
+  storeFlag.storeStdy = 1;
+  paramFile = 'initParamsDenProfile';
   saveName = 'figDenProfile_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -67,13 +82,14 @@ if any( resultsId == 3 )
 end
 
 
-% figure 4: boundary koff, non-linear
+% figure 4: initParamsSvsNu (course and fine)
 if any( resultsId == 4 )
   currId = 4;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxODE(0,0,0,'blah','initParamsSvsNu');
+  storeFlag.storeStdy = 0;
+  paramFile = 'initParamsSvsNu';
   saveName = 'figSvsNu_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -89,7 +105,7 @@ if any( resultsId == 5 )
   currId = 5;
   fprintf('making plot %d \n', currId );
   loadId = '20171110_param.mat';
-  fileId = 'initParamsSelectivityFromInput';
+  fileId = 'initParamsSFromInput';
   load( ['paperParamInput/' loadId ]);
   tau = 0.01;
   bt = 1e-3;
@@ -105,7 +121,6 @@ if any( resultsId == 5 )
   selectivity.paramLoad = param;
   selectivity.paramInpt = paramInpt;
   saveName = 'selectivityFromInput_data';
-  saveExt = '.mat';
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -122,7 +137,6 @@ if any( resultsId == 6 )
   [tetherCalc.nu, tetherCalc.kd,tetherCalc.lplc] = makeTetherDBs;
   tetherCalc.nu = tetherCalc.nu.';
   saveName = 'figNuVsKd_data';
-  saveExt = '.mat';
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -136,9 +150,11 @@ end
 if any( resultsId == 7 )
   currId = 7;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxPDE(0,0,0,0,0,0,'blah','initParamsOutletResAccum');
+  storeFlag.storeStdy = 1;
+  storeFlag.storeTimeDep = 1;
+  paramFile = 'initParamsOutletResAccum';
   saveName = 'figResAccum_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -152,9 +168,10 @@ end
 if any( resultsId == 8 )
   currId = 8;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxODE(0,0,0,'blah','initParamsSheatmapKdNu');
+  storeFlag.storeStdy = 0;
+  paramFile = 'initParamsSheatmapKdNu';
   saveName = 'figResSheatmapKdNu_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -168,9 +185,10 @@ end
 if any( resultsId == 9 )
   currId = 9;
   fprintf('making plot %d \n', currId );
-  fluxSummary = fluxODE(0,0,0,'blah','initParamsSheatmapKdLclp');
+  storeFlag.storeStdy = 0;
+  paramFile = 'initParamsSheatmapKdLclp';
   saveName = 'figResSheatmapKdLcLp_data';
-  saveExt = '.mat';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -180,6 +198,4 @@ if any( resultsId == 9 )
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
 end
-
-end
-
+end %function

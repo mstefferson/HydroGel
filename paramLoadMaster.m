@@ -1,5 +1,5 @@
 function [paramObj, runParams] = ...
-  paramLoadMaster( paramObj, paramMat, flags )
+  paramLoadMaster( paramObj, paramMat )
 % load it
 nu = paramMat(:,1);
 konBt = paramMat(:,2);
@@ -9,10 +9,12 @@ kon = konBt ./ bt;
 kA = kon ./ ( koff );
 
 % Get correct kinetic params
-if flags.BoundTetherDiff
-  p1name = '$$ Ll_p $$';
+if strcmp( paramObj.DbParam{1}, 'lplc' )  
+  p1nameTex = '$$ l_cl_p $$';
+  p1name = 'lclp';
 else
-  p1name = '$$ \nu $$';
+  p1name = 'nu';
+  p1nameTex = '$$ \nu $$';
 end
 % fake koff
 koffObj = BuildKoffInput( koff, {'const'} );

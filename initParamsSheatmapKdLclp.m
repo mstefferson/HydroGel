@@ -24,7 +24,8 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
-Nx    = 5*1280;  % Internal gridpoints
+%Nx    = 50*1280;  % Internal gridpoints
+Nx    = 1280;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox);
 % paramMaster.Nx = 10 * paramMaster.Lbox;
 % Scale by box. Careful!!!
@@ -33,13 +34,12 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 %Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
 % konBt, koff, Ka
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
-paramMaster.nu     = [0] ; % vec Dc/Da aka nu 
+paramMaster.DbParam     = {'lplc', logspace(-3,3,7)}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.KonBt  = [1e4];  % vec konBt (time scale)
 paramMaster.Koff   = []; % vec koff (time scale)
 paramMaster.Ka     = logspace(3, 9, 7 ); % vec binding affinity (time scale) 
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
-paramMaster.Llp    = [ logspace(-3,3,7) ]; % Tether length x persistence length
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet
