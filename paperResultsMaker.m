@@ -1,7 +1,7 @@
 % Id Key
 %
 % 1: initParamsJvsT
-% 2: initParamsSvsKd (course and fine)
+% 2: initParamsSvsKd vary lplc (course and fine)
 % 3: initParamsDenProfile 
 % 4: initParamsSvsNu (course and fine)
 % 5: paramInput selectivity calc
@@ -9,6 +9,7 @@
 % 7: outlet reservoir accumulation 
 % 8: Selectivity heatmap Kd vs Nu
 % 9: Selectivity heatmap Kd vs Lc
+% 10: initParamsSvsKd vary nu (course and fine)
 %
 
 function paperResultsMaker( resultsId )
@@ -47,13 +48,13 @@ if any( resultsId == 1 )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-% figure 2: selectivity vs kd
+% figure 2: selectivity vs kd, vary lplc
 if any( resultsId == 2 )
   currId = 2;
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
-  paramFile = 'initParamsSvsKd';
-  saveName = 'figSvsKd_data';
+  paramFile = 'initParamsSvsKd_lplc';
+  saveName = 'figSvsKdVaryLplc_data';
   fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
@@ -190,12 +191,30 @@ if any( resultsId == 8 )
   fprintf('Finished results %d \n', currId );
 end
 % 9: Selectivity heat map, Kd vs lclp
-if any( resultsId == 9 )
+if any( resultsId ==  9)
   currId = 9;
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdLclp';
   saveName = 'figSheatmapKdLcLp_data';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+% figure 10: selectivity vs kd, vary nu
+if any( resultsId == 10 )
+  currId = 10;
+  fprintf('Starting results %d \n', currId );
+  storeFlag.storeStdy = 0;
+  paramFile = 'initParamsSvsKd_nu';
+  saveName = 'figSvsKdVaryNu_data';
   fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )

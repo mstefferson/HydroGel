@@ -8,6 +8,8 @@
 % 6: outlet res accumulation
 % 7: Selectivity heatmap Kd vs Nu
 % 8: Selectivity heatmap Kd vs Lc
+% 9: S vs Kd vary lplc (course and fine)
+% 10: S vs Kd vary nu (course and fine)
 %
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
@@ -48,7 +50,7 @@ end
 % figure 2: nu vs kd selectivity vs kd
 if any( plotId == 2 )
   currId = 2;
-  data2load1 = [paperDataPath 'figSvsKd_data.mat'];
+  data2load1 = [paperDataPath 'figSvsKdVaryLplc_data.mat'];
   data2load2 = [paperDataPath 'figNuVsKd_data.mat'];
   if exist( data2load1, 'file'  ) && exist( data2load2, 'file' )
     load( data2load1 ) 
@@ -172,6 +174,44 @@ if any( plotId == 8 )
   if exist( data2load, 'file' )
     load( data2load )
     makefigSheatmap( fluxSummary, 'lplc' ); 
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+
+% figure 9: selectivity vs kd, vary nu
+if any( plotId == 9 )
+  currId = 2;
+  data2load1 = [paperDataPath 'figSvsKdVaryNu_data.mat'];
+  if exist( data2load1, 'file'  )
+    load( data2load1 ) 
+    makefigSvsKd( fluxSummary, 'nu' ); 
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+
+% figure 10: selectivity vs kd, vary lplc
+if any( plotId == 10 )
+  currId = 2;
+  data2load1 = [paperDataPath 'figSvsKdVaryLplc_data.mat'];
+  if exist( data2load1, 'file'  )
+    load( data2load1 ) 
+    makefigSvsKd( fluxSummary, 'lplc' ); 
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
