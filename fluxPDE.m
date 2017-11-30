@@ -49,14 +49,14 @@ function [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFil
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
 totalInput = 5;
-if nargin < totalInput
+if nargin < totalInput-1
   if saveMe == 1
     dirname = ['fluxPDE_' num2str( randi( 100 ) )];
   else
     dirname = ['tempFluxPDE_' num2str( randi( 100 ) ) ];
   end
 end
-if nargin <= totalInput
+if nargin < totalInput
   paramFile = 'initParams.m';
 end
 % move input structure fields to variables

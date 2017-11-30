@@ -7,7 +7,7 @@ flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
 flags.BreakAtSteady = 0; % Save runHydrogel outputs
-flags.ParforFlag = 0; % Turn on/off Parfor
+flags.ParforFlag = 1; % Turn on/off Parfor
 
 % "Analysis" subroutines
 analysisFlags.QuickMovie             = 1;  % Time evolv. Movie
@@ -19,7 +19,7 @@ analysisFlags.PlotMeWaveFrontAccum   = 0;  % Wavefront and accum
 analysisFlags.PlotMeLastConcAccum    = 0;  % Conc at end time and accum
 analysisFlags.CheckConservDen        = 1;  % Check if density is conserved
 analysisFlags.ShowRunTime            = 1;  % Display run time
-analysisFlags.TrackProgress          = 1;  % Track run progress
+analysisFlags.TrackProgress          = 0;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
