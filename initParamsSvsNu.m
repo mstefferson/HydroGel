@@ -23,8 +23,8 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
-%Nx    = 50*1280;  % Internal gridpoints
-Nx    = 1280;  % Internal gridpoints
+Nx    = 100*1280;  % Internal gridpoints
+%Nx    = 1280;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox);
 % paramMaster.Nx = 10 * paramMaster.Lbox;
 % Scale by box. Careful!!!

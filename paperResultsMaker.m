@@ -31,7 +31,7 @@ end
 % figure 1: selectivity vs time
 if any( resultsId == 1 )
   currId = 1;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   storeFlag.storeTimeDep = 1;
   paramFile = 'initParamsJvsT';
@@ -45,11 +45,12 @@ if any( resultsId == 1 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 % figure 2: selectivity vs kd
 if any( resultsId == 2 )
   currId = 2;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSvsKd';
   saveName = 'figSvsKd_data';
@@ -62,11 +63,12 @@ if any( resultsId == 2 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 % figure 3: density profiles
 if any( resultsId == 3 )
   currId = 3;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 1;
   paramFile = 'initParamsDenProfile';
   saveName = 'figDenProfile_data';
@@ -79,13 +81,14 @@ if any( resultsId == 3 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 
 
 % figure 4: initParamsSvsNu (course and fine)
 if any( resultsId == 4 )
   currId = 4;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSvsNu';
   saveName = 'figSvsNu_data';
@@ -98,12 +101,13 @@ if any( resultsId == 4 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 
 % 5: parameter input. 
 if any( resultsId == 5 )
   currId = 5;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   loadId = '20171110_param.mat';
   fileId = 'initParamsSFromInput';
   load( ['paperParamInput/' loadId ]);
@@ -129,11 +133,12 @@ if any( resultsId == 5 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary','selectivity' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 % 6: Laura's script
 if any( resultsId == 6 )
   currId = 6;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   [tetherCalc.nu, tetherCalc.kd,tetherCalc.lplc] = makeTetherDBs;
   tetherCalc.nu = tetherCalc.nu.';
   saveName = 'figNuVsKd_data';
@@ -145,11 +150,12 @@ if any( resultsId == 6 )
   fullName = [saveName saveExt];
   save( fullName, 'tetherCalc' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 % 7: Reservior accumulation
 if any( resultsId == 7 )
   currId = 7;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 1;
   storeFlag.storeTimeDep = 1;
   paramFile = 'initParamsOutletResAccum';
@@ -163,11 +169,12 @@ if any( resultsId == 7 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 % 8: Selectivity heat map, Kd vs Nu
 if any( resultsId == 8 )
   currId = 8;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdNu';
   saveName = 'figResSheatmapKdNu_data';
@@ -180,11 +187,12 @@ if any( resultsId == 8 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 % 9: Selectivity heat map, Kd vs lclp
 if any( resultsId == 9 )
   currId = 9;
-  fprintf('making plot %d \n', currId );
+  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdLclp';
   saveName = 'figResSheatmapKdLcLp_data';
@@ -197,5 +205,6 @@ if any( resultsId == 9 )
   fullName = [saveName saveExt];
   save( fullName, 'fluxSummary' )
   movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
 end
 end %function
