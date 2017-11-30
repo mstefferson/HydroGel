@@ -177,7 +177,7 @@ if any( resultsId == 8 )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdNu';
-  saveName = 'figResSheatmapKdNu_data';
+  saveName = 'figSheatmapKdNu_data';
   fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
@@ -195,7 +195,7 @@ if any( resultsId == 9 )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdLclp';
-  saveName = 'figResSheatmapKdLcLp_data';
+  saveName = 'figSheatmapKdLcLp_data';
   fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )

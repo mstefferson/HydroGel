@@ -149,7 +149,7 @@ end
 % figure 7: seletivity heatmap. Kd and nu
 if any( plotId == 7 )
   currId = 7;
-  data2load = [paperDataPath 'figResSheatmapKdNu_data.mat'];
+  data2load = [paperDataPath 'figSheatmapKdNu_data.mat'];
   if exist( data2load, 'file' )
     load( data2load )
     makefigSheatmap( fluxSummary, 'nu' ); 
@@ -168,7 +168,7 @@ end
 % figure 8: seletivity heatmap. Kd and lplc
 if any( plotId == 8 )
   currId = 8;
-  data2load = [paperDataPath 'figResSheatmapKdLcLp_data.mat'];
+  data2load = [paperDataPath 'figSheatmapKdLcLp_data.mat'];
   if exist( data2load, 'file' )
     load( data2load )
     makefigSheatmap( fluxSummary, 'lplc' ); 
