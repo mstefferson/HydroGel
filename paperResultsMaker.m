@@ -15,6 +15,7 @@
 %
 
 function paperResultsMaker( resultsId )
+addpath(genpath('src'))
 % turn off  saving
 saveMe = 0;
 dirname = 'blah';
@@ -135,7 +136,7 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-% 6: Laura's script
+% 6: nu vs kd, Laura's script
 currId = 6;
 if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
@@ -225,34 +226,32 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-% figure 11: selectivity vs kd linear, vary lplc
+% figure 11: selectivity vs kd linear analytic, vary lplc 
 currId = 11;
 if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
-  saveName = 'figSvsKdVaryLpLcLinearAnalytic_data';
-  fluxSummary  = LAURAS_SCRIPT_HERE();
-  %kdVec =  linSummary.kdVec; % already scaled
-  %jNorm = linSummary.jNorm;
-  %lplcVec = linSummary.lc; % lc in nm
-  fluxLin = fluxSummary;
+  saveName = 'figSvsKdVaryLplcLinearAnalytic_data';
+  initParamsSvsKdAnalytic();
+  [linSummary.kdVec, linSummary.lc, linSummary.jNorm] = ...
+    LinearSelVsKD(kd_range, lc_values,0);
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
   fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
+  save( fullName, 'linSummary' )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-% figure 12: selectivity vs kd linear, vary lplc
+% figure 12: selectivity vs kd linear numeric, vary lplc
 currId = 12;
 if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSvsKd_lplc_linear';
-  saveName = 'figSvsKdVaryLpLcLinearNumeric_data';
+  saveName = 'figSvsKdVaryLplcLinearNumeric_data';
   fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   % put linear data into format taken by linear plotting routine
   kdScale = 1e6;

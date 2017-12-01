@@ -8,10 +8,11 @@
 % 6: outlet res accumulation
 % 7: Selectivity heatmap Kd vs Nu
 % 8: Selectivity heatmap Kd vs Lc
-% 9: S vs Kd vary lplc (course and fine)
-% 10: S vs Kd vary nu (course and fine)
+% 9: S vs Kd vary  nu (course and fine)
+% 10: S vs Kd vary lplc (course and fine)
 % 11: Nu vs Kd
 % 12: linear S vs Kd (numeric)
+% 13: den Profile
 %
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
@@ -20,6 +21,7 @@ if nargin == 1
 elseif nargin == 2
   saveTag = '';
 end
+addpath(genpath('src'))
 % paper data path
 paperDataPath = 'paperData/';
 if saveFlag == 1
@@ -96,10 +98,10 @@ end
 % figure 4: S vs Kd (linear, analytic) for supplements
 currId = 4;
 if any( plotId == currId )
-  data2load = [paperDataPath 'figSvsKdVaryLpLcLinearAnalytic_data.mat'];
+  data2load = [paperDataPath 'figSvsKdVaryLplcLinearAnalytic_data.mat'];
   if exist( data2load, 'file' )
     load( data2load )
-    makefigSvsKdLinear( fluxLin ); 
+    makefigSvsKdLinear( linSummary ); 
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
@@ -248,10 +250,29 @@ end
 % figure 12: S vs Kd (linear, numeric) for supplements
 currId = 12;
 if any( plotId == currId )
-  data2load = [paperDataPath 'figSvsKdVaryLpLcLinearNumeric_data.mat'];
+  data2load = [paperDataPath 'figSvsKdVaryLplcLinearNumeric_data.mat'];
   if exist( data2load, 'file' )
     load( data2load )
     makefigSvsKdLinear( linSummary ); 
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+
+% figure 13: density profile
+currId = 13;
+if any( plotId == currId )
+  data2load = [paperDataPath 'figDenProfile_data.mat'];
+  if exist( data2load, 'file'  )
+    load( data2load )
+    makefigDenProfile( fluxSummary ); 
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
