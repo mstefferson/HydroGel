@@ -34,7 +34,7 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 % konBt, koff, Ka
 numKd = 8*7;
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
-paramMaster.DbParam     = {'lplc', [ 1e-3 3e-3 1e-2 3e-2 5e-2 1e-1 1e0 ]}; 
+paramMaster.DbParam     = {'lplc', [ 1e-3 3e-3 1e-2 3e-2 1e-1 1e0 ]}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.KonBt  = [1e4];  % vec konBt (time scale)
 paramMaster.Koff   = []; % vec koff (time scale)
