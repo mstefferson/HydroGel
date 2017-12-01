@@ -3,11 +3,11 @@ function makefigJvsT( fluxSummary )
 xLab = 'Time $$ t \, (ms) $$';
 %yLab = 'Selectivity $$ S $$';
 yLab = 'Outlet flux $$ J^* $$';
-% yLab = 'Outlet flux $$ j^*(x = L, t) $$';
 ntMax = 1000;
 fontSize = 20;
 % scales
 tScale = 10; % tau = 0.01, get time in ms 
+kScale = 1e6;
 % set-up figure
 %fidId = 1;
 fidId = randi(1000);
@@ -23,9 +23,9 @@ ah1.LineWidth = 1;
 axis square
 hold all
 % set params
-kDvec =  1 ./ fluxSummary.paramObj.Ka;
+kdVec =  round( kScale * 1 ./ fluxSummary.paramObj.Ka );
 % Set up legend
-legcell = cell( length(kDvec)+1, 1 );
+legcell = cell( length(kdVec)+1, 1 );
 legcell{1} = 'No binding';
 % diffusion
 flux2plot = fluxSummary.jVsTDiff ./ fluxSummary.jDiff;
@@ -34,15 +34,18 @@ nt = min( ntMax, nt );
 time = tScale * fluxSummary.timeVec(1:nt);
 p = plot( ah1, time, flux2plot(1:nt),'k:');
 p.LineWidth = 3;
+% set up colors
+wantedColors = getPlotLineColors( kdVec, 'log' );
 % Loop over plots
-for kk = 1:length(kDvec )
+for kk = 1:length(kdVec )
   flux2plot = fluxSummary.jVsT{1,1,kk} ./ fluxSummary.jDiff;
   nt = length( flux2plot );
   nt = min( ntMax, nt );
   time = tScale * fluxSummary.timeVec(1:nt);
   p = plot( ah1, time, flux2plot(1:nt) );
   p.LineWidth = 3;
-  legcell{kk+1} = num2str( 1e6 * kDvec(kk), '%d' ) ;
+  p.Color = wantedColors(kk,:);
+  legcell{kk+1} = num2str( kdVec(kk), '%d' ) ;
 end
 %fix
 xlabel(ah1,xLab);

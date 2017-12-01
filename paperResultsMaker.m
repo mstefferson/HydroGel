@@ -1,7 +1,7 @@
 % Id Key
 %
 % 1: initParamsJvsT
-% 2: initParamsSvsKd vary lplc (course and fine)
+% 2: initParamsSvsKd vary lplc 
 % 3: initParamsDenProfile 
 % 4: initParamsSvsNu (course and fine)
 % 5: paramInput selectivity calc
@@ -9,7 +9,9 @@
 % 7: outlet reservoir accumulation 
 % 8: Selectivity heatmap Kd vs Nu
 % 9: Selectivity heatmap Kd vs Lc
-% 10: initParamsSvsKd vary nu (course and fine)
+% 10: initParamsSvsKd vary nu 
+% 11: initParamsSvsKd linear vary lplc (analytic)
+% 12: initParamsSvsKd linear vary lplc (numeric)
 %
 
 function paperResultsMaker( resultsId )
@@ -30,8 +32,8 @@ if ~exist( dataPath,'dir' )
   mkdir( dataPath )
 end
 % figure 1: selectivity vs time
-if any( resultsId == 1 )
-  currId = 1;
+currId = 1;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   storeFlag.storeTimeDep = 1;
@@ -49,8 +51,8 @@ if any( resultsId == 1 )
   fprintf('Finished results %d \n', currId );
 end
 % figure 2: selectivity vs kd, vary lplc
-if any( resultsId == 2 )
-  currId = 2;
+currId = 2;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSvsKd_lplc';
@@ -67,8 +69,8 @@ if any( resultsId == 2 )
   fprintf('Finished results %d \n', currId );
 end
 % figure 3: density profiles
-if any( resultsId == 3 )
-  currId = 3;
+currId = 3;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 1;
   paramFile = 'initParamsDenProfile';
@@ -84,11 +86,9 @@ if any( resultsId == 3 )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-
-
 % figure 4: initParamsSvsNu (course and fine)
-if any( resultsId == 4 )
-  currId = 4;
+currId = 4;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSvsNu';
@@ -104,10 +104,9 @@ if any( resultsId == 4 )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-
 % 5: parameter input. 
-if any( resultsId == 5 )
-  currId = 5;
+currId = 5;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   loadId = '20171110_param.mat';
   fileId = 'initParamsSFromInput';
@@ -137,8 +136,8 @@ if any( resultsId == 5 )
   fprintf('Finished results %d \n', currId );
 end
 % 6: Laura's script
-if any( resultsId == 6 )
-  currId = 6;
+currId = 6;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   [tetherCalc.nu, tetherCalc.kd,tetherCalc.lplc] = makeTetherDBs;
   tetherCalc.nu = tetherCalc.nu.';
@@ -154,8 +153,8 @@ if any( resultsId == 6 )
   fprintf('Finished results %d \n', currId );
 end
 % 7: Reservior accumulation
-if any( resultsId == 7 )
-  currId = 7;
+currId = 7;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 1;
   storeFlag.storeTimeDep = 1;
@@ -173,8 +172,8 @@ if any( resultsId == 7 )
   fprintf('Finished results %d \n', currId );
 end
 % 8: Selectivity heat map, Kd vs Nu
-if any( resultsId == 8 )
-  currId = 8;
+currId = 8;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdNu';
@@ -191,8 +190,8 @@ if any( resultsId == 8 )
   fprintf('Finished results %d \n', currId );
 end
 % 9: Selectivity heat map, Kd vs lclp
-if any( resultsId ==  9)
-  currId = 9;
+currId = 9;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSheatmapKdLclp';
@@ -209,8 +208,8 @@ if any( resultsId ==  9)
   fprintf('Finished results %d \n', currId );
 end
 % figure 10: selectivity vs kd, vary nu
-if any( resultsId == 10 )
-  currId = 10;
+currId = 10;
+if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   paramFile = 'initParamsSvsKd_nu';
@@ -226,4 +225,49 @@ if any( resultsId == 10 )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
-end %function
+% figure 11: selectivity vs kd linear, vary lplc
+currId = 11;
+if any( resultsId == currId )
+  fprintf('Starting results %d \n', currId );
+  storeFlag.storeStdy = 0;
+  saveName = 'figSvsKdVaryLpLcLinearAnalytic_data';
+  fluxSummary  = LAURAS_SCRIPT_HERE();
+  %kdVec =  linSummary.kdVec; % already scaled
+  %jNorm = linSummary.jNorm;
+  %lplcVec = linSummary.lc; % lc in nm
+  fluxLin = fluxSummary;
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+% figure 12: selectivity vs kd linear, vary lplc
+currId = 12;
+if any( resultsId == currId )
+  fprintf('Starting results %d \n', currId );
+  storeFlag.storeStdy = 0;
+  paramFile = 'initParamsSvsKd_lplc_linear';
+  saveName = 'figSvsKdVaryLpLcLinearNumeric_data';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  % put linear data into format taken by linear plotting routine
+  kdScale = 1e6;
+  lScaleActual = 1e-7;
+  lScaleWant = 1e-9;
+  lScale = (lScaleActual / lScaleWant)^2;
+  [linSummary.kdVec, linSummary.lc, linSummary.jNorm ] = ...
+    getDataFluxSummary( fluxSummary, kdScale, lScale );  % store linear data
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary', 'linSummary' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end 

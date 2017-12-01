@@ -66,7 +66,7 @@ plotVsT = plotFlag.plotVsT;
 plotMapFluxSlope = plotFlag.plotMapFluxSlope;
 plotMapFluxTime = plotFlag.plotMapFluxTime;
 storeStdy = storeFlag.storeStdy;
-storeTimeDep = storeFlag.storeStdy;
+storeTimeDep = storeFlag.storeTimeDep;
 % can't plot steady if not storing
 plotSteady = storeStdy * plotSteady;
 plotVsT = storeTimeDep * plotVsT;
