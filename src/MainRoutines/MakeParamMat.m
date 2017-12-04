@@ -8,9 +8,9 @@ else
   nuVec = paramObj.nu;
 end
 % Get all combinations
-%paramMat = combvec( nuVec, paramObj.Koff, paramObj.KonBt, paramObj.Bt );
+%paramMat = combvec( nuVec, paramObj.koff, paramObj.konBt, paramObj.Bt );
 keyboard
-paramMat = combvec( nuVec, paramObj.KoffObj.Inds, paramObj.KonBt, paramObj.Bt );
+paramMat = combvec( nuVec, paramObj.koffObj.Inds, paramObj.konBt, paramObj.Bt );
 numRuns = size( paramMat,2 );
 
  %{% set parameters%}

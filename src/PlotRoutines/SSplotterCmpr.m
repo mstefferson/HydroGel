@@ -3,7 +3,7 @@ function SSplotterCmpr(SSobj,paramObj,xPde,xOde)
 NxODE = length(xOde);NxPDE = length(xPde);
 
 Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\n',...
-    paramObj.Kon,paramObj.Koff,paramObj.nu);
+    paramObj.kon,paramObj.koff,paramObj.nu);
 
 figure()
 plot(xOde,SSobj.AnlOde,'-r',xOde,SSobj.CnlOde,'-b',xOde,SSobj.AnlOde+SSobj.CnlOde,'-k',...

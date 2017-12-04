@@ -107,6 +107,7 @@ runParams.kon = konBtRuns ./ BtRuns ;
 runParams.koff = koffRuns;
 runParams.koffInds = koffInds;
 runParams.kA =  kaRuns;
+runParams.kD =  1 ./ kaRuns;
 runParams.Bt =  BtRuns;
 runParams.nuLlp =  nuRuns;
 runParams.p1Vec = nuVec;

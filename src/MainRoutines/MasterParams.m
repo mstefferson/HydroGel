@@ -26,17 +26,15 @@ paramMaster.Lbox  = 1; % Gel length
 Nx    = 128;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox); % Scale by box. Careful!!!
 paramMaster.Lr = 10; % Reservoir length if there is one
-
-%Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
-% konBt, koff, Ka
+% diffusion coefficient
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
 paramMaster.DbParam     = {'nu', [1]}; 
-% Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-paramMaster.KonBt  = [1e2];  % vec konBt (time scale)
-paramMaster.Koff   = [1e2]; % vec koff (time scale)
-paramMaster.Ka   = []; % vec binding affinity (time scale) 
+% Varying two kinetic parameters. First cell, name (str). Second, vector of values
+% options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
+paramMaster.kinParam1 = {'konBt', [1e2]};  % vec konBt (time scale)
+paramMaster.kinParam2 = {'koff', [1e2]};  % vec konBt (time scale)
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet

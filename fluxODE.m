@@ -29,6 +29,8 @@
 % plotFlag.plotSteady = 1;
 % plotFlag.plotMapFlux = 1;
 % storeFlag.storeStdy = 1;
+% saveMe = 1;
+% dirname = 'blah';
 %
 % [fluxSummary] = fluxODE( plotFlag, storeFlag, saveMe, dirname );
 %
@@ -155,7 +157,7 @@ end
 % set up koff cell
 koffCell = cell( 1, numRuns );
 for ii = 1:numRuns
-  koffCell{ii} = paramObj.KoffObj.InfoCell{ paramKoffInds(ii) };
+  koffCell{ii} = paramObj.koffObj.InfoCell{ paramKoffInds(ii) };
 end
 
 parfor (ii=1:numRuns, numWorkers)
