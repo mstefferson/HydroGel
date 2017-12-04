@@ -1,7 +1,6 @@
 % returns permutation of kinetic parameters and the correct varying kinetic parameters
 
-%function [kinMat, kinParams] =  kineticParams( nu, konBt, koff, kA, Bt )
-function [runParams, koffObj] =  kineticParams( nuVec, konBt, koffObj, kA, Bt )
+function [runParams, koffObj] =  findKineticParams4Runs( nuVec, konBt, koffObj, kA, Bt )
 % find lengths
 numKonBt = length( konBt );
 numKoff = length( koffObj.Inds );
@@ -107,6 +106,7 @@ runParams.kon = konBtRuns ./ BtRuns ;
 runParams.koff = koffRuns;
 runParams.koffInds = koffInds;
 runParams.kA =  kaRuns;
+runParams.kD =  1 ./ kaRuns;
 runParams.Bt =  BtRuns;
 runParams.nuLlp =  nuRuns;
 runParams.p1Vec = nuVec;

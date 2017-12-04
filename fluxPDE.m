@@ -41,6 +41,8 @@
 % plotFlag.plotMapFluxTime = 1;
 % storeFlag.storeStdy = 1;
 % storeFlag.storeTimeDep = 1;
+% saveMe = 1;
+% dirname = 'blah';
 %
 % [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname );
 

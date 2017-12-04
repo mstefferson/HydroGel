@@ -12,9 +12,9 @@ BCstr = 'DirVn'; % 'Dir','Vn','DirVn'
 paramObj.trial  = 1;
 %Parameter you can edit
 
-paramObj.Ka = 1e4 ;
-paramObj.Koff  = 1e1;
-paramObj.Kon  = paramObj.Ka * paramObj.Koff;
+paramObj.kA = 1e4 ;
+paramObj.koff  = 1e1;
+paramObj.kon  = paramObj.kA * paramObj.koff;
 paramObj.Da  = 1;
 paramObj.Dc  = 0.1;
 paramObj.AL  = 2e-4;
@@ -27,7 +27,7 @@ paramObj.nu = paramObj.Dc / paramObj.Dc;
 
 % Strings
 Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\n',...
-  paramObj.Kon,paramObj.Koff,paramObj.nu);
+  paramObj.kon,paramObj.koff,paramObj.nu);
 Concstr = sprintf('Bt=%.1e\nAL=%.1e\nAR=%.2e',...
   paramObj.Bt,paramObj.AL,paramObj.AR);
 Gridstr = sprintf('NxODE = %d\nNxPDE = %d',...
@@ -42,13 +42,13 @@ end
 % linear
 linearEqn = 1;
 [AlinOde,ClinOde,~] = RdSsSolverMatBvFunc(...
-  paramObj.Kon,paramObj.Koff,paramObj.nu,...
+  paramObj.kon,paramObj.koff,paramObj.nu,...
   paramObj.AL,paramObj.AR,paramObj.Bt,paramObj.Lbox,BCstr,paramObj.NxODE,...
   linearEqn);
 % non-linear
 linearEqn = 0;
 [AnlOde,CnlOde,xOde] = RdSsSolverMatBvFunc(...
-  paramObj.Kon,paramObj.Koff,paramObj.nu,...
+  paramObj.kon,paramObj.koff,paramObj.nu,...
   paramObj.AL,paramObj.AR,paramObj.Bt,paramObj.Lbox,BCstr,paramObj.NxODE,...
   linearEqn);
 fprintf('MATLAB method done\n');
@@ -56,7 +56,7 @@ fprintf('MATLAB method done\n');
 %%%%%%%% MIKE'S ODE SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [AlinAnMtrx, ClinAnMtrx] = RdSsSolverLinMatrix(...
-  paramObj.Kon,paramObj.Koff,paramObj.Bt,paramObj.nu,...
+  paramObj.kon,paramObj.koff,paramObj.Bt,paramObj.nu,...
   paramObj.Lbox,paramObj.AL,paramObj.AR,xOde);
 fprintf('Matrix method done\n')
 
@@ -103,8 +103,8 @@ analysisFlags.ShowRunTime            = 1;  % Display run time
 %%%%% Non Linear
 flags.NLcoup = 1;
 
-pVec(1) = paramObj.Kon;
-pVec(2) = paramObj.Koff;
+pVec(1) = paramObj.kon;
+pVec(2) = paramObj.koff;
 pVec(3) = paramObj.Bt;
 pVec(4) = paramObj.Dc / paramObj.Da;
 SteadyState = 0;
@@ -156,7 +156,7 @@ if SaveMe
   dirstr = './Outputs/SteadyState';
   mkdir(dirstr)
   SaveStr = sprintf('SsKon%.1eKoff%.1enu%.1e.mat',...
-    paramObj.Kon,paramObj.Koff,paramObj.nu);
+    paramObj.kon,paramObj.koff,paramObj.nu);
   save(SaveStr,'paramObj','SSobj')
   movefile('*.mat',dirstr)
   movefile('*.txt',dirstr)

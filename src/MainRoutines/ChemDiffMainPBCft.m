@@ -18,18 +18,18 @@ Gridstr = sprintf('Nx=%d\nLbox=%.1f',...
 % Strings
 BCstr    = sprintf('A_BC: %s \nC_BC = %s',paramObj.A_BC,paramObj.C_BC);
 Paramstr = sprintf('Kon=%.1e\nKoff=%.1e\nnu=%.2e\nDnl=%.1e',...
-    paramObj.Kon,paramObj.Koff,paramObj.nu,paramObj.Dnl);
+    paramObj.kon,paramObj.koff,paramObj.nu,paramObj.Dnl);
 Concstr = sprintf('paramObj.paramObj.Bt=%.1e\nAL=%.1e\nAR=%.2e',...
     paramObj.Bt,paramObj.AL,paramObj.AR);
 
 %Inital Densisy
 A = paramObj.AL .* exp(-x.^2);
-if paramObj.Kon ~= 0
+if paramObj.kon ~= 0
     epsilonperp = 0.1;
-    C = paramObj.Kon * paramObj.Bt .* ...
-        ( A ./ (paramObj.Koff + paramObj.Kon .* A)  +...
+    C = paramObj.kon * paramObj.Bt .* ...
+        ( A ./ (paramObj.koff + paramObj.kon .* A)  +...
         epsilonperp .* paramObj.AL ./ ...
-        (paramObj.Koff + paramObj.Kon .* paramObj.AL)* cos(pi*x) );
+        (paramObj.koff + paramObj.kon .* paramObj.AL)* cos(pi*x) );
 else
     C = zeros(1,length(x));
 end
@@ -54,10 +54,10 @@ Cprop   = exp(-paramObj.nu * kx.^2 * timeObj.dt);
 % NonLinear Include endpoints Dirichlet, then set = 0
 if flags.NLcoup
     [Chem] = ...
-        CoupChemAllCalc([A C],paramObj.Bt,paramObj.Kon,paramObj.Koff,Nx);
+        CoupChemAllCalc([A C],paramObj.Bt,paramObj.kon,paramObj.koff,Nx);
 else
     [Chem] = ...
-        CoupChemAllCalcLin([A C],paramObj.Bt,paramObj.Kon,paramObj.Koff,Nx);
+        CoupChemAllCalcLin([A C],paramObj.Bt,paramObj.kon,paramObj.koff,Nx);
 end
 
 
@@ -87,10 +87,10 @@ for t = 1: timeObj.N_time - 1 % t * dt  = time
     %Non linear. Include endpoints, then set = 0
     if flags.NLcoup
         [Chem] = ...
-            CoupChemAllCalc([A C],paramObj.Bt,paramObj.Kon,paramObj.Koff,Nx);
+            CoupChemAllCalc([A C],paramObj.Bt,paramObj.kon,paramObj.koff,Nx);
     else
         [Chem] = ...
-            CoupChemAllCalcLin([A C],paramObj.Bt,paramObj.Kon,paramObj.Koff,Nx);
+            CoupChemAllCalcLin([A C],paramObj.Bt,paramObj.kon,paramObj.koff,Nx);
     end
     ANL_FT = fftshift(fft( Chem(1:Nx)' ));
     CNL_FT = fftshift(fft( Chem(Nx+1:2*Nx)' ));
@@ -177,8 +177,8 @@ end
 
 if analysisFlags.QuickMovie
     MAll = ConcenMovieMakerTgthr1D(A_rec, C_rec,...
-        x,TimeRec,timeObj.N_rec,Nx,paramObj.Kon,paramObj.Koff,...
-        paramObj.Dnl,paramObj.nu,paramObj.Bt,paramObj.Ka);
+        x,TimeRec,timeObj.N_rec,Nx,paramObj.kon,paramObj.koff,...
+        paramObj.Dnl,paramObj.nu,paramObj.Bt,paramObj.kA);
 end
 
 if analysisFlags.CheckConservDen
@@ -195,7 +195,7 @@ end
 
 if analysisFlags.PlotMeMovAccum
     WavefrontAndAccumPlotter(A_rec,C_rec,x,TimeRec,timeObj.N_rec,timeObj.NumPlots,...
-        paramObj.Kon,paramObj.Koff,paramObj.nu,paramObj.Dnl,...
+        paramObj.kon,paramObj.koff,paramObj.nu,paramObj.Dnl,...
         paramObj.AL,paramObj.Bt)
 end
 

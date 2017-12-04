@@ -4,8 +4,8 @@
 function [recObj] = ChemDiffMain( filename, paramObj, timeObj, flags, ...
   analysisFlags, pVec )
 % get parameters from vec
-paramObj.KonBt = pVec(2);
-paramObj.KoffInd = pVec(3);
+paramObj.konBt = pVec(2);
+paramObj.koffInd = pVec(3);
 paramObj.Bt = pVec(4);
 % Blur Density check
 if flags.BindSiteDistFlag == 1
@@ -13,29 +13,30 @@ if flags.BindSiteDistFlag == 1
 end
 % build koffVary
 if pVec(3) == 0
-  paramObj.Koff = zeros( paramObj.Nx, 1 );
+  paramObj.koff = zeros( paramObj.Nx, 1 );
 else
-  koffCell = paramObj.KoffObj.InfoCell{ pVec(3) };
+  koffCell = paramObj.koffObj.InfoCell{ pVec(3) };
   koffClass = VaryKoffClass( koffCell, paramObj.Nx );
   % if Koff varies, build spatially dep variables
-  paramObj.Koff = koffClass.Koff;
+  paramObj.koff = koffClass.Koff;
 end
-paramSize = size( paramObj.Koff );
-paramObj.KonBt  = paramObj.KonBt .* ones( paramSize );
-paramObj.Kon  = paramObj.KonBt ./ paramObj.Bt;
-paramObj.Ka = paramObj.Kon ./ paramObj.Koff;
-if paramObj.Kon == 0
-  paramObj.Ka = zeros( paramSize );
+paramSize = size( paramObj.koff );
+paramObj.konBt  = paramObj.konBt .* ones( paramSize );
+paramObj.kon  = paramObj.konBt ./ paramObj.Bt;
+paramObj.kA = paramObj.kon ./ paramObj.koff;
+if paramObj.kon == 0
+  paramObj.kA = zeros( paramSize );
 end
+paramObj.kD = 1 ./ paramObj.kA;
 % Store value for quick look up
-paramObj.KonBtVal = mean( paramObj.KonBt );
-paramObj.KonVal = mean( paramObj.Kon );
-paramObj.KaVal = mean( paramObj.Ka );
-paramObj.KoffVal = mean( paramObj.Koff );
+paramObj.konBtVal = mean( paramObj.konBt );
+paramObj.konVal = mean( paramObj.kon );
+paramObj.kAVal = mean( paramObj.kA );
+paramObj.koffVal = mean( paramObj.koff );
 % Calculate D if you're suppose to
 if strcmp( paramObj.DbParam{1}, 'lplc' )
   paramObj.lclp = pVec(1);
-  paramObj.Dc =  boundTetherDiffCalc( paramObj.lclp, paramObj.Koff, paramObj.Da );
+  paramObj.Dc =  boundTetherDiffCalc( paramObj.lclp, paramObj.koff, paramObj.Da );
   if length( paramObj.Dc ) == 1
     paramObj.Dc = paramObj.Dc .* ones( paramSize );
   end
@@ -44,10 +45,11 @@ else
 end
 paramObj.nu = paramObj.Dc ./  paramObj.Da;
 % Store value for quick look up
-paramObj.KonBtVal = mean( paramObj.KonBt );
-paramObj.KonVal = mean( paramObj.Kon );
-paramObj.KaVal = mean( paramObj.Ka );
-paramObj.KoffVal = mean( paramObj.Koff );
+paramObj.konBtVal = mean( paramObj.konBt );
+paramObj.konVal = mean( paramObj.kon );
+paramObj.kAVal = mean( paramObj.kA );
+paramObj.kDVal = mean( paramObj.kD );
+paramObj.koffVal = mean( paramObj.koff );
 paramObj.nuVal = mean( paramObj.nu );
 % Define commonly used variables
 Nx     = paramObj.Nx;
@@ -104,7 +106,7 @@ C_rec   = zeros(Nx,timeObj.N_rec);
 %Inital Densisy
 [A,~,C,~,CL,CR] = ...
   IntConcMaker(paramObj.AL, paramObj.AR, paramObj.Bt, ...
-  paramObj.Ka, paramObj.Lbox, x,flags.NLcoup);% A = Alin;
+  paramObj.kA, paramObj.Lbox, x,flags.NLcoup);% A = Alin;
 C(1) = 0; C(end) = 0;
 % Density dependent diffusion
 if flags.BtDepDiff == 1
@@ -128,13 +130,13 @@ if TrackFlux
   FluxAccum_rec(1) =  FluxAccum;
 end
 %Build operators and matrices
-[Lop]  =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.Kon,paramObj.Koff,...
+[Lop]  =  LopMakerMaster(Nx,dx,paramObj.Bt,paramObj.kon,paramObj.koff,...
   paramObj.Da,paramObj.Dc, paramObj.Lr, A_BC,C_BC);
 [LMcn,RMcn] = MatMakerCN(  Lop, timeObj.dt, 2 * Nx );
 
 % NonLinear Include endpoints Dirichlet, then set = 0
 if flags.NLcoup
-  [NLchem]   = CoupChemNLCalc(v,paramObj.Kon,Nx);
+  [NLchem]   = CoupChemNLCalc(v,paramObj.kon,Nx);
 else
   NLchem     = zeros(2*Nx,1);
 end
@@ -174,7 +176,7 @@ for t = 1:timeObj.N_time - 1 % t * dt  = time
   end
   %Non linear. Include endpoints, then set = 0
   if flags.NLcoup
-    [NLchem] = CoupChemNLCalc(v,paramObj.Kon,Nx);
+    [NLchem] = CoupChemNLCalc(v,paramObj.kon,Nx);
   end
   if paramObj.Dnl ~= 1
     [NLdiff] = ConcDepDiffCalcNd1stOrd(v,paramObj.Dnl,paramObj.Bt,Nx,dx);
