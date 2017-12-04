@@ -13,7 +13,7 @@ else
   p1nameTex = '$$ \nu $$';
 end
 nuVec = paramObj.DbParam{2};
-[ runParams, koffObj ] =  kineticParams( nuVec, paramObj.konBt, koffObj, ...
+[ runParams, koffObj ] =  findKineticParams4Runs( nuVec, paramObj.konBt, koffObj, ...
   paramObj.kA, paramObj.Bt );
 % put p1 name in runParams
 runParams.p1nameTex = p1nameTex; 
