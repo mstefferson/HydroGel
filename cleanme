@@ -6,3 +6,4 @@ rm ./*.avi
 rm ./*.jpg
 rm ./*.png
 rm ./*.fig
+rm ./*.out

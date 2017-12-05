@@ -118,7 +118,7 @@ end
 % set up koff cell
 koffCell = cell( 1, numRuns );
 for ii = 1:numRuns
-  koffCell{ii} = paramObj.KoffObj.InfoCell{ paramKoffInds(ii) };
+  koffCell{ii} = paramObj.koffObj.InfoCell{ paramKoffInds(ii) };
 end
 
 % parfor (ii=1:numRuns, numWorkers)

@@ -2,7 +2,7 @@
 paramMaster.trial  = 1; % trial ID
 % Turn things on
 flags.SaveMe = 1; % Save runHydrogel outputs
-flags.NLcoup = 1; % Turn on/off the nonlinear term AC
+flags.NLcoup = 0; % Turn on/off the nonlinear term AC
 flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 1;  % Turn on if diffusion depends on Bt.
@@ -34,11 +34,10 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 % konBt, koff, Ka
 numKd = 8*7;
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
-paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]}; 
+paramMaster.DbParam     = {'lplc', [ 1e-3 3e-3 1e-2 3e-2 1e-1 1e0 ]}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-paramMaster.KonBt  = [1e4];  % vec konBt (time scale)
-paramMaster.Koff   = []; % vec koff (time scale)
-paramMaster.Ka     = logspace(3, 9, numKd  ); % vec binding affinity (time scale) 
+paramMaster.kinParam1 = {'konBt', [1e4]};  % vec konBt (time scale)
+paramMaster.kinParam2 = {'kD', logspace(-9, -3, numKd )};  % vec konBt (time scale)
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet

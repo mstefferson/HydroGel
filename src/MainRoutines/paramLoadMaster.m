@@ -43,9 +43,9 @@ runParams.numP1 = length(nu);
 runParams.numP2 = length(kon);
 runParams.numP3 = length(koff);
 % set parameters
-paramObj.KonBt = runParams.konBt;
-paramObj.Koff = runParams.koff;
-paramObj.KoffObj = koffObj;
-paramObj.Ka = runParams.kA;
+paramObj.konBt = runParams.konBt;
+paramObj.koff = runParams.koff;
+paramObj.koffObj = koffObj;
+paramObj.kA = runParams.kA;
 paramObj.Bt = runParams.Bt;
 paramObj.nu = nu;

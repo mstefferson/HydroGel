@@ -23,7 +23,7 @@ ah1.LineWidth = 1;
 axis square
 hold all
 % set params
-kDvec =  1 ./ fluxSummary.paramObj.Ka;
+kDvec =  1 ./ fluxSummary.paramObj.kA;
 % Set up legend
 legcell = cell( length(kDvec)+1, 1 );
 legcell{1} = 'No binding';

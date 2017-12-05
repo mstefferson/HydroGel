@@ -1,4 +1,4 @@
-function [KD_range, lc_values, selectivity] = LinearSelVsKD(KD_range, lc_values, plotFlag)
+function [KD_range, lc_values, selectivity] = linearSelVsKD(KD_range, lc_values, plotFlag)
 
 %% Don't change anything from here on
 tic

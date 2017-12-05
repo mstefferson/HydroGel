@@ -16,6 +16,7 @@
 
 function paperResultsMaker( resultsId )
 addpath(genpath('src'))
+addpath('paperInits/')
 % turn off  saving
 saveMe = 0;
 dirname = 'blah';
@@ -234,7 +235,7 @@ if any( resultsId == currId )
   saveName = 'figSvsKdVaryLplcLinearAnalytic_data';
   initParamsSvsKdAnalytic();
   [linSummary.kdVec, linSummary.lc, linSummary.jNorm] = ...
-    LinearSelVsKD(kd_range, lc_values,0);
+    linearSelVsKD(kd_range, lc_values,0);
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
