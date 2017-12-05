@@ -11,6 +11,7 @@
 % storeFlag: structure of store flags
 % saveMe: save plots and outputs
 % dirname: directory name for saving
+% paramFile: initParam file
 %
 % plotFlag with fields
 % plotFlag.plotVsT: plot j vs t for various koff and konbt
@@ -44,7 +45,7 @@
 % saveMe = 1;
 % dirname = 'blah';
 %
-% [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname );
+% [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
 
 function [fluxSummary] = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile )
 % Latex font
