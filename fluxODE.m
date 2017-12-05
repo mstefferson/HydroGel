@@ -9,6 +9,7 @@
 % storeFlag: structure of store flags
 % saveMe: save plots and outputs
 % dirname: directory name for saving
+% paramFile: initParam file
 %
 % plotFlag with fields
 % plotFlag.plotMapFlux: surface plot jmax vs koff and konbt
@@ -32,7 +33,7 @@
 % saveMe = 1;
 % dirname = 'blah';
 %
-% [fluxSummary] = fluxODE( plotFlag, storeFlag, saveMe, dirname );
+% [fluxSummary] = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
 %
 function [ fluxSummary ] = ...
   fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile )
