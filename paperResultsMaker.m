@@ -12,6 +12,7 @@
 % 10: initParamsSvsKd vary nu 
 % 11: initParamsSvsKd linear vary lplc (analytic)
 % 12: initParamsSvsKd linear vary lplc (numeric)
+% 13: initParamsSFromInput Gorlich (numeric)
 %
 
 function paperResultsMaker( resultsId )
@@ -271,3 +272,30 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end 
+% 13: parameter input, gorlich data
+currId = 13;
+if any( resultsId == currId )
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  loadId = 'gorlichData';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = 'selectivityFromInputGorlich_data';
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end

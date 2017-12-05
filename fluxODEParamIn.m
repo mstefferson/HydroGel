@@ -5,10 +5,23 @@
 % fluxODE( plotMapFlag, plotSteadyFlag, saveMe, dirname )
 %
 % Inputs:
-% plotMapFlag: surface plot jmax vs koff and konbt
-% plotSteadyFlag: plot concentration profiles
+% plotFlag: structure of plot flags
+% storeFlag: structure of store flags
 % saveMe: save plots and outputs
 % dirname: directory name for saving
+% paramFile: initParam file
+% paramInputMaster: input params 
+% nu = paramInput(:,1);
+% konBt = paramInput(:,2);
+% koff = paramInput(:,3);
+% bt = paramInput(:,4);
+%
+% plotFlag with fields
+% plotFlag.plotMapFlux: surface plot jmax vs koff and konbt
+% plotFlag.plotSteady: plot concentration profiles
+%
+% storeFlag with fields
+% storeFlag.storeStdy: store steady state solution flag
 %
 % Outputs: fluxSummary with fields
 % jMax: matrix of steady state flux vs koff and konbt
@@ -16,8 +29,19 @@
 % AconcStdy: matrix of A steady state profile vs koff and konbt
 % CconcStdy: matrix of C steady state profile vs koff and konbt
 % params: parameters of runs
+%
+% example run
+%
+% plotFlag.plotSteady = 1;
+% plotFlag.plotMapFlux = 1;
+% storeFlag.storeStdy = 1;
+% saveMe = 1;
+% dirname = 'blah';
+%
+% [fluxSummary] = fluxODE( plotFlag, storeFlag, saveMe, dirname );
+
 function [ fluxSummary ] = ...
-  fluxODEParamIn( paramInput, paramFile, saveMe, dirname )
+  fluxODEParamIn( plotFlag, storeFlag, saveMe, dirname, paramInput, paramFile )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
