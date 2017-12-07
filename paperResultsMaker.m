@@ -1,6 +1,6 @@
 % Id Key
 %
-% 1: initParamsJvsT
+% 1: initParamsJvsT  nu 0
 % 2: initParamsSvsKd vary lplc 
 % 3: initParamsDenProfile 
 % 4: initParamsSvsNu (course and fine)
@@ -13,7 +13,9 @@
 % 11: initParamsSvsKd linear vary lplc (analytic)
 % 12: initParamsSvsKd linear vary lplc (numeric)
 % 13: initParamsSFromInput Gorlich (numeric)
+% 14: initParamsJvsT  nu 0
 %
+% Current results for paper: [1 2 3 10 11 12 13 14]
 
 function paperResultsMaker( resultsId )
 addpath(genpath('src'))
@@ -34,14 +36,14 @@ dataPath = 'paperData';
 if ~exist( dataPath,'dir' ) 
   mkdir( dataPath )
 end
-% figure 1: selectivity vs time
+% figure 1: selectivity vs time, nu = 0
 currId = 1;
 if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
   storeFlag.storeTimeDep = 1;
-  paramFile = 'initParamsJvsT';
-  saveName = 'figJvsT_data';
+  paramFile = 'initParamsJvsTnu0';
+  saveName = 'figJvsTnu0_data';
   fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
@@ -299,3 +301,23 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
+% figure 14: selectivity vs time, nu = 1
+currId = 14;
+if any( resultsId == currId )
+  fprintf('Starting results %d \n', currId );
+  storeFlag.storeStdy = 0;
+  storeFlag.storeTimeDep = 1;
+  paramFile = 'initParamsJvsTnu1';
+  saveName = 'figJvsTnu1_data';
+  fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+

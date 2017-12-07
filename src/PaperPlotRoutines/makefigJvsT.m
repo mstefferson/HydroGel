@@ -27,9 +27,17 @@ paramTemp = fluxSummary.paramObj;
 if isfield(paramTemp,'Ka')
   fluxSummary.paramObj.kA = fluxSummary.paramObj.Ka;
 end
-kdVec =  round( kScale * 1 ./ fluxSummary.paramObj.kA );
+%kdVec =  round( kScale * 1 ./ fluxSummary.paramObj.kA );
+kdVec =  kScale * 1 ./ fluxSummary.paramObj.kA;
 % Set up legend
 legcell = cell( length(kdVec)+1, 1 );
+% if kD in micro Molar is greater than 1, round to integers
+if min( kdVec ) < 1
+  legStrFlag = '%.1f';
+else
+  legStrFlag = '%d';
+  kdVec = round( kdVec );
+end
 legcell{1} = 'No binding';
 % diffusion
 flux2plot = fluxSummary.jVsTDiff ./ fluxSummary.jDiff;
@@ -49,7 +57,7 @@ for kk = 1:length(kdVec )
   p = plot( ah1, time, flux2plot(1:nt) );
   p.LineWidth = 3;
   p.Color = wantedColors(kk,:);
-  legcell{kk+1} = num2str( kdVec(kk), '%d' ) ;
+  legcell{kk+1} = num2str( kdVec(kk), legStrFlag ) ;
 end
 %fix
 xlabel(ah1,xLab);

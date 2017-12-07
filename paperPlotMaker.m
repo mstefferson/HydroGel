@@ -1,6 +1,6 @@
 % Id Key
 %
-% 1: JvsT
+% 1: JvsT, nu 0 
 % 2: Nu vs Kd and S vs Kd (course and fine)
 % 3: den Profile and S vs Nu (course and fine)
 % 4: linear S vs Kd (analytic)
@@ -13,7 +13,9 @@
 % 11: Nu vs Kd
 % 12: linear S vs Kd (numeric)
 % 13: den Profile
+% 14: JvsT, nu 1
 %
+% Current plots for paper: [1 4 9 10 11 13 14]
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
 if nargin == 1
@@ -35,7 +37,7 @@ end
 % figure 1: selectivity vs time nu = 0
 currId = 1;
 if any( plotId == currId )
-  data2load = [paperDataPath 'figJvsT_data.mat'];
+  data2load = [paperDataPath 'figJvsTnu0_data.mat'];
   if exist( data2load, 'file'  )
     load( data2load ) 
     makefigJvsT(fluxSummary ); 
@@ -273,6 +275,25 @@ if any( plotId == currId )
   if exist( data2load, 'file'  )
     load( data2load )
     makefigDenProfile( fluxSummary ); 
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveName = ['paperfig' num2str(currId ) '_' saveTag];
+    savefig( gcf, saveName )
+    saveas( gcf, saveName, saveID )
+    movefile( [saveName '*'], paperSavePath )
+  end
+end
+
+% figure 14: selectivity vs time nu = 1
+currId = 14;
+if any( plotId == currId )
+  data2load = [paperDataPath 'figJvsTnu1_data.mat'];
+  if exist( data2load, 'file'  )
+    load( data2load ) 
+    makefigJvsT(fluxSummary ); 
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end

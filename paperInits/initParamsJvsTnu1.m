@@ -30,10 +30,11 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 %Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
 % konBt, koff, Ka
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
-paramMaster.DbParam     = {'nu', [0]}; 
+paramMaster.DbParam     = {'nu', [1]}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.kinParam1 = {'konBt', [1e4]};  % vec konBt (time scale)
-paramMaster.kinParam2 = {'kD', [1e-5 3e-4 1e-4 3e-3 1e-3]};  % vec konBt (time scale)
+paramMaster.kinParam2 = {'kD', 1e-6 * [1 3 10 30 100 300 1000]};  % vec konBt (time scale)
+%paramMaster.kinParam2 = {'kD', [1e-7 3e-7 1e-6 3e-6 1e-5 3e-4]};  % vec konBt (time scale)
 paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet
