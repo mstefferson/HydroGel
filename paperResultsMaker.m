@@ -12,8 +12,12 @@
 % 10: initParamsSvsKd vary nu 
 % 11: initParamsSvsKd linear vary lplc (analytic)
 % 12: initParamsSvsKd linear vary lplc (numeric)
-% 13: initParamsSFromInput Gorlich (numeric)
-% 14: initParamsJvsT  nu 0
+% 13: initParamsJvsT  nu 0
+% 14: initParamsSFromInput gorlich (numeric)
+% 15: initParamsSFromInput gorlich2 (numeric)
+% 16: initParamsSFromInput hopData100 (numeric)
+% 17: initParamsSFromInput hopData200 (numeric)
+% 18: initParamsSFromInput hopData500 (numeric)
 %
 % Current results for paper: [1 2 3 10 11 12 13 14]
 
@@ -274,35 +278,8 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end 
-% 13: parameter input, gorlich data
+% figure 13: selectivity vs time, nu = 1
 currId = 13;
-if any( resultsId == currId )
-  storeFlag.storeStdy = 0;
-  fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
-  pathId = './paperParamInput/';
-  loadId = 'gorlichData';
-  filename = [ pathId loadId ];
-  paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
-  selectivity.paramLoad = loadId;
-  selectivity.paramInput = paramFromLoad.input;
-  selectivity.paramLoad = paramFromLoad.data;
-  saveName = 'selectivityFromInputGorlich_data';
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
-  movefile( fullName, dataPath );
-  fprintf('Finished results %d \n', currId );
-end
-% figure 14: selectivity vs time, nu = 1
-currId = 14;
 if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 0;
@@ -320,4 +297,142 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
+% 14: parameter input, gorlichData
+currId = 14;
+if any( resultsId == currId )
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  loadId = 'gorlichData';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
 
+% 15: parameter input, gorlichData2
+currId = 15;
+if any( resultsId == currId )
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  loadId = 'gorlichData2';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+
+% 16: parameter input, hopData100
+currId = 16;
+if any( resultsId == currId )
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  loadId = 'hopData100';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+
+% 17: parameter input, hopData200
+currId = 17;
+if any( resultsId == currId )
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  loadId = 'hopData200';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+
+% 18: parameter input, hopData500
+currId = 18;
+if any( resultsId == currId )
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  loadId = 'hopData500';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
