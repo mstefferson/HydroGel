@@ -32,11 +32,10 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.DbParam     = {'nu', [0 1]}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-%paramMaster.kinParam1 = {'konBt', [1e2]};  % vec konBt (time scale)
-%paramMaster.kinParam2 = {'kA', [1e6 1e8]};  % vec konBt (time scale)
-paramMaster.kinParam1 = {'konBt', [1e2]};  % vec konBt (time scale)
-paramMaster.kinParam2 = {'kD', [1e-6 1e-8]};  % vec konBt (time scale)
-paramMaster.Bt     = [5e-6];  % vec molar (old: 1e-2) (new: 1e-3)
+paramMaster.kinParam1 = {'konBt', [1e2]};  % CURRENT vec konBt (time scale)
+paramMaster.kinParam2 = {'kD', [1e-6 1e-8]};  %  CURRENT vec konBt (time scale)
+%paramMaster.Bt     = [1e-5];  % less curvy vec molar (old: 1e-2) (new: 1e-3)
+paramMaster.Bt     = [1e-4];  % vec molar (old: 1e-2) (new: 1e-3)
 paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 paramMaster.AL     = 1e-6;  % concentration of inlet
 paramMaster.AR     = 0; % concentration of outlet

@@ -41,7 +41,7 @@
 % [fluxSummary] = fluxODE( plotFlag, storeFlag, saveMe, dirname );
 
 function [ fluxSummary ] = ...
-  fluxODEParamIn( plotFlag, storeFlag, saveMe, dirname, paramInput, paramFile )
+  fluxODEParamIn( storeFlag, saveMe, dirname, paramInput, paramFile )
 % Latex font
 set(0,'defaulttextinterpreter','latex')
 % Make up a dirname if one wasn't given
@@ -53,6 +53,8 @@ if nargin == 2
     dirname = ['fluxODE_' num2str( randi( 100 ) )];
   end
 end
+% move input structure fields to variables
+storeStdy = storeFlag.storeStdy;
 % Add paths and output dir
 addpath( genpath('./src') );
 if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
@@ -157,8 +159,13 @@ for ii=1:numRuns
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
-  AconcStdy{ii} = AnlOde;
-  CconcStdy{ii} = CnlOde;
+  if storeStdy
+    AconcStdy{ii} = AnlOde;
+    CconcStdy{ii} = CnlOde;
+  else
+    AconcStdy{ii} = 0;
+    CconcStdy{ii} = 0;
+  end  
   jMax(ii) = flux;
 end
 

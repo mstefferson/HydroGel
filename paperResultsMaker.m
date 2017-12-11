@@ -35,7 +35,6 @@ plotFlag.plotVsT = 0;
 plotFlag.plotMapFluxSlope = 0;
 plotFlag.plotMapFluxTime = 0;
 % turn store off/on based on run
-
 dataPath = 'paperData';
 if ~exist( dataPath,'dir' ) 
   mkdir( dataPath )
@@ -148,7 +147,9 @@ end
 currId = 6;
 if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
-  [tetherCalc.nu, tetherCalc.kd,tetherCalc.lplc] = makeTetherDBs;
+  lc = [10, 30, 100, 300, 1000, 1e4]; % in nm
+  tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
+  [tetherCalc.nu, ~,tetherCalc.lplc] = makeTetherDBs(lc, tetherCalc.kd);
   tetherCalc.nu = tetherCalc.nu.';
   saveName = 'figNuVsKd_data';
   savepath = [ dataPath '/' saveName saveExt];
@@ -273,8 +274,6 @@ if any( resultsId == currId )
     fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary', 'linSummary' )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end 
@@ -307,7 +306,7 @@ if any( resultsId == currId )
   loadId = 'gorlichData';
   filename = [ pathId loadId ];
   paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+  fluxSummary = fluxODEParamIn( storeFlag, 0, dirname,...
     paramFromLoad.input, fileId );
   selectivity.val = fluxSummary.jNorm';
   selectivity.paramLoad = loadId;
@@ -335,7 +334,7 @@ if any( resultsId == currId )
   loadId = 'gorlichData2';
   filename = [ pathId loadId ];
   paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
+  fluxSummary = fluxODEParamIn( storeFlag, 0, dirname,...
     paramFromLoad.input, fileId );
   selectivity.val = fluxSummary.jNorm';
   selectivity.paramLoad = loadId;
@@ -353,86 +352,203 @@ if any( resultsId == currId )
   fprintf('Finished results %d \n', currId );
 end
 
-% 16: parameter input, hopData100
+% 16: parameter input, hopDataTest100
 currId = 16;
 if any( resultsId == currId )
+  lc = [100]; % in nm
   storeFlag.storeStdy = 0;
   fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
+  paramFile = [ 'initParamsSvsKd_lplc' num2str( lc, '%d' )  ];
   pathId = './paperParamInput/';
-  loadId = 'hopData100';
+  loadId = ['hopData' num2str( lc, '%d' )];
+  fprintf('Running %s\n', loadId );
   filename = [ pathId loadId ];
   paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
+  fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
+    paramFromLoad.input, paramFile );
+  fprintf('Finished paramInput\n')
+  selectivity.val = fluxSummaryInput.jNorm';
   selectivity.paramLoad = loadId;
   selectivity.paramInput = paramFromLoad.input;
   selectivity.paramLoad = paramFromLoad.data;
-  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  selectivity.lc = lc;
+  % put it in a from that useable for plotting
+  hoppingData = makeHoppingData(selectivity);
+  hoppingData.lc = lc;
+  % calculate diffusion coeffici
+  [hoppingData.nuTether, ~, ~] =...
+    makeTetherDBs(lc, hoppingData.kdVec);
+  % calculate selectivity
+  paramFile = [ 'initParamsSvsKd_lplc' num2str( lc, '%d' )  ];
+  fluxSummaryRun  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  fprintf('Finished fluxODE (tether)\n')
+  kdScale = 1e6;
+  lScaleActual = 1e-7;
+  lScaleWant = 1e-9;
+  lScale = (lScaleActual / lScaleWant)^2;
+  hoppingData.lcUnscaled = fluxSummaryRun.kinParams.p1Vec;
+  [hoppingData.kdVecScaled, hoppingData.lcScaled, hoppingData.selTether] = ...
+    getDataFluxSummary( fluxSummaryRun, kdScale, lScale );  % get data
+  hoppingData.kdVecScaled = hoppingData.kdVecScaled.';
+  saveName = [ 'hoppingData_' loadId '_data'];
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
   fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
+  save( fullName, 'fluxSummaryInput', 'fluxSummaryRun',...
+    'selectivity', 'hoppingData' )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
 
-% 17: parameter input, hopData200
+% 17: parameter input, hopDataTest200
 currId = 17;
 if any( resultsId == currId )
+  lc = [200]; % in nm
   storeFlag.storeStdy = 0;
   fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
+  paramFile = [ 'initParamsSvsKd_lplc' num2str( lc, '%d' )  ];
   pathId = './paperParamInput/';
-  loadId = 'hopData200';
+  loadId = ['hopData' num2str( lc, '%d' )];
+  fprintf('Running %s\n', loadId );
   filename = [ pathId loadId ];
   paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
+  fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
+    paramFromLoad.input, paramFile );
+  fprintf('Finished paramInput\n')
+  selectivity.val = fluxSummaryInput.jNorm';
   selectivity.paramLoad = loadId;
   selectivity.paramInput = paramFromLoad.input;
   selectivity.paramLoad = paramFromLoad.data;
-  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  selectivity.lc = lc;
+  % put it in a from that useable for plotting
+  hoppingData = makeHoppingData(selectivity);
+  hoppingData.lc = lc;
+  % calculate diffusion coeffici
+  [hoppingData.nuTether, ~, ~] =...
+    makeTetherDBs(lc, hoppingData.kdVec);
+  % calculate selectivity
+  fluxSummaryRun  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  fprintf('Finished fluxODE (tether)\n')
+  kdScale = 1e6;
+  lScaleActual = 1e-7;
+  lScaleWant = 1e-9;
+  lScale = (lScaleActual / lScaleWant)^2;
+  hoppingData.lcUnscaled = fluxSummaryRun.kinParams.p1Vec;
+  [hoppingData.kdVecScaled, hoppingData.lcScaled, hoppingData.selTether] = ...
+    getDataFluxSummary( fluxSummaryRun, kdScale, lScale );  % get data
+  hoppingData.kdVecScaled = hoppingData.kdVecScaled.';
+  saveName = [ 'hoppingData_' loadId '_data'];
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
   fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
+  save( fullName, 'fluxSummaryInput', 'fluxSummaryRun',...
+    'selectivity', 'hoppingData' )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end
 
-% 18: parameter input, hopData500
+% 18: parameter input, hopDataTest500
 currId = 18;
 if any( resultsId == currId )
+  lc = [500]; % in nm
   storeFlag.storeStdy = 0;
   fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
+  paramFile = [ 'initParamsSvsKd_lplc' num2str( lc, '%d' )  ];
   pathId = './paperParamInput/';
-  loadId = 'hopData500';
+  loadId = ['hopData' num2str( lc, '%d' )];
+  fprintf('Running %s\n', loadId );
   filename = [ pathId loadId ];
   paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( plotFlag, storeFlag, 0, dirname,...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
+  fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
+    paramFromLoad.input, paramFile );
+  fprintf('Finished paramInput\n')
+  selectivity.val = fluxSummaryInput.jNorm';
   selectivity.paramLoad = loadId;
   selectivity.paramInput = paramFromLoad.input;
   selectivity.paramLoad = paramFromLoad.data;
-  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  selectivity.lc = lc;
+  % put it in a from that useable for plotting
+  hoppingData = makeHoppingData(selectivity);
+  hoppingData.lc = lc;
+  % calculate diffusion coeffici
+  [hoppingData.nuTether, ~, ~] =...
+    makeTetherDBs(lc, hoppingData.kdVec);
+  % calculate selectivity
+  fluxSummaryRun  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  fprintf('Finished fluxODE (tether)\n')
+  kdScale = 1e6;
+  lScaleActual = 1e-7;
+  lScaleWant = 1e-9;
+  lScale = (lScaleActual / lScaleWant)^2;
+  hoppingData.lcUnscaled = fluxSummaryRun.kinParams.p1Vec;
+  [hoppingData.kdVecScaled, hoppingData.lcScaled, hoppingData.selTether] = ...
+    getDataFluxSummary( fluxSummaryRun, kdScale, lScale );  % get data
+  hoppingData.kdVecScaled = hoppingData.kdVecScaled.';
+  saveName = [ 'hoppingData_' loadId '_data'];
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
   end
   fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
+  save( fullName, 'fluxSummaryInput', 'fluxSummaryRun',...
+    'selectivity', 'hoppingData' )
+  movefile( fullName, dataPath );
+  fprintf('Finished results %d \n', currId );
+end
+
+% 19: parameter input, hopDataTest
+currId = 19;
+if any( resultsId == currId )
+  lc = [100]; % in nm
+  storeFlag.storeStdy = 0;
+  fprintf('Starting results %d \n', currId );
+  paramFile = [ 'initParamsSvsKd_lplcTest' ];
+  pathId = './paperParamInput/';
+  loadId = 'hopDataTest';
+  fprintf('Running %s\n', loadId );
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
+    paramFromLoad.input, paramFile );
+  fprintf('Finished paramInput\n')
+  selectivity.val = fluxSummaryInput.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  selectivity.lc = lc;
+  % put it in a from that useable for plotting
+  hoppingData = makeHoppingData(selectivity);
+  hoppingData.lc = lc;
+  % calculate diffusion coeffici
+  [hoppingData.nuTether, ~, ~] =...
+    makeTetherDBs(lc, hoppingData.kdVec);
+  % calculate selectivity
+  fluxSummaryRun  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  fprintf('Finished fluxODE (tether)\n')
+  kdScale = 1e6;
+  lScaleActual = 1e-7;
+  lScaleWant = 1e-9;
+  lScale = (lScaleActual / lScaleWant)^2;
+  hoppingData.lcUnscaled = fluxSummaryRun.kinParams.p1Vec;
+  [hoppingData.kdVecScaled, hoppingData.lcScaled, hoppingData.selTether] = ...
+    getDataFluxSummary( fluxSummaryRun, kdScale, lScale );  % get data
+  hoppingData.kdVecScaled = hoppingData.kdVecScaled.';
+  saveName = [ 'hoppingData_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummaryInput', 'fluxSummaryRun',...
+    'selectivity', 'hoppingData' )
   movefile( fullName, dataPath );
   fprintf('Finished results %d \n', currId );
 end

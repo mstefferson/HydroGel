@@ -23,8 +23,8 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
-%Nx    = 100*1280;  % Internal gridpoints
-Nx    = 1280;  % Internal gridpoints
+Nx    = 100*1280;  % Internal gridpoints
+%Nx    = 1280;  % Internal gridpoints
 paramMaster.Nx    = floor(Nx*paramMaster.Lbox);
 % paramMaster.Nx = 10 * paramMaster.Lbox;
 % Scale by box. Careful!!!
@@ -32,8 +32,7 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 
 %Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
 % konBt, koff, Ka
-% numKd = 8*7;
-numKd = 7;
+numKd = 8*7;
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.

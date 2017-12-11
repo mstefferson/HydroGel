@@ -1,3 +1,4 @@
+
 % Data should be in the form
 % data(:,1) = Df (m^2/s)
 % data(:,2) = Db (m^2/s)
