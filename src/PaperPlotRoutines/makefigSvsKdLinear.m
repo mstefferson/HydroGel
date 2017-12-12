@@ -12,8 +12,6 @@ xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel = 'Selectivity';
 % scale factor, limits
 maxVal = 50;
-% scale factor
-kdScale = 1e6;
 % Some tunable parameters
 fontSize = 20;
 % set-up figure
@@ -23,10 +21,9 @@ clf(fidId);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
 fig.Position = [393 229 501 368];
-xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 % make subplot
 makeLinPlot( linSummary,  xLabel, yLabel,...
-  xTick, fontSize, maxVal, diffType );
+  fontSize, maxVal, diffType );
 
 function [kdVec, lplcVec, jNorm, kdVecLin, jNormLin ] = ...
   getDataFluxLin( linSummary )
@@ -43,7 +40,7 @@ kdVecLin = kdVec(linInd:end);
 jNormLin = jNorm(:,linInd:end);
 
 function makeLinPlot( linSummary, xLabel, yLabel,...
-  xTick, fontSize, maxVal, diffType )
+  fontSize, maxVal, diffType )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
@@ -61,10 +58,10 @@ elseif strcmp( diffType, 'nu' )
 end
 wantedColors = getPlotLineColors( nulplcVec, scaleType );
 % plot all it linear in linear regime
-plotSelectivityVsKd( ax, kdVecLin, jNormLin, xTick, maxVal, ...
+plotSelectivityVsKd( ax, kdVecLin, jNormLin, maxVal, ...
   1, '-', wantedColors, xLabel, yLabel )
 % plot all it linear but faded
-plotSelectivityVsKd( ax, kdVec, jNorm, xTick, maxVal, ...
+plotSelectivityVsKd( ax, kdVec, jNorm, maxVal, ...
   0.2, '-', wantedColors, xLabel, yLabel )
 % plot div
 plotLinDiv( ax, kdVec )
@@ -80,7 +77,7 @@ slopeBig = 1000;
 linDiv = slopeBig * ( kdVec - 1 );
 plot( ax, kdVec, linDiv, 'k:' );
 
-function plotSelectivityVsKd( ax, kdVec, jNorm, xTick, maxVal,...
+function plotSelectivityVsKd( ax, kdVec, jNorm, maxVal,...
   transparFac, lineStyle, wantedColors, xLabel, yLabel )
 % set-up title position
 % plot it
@@ -91,9 +88,13 @@ for ii = 1:numLpLc
   p.Color = [wantedColors(ii,:) transparFac];
 end
 ax = gca;
-ax.XScale = 'log';
+% build tick
+kdStart = log10( min( kdVec ) );
+kdEnd = log10( max( kdVec ) );
+xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
+ax.XScale = 'log';
 ax.YLim = [0 maxVal];
 axis square
 xlabel(ax,xLabel)

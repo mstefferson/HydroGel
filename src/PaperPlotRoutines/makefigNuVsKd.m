@@ -1,6 +1,11 @@
-function makefigNuVsKd( tetherCalc )
+% kd: molar
+% lplc: unscaled
+function makefigNuVsKd( kdVec, lplcVec, nu )
 %scales
 kdScale = 1e6;
+lScaleActual = 1e-7;
+lScaleWant = 1e-9;
+lScale = (lScaleActual / lScaleWant)^2;
 % label
 xLabel = 'Dissociation constant $$ K_D  \, ( \mathrm{ \mu M } ) $$';
 yLabel = 'Bound Diffusion $$ D_B / D_F $$';
@@ -12,10 +17,12 @@ clf(fidId);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
 fig.Position = [594 148 539 422];
-xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
+% get data in the correct form, input should be kdMolar, 
+lplcVec = lplcVec .* lScale;
+kdVec = kdVec .* kdScale;
 % make subplot
-makeNuVsKdPlot( tetherCalc,...
-  xTick, fontSize, xLabel, yLabel );
+makeNuVsKdPlot( kdVec, lplcVec, nu,...
+  fontSize, xLabel, yLabel );
 
 function [ legcell, legTitle ] = buildLegend( lplcVec )
 % get size
@@ -32,14 +39,18 @@ for ii = 1:numLpLc
   end
 end
 
-function makeNuVsKdPlot( tetherCalc, ...
-  xTick, fontSize, xLabel, yLabel )
+function makeNuVsKdPlot( kdVec, lplc, nu, ...
+  fontSize, xLabel, yLabel )
 % Plot non-linear first on subplot 2
 ah1 = gca;
 ah1.FontSize = fontSize;
 ah1.Box = 'on';
 ah1.LineWidth = 1;
 ah1.YLim = [0 1];
+% build tick
+kdStart = log10( min( kdVec ) );
+kdEnd = log10( max( kdVec ) );
+xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ah1.XTick = xTick;
 ah1.XScale = 'log';
 ah1.XLim = [ min(xTick) max(xTick) ];
@@ -49,12 +60,11 @@ axis square
 hold all
 % set up colors
 scaleType = 'log';
-wantedColors = getPlotLineColors( tetherCalc.lplc, scaleType );
+wantedColors = getPlotLineColors( lplc, scaleType );
 % Plot linear next on subplot 1
-plotNuVsKd( ah1, tetherCalc.kd, ...
-  tetherCalc.lplc, tetherCalc.nu, wantedColors )
+plotNuVsKd( ah1, kdVec, lplc, nu, wantedColors )
 % build legend
-[legcell,legTitle]  = buildLegend( tetherCalc.lplc );
+[legcell,legTitle]  = buildLegend( lplc );
 % build legend now so lines are correctly colored
 hl = legend( legcell, 'location','best');
 hl.Interpreter = 'latex';

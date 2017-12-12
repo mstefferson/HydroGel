@@ -20,7 +20,7 @@
 % 18: initParamsSFromInput hopData200 (numeric)
 % 19: initParamsSFromInput hopData500 (numeric)
 % 20: initParamsSFromInput hopData100Hop0 (numeric)
-% Current results for paper: [1 2 3 10 11 12 13 14]
+% Current results for paper: [1 2 3 10 11 12 13 14 15 17 18 19]
 
 function paperResultsMaker( resultsId )
 addpath(genpath('src'))

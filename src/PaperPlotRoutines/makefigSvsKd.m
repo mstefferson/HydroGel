@@ -5,6 +5,7 @@ yLabel = 'Selectivity';
 % scale factor, limits
 maxVal = 40;
 kdScale = 1e6;
+kdMin = 1e-5;
 if strcmp( diffType, 'lplc' )
   lScaleActual = 1e-7;
   lScaleWant = 1e-9;
@@ -15,8 +16,6 @@ else
   error('Wrong nu str')
 end
 fontSize = 20;
-% set-up ticks
-xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 % set-up figure
 fidId = randi(1000);
 fig = figure(fidId);
@@ -24,13 +23,12 @@ clf(fidId);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
 fig.Position = [393 229 501 368];
-xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 % make plot
 makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  xTick, diffType, fontSize, maxVal, xLabel, yLabel );
+  diffType, fontSize, maxVal, xLabel, yLabel );
 
 function makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  xTick, diffType, fontSize, maxVal, xLabel, yLabel )
+  diffType, fontSize, maxVal, xLabel, yLabel )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
@@ -49,7 +47,7 @@ elseif strcmp( diffType, 'nu' )
 end
 wantedColors = getPlotLineColors( nulplcVec, scaleType );
 % plot it non-linear
-plotSelectivityVsKd( ax, kdVec, jNorm, xTick, maxVal, ...
+plotSelectivityVsKd( ax, kdVec, jNorm, maxVal, ...
   xLabel, yLabel, wantedColors )
 % build legend now so lines are correctly colored
 hl = legend( legcell, 'location','best');
@@ -58,7 +56,7 @@ hl.Title.String = legTitle;
 hl.Position = [0.8121 0.2662 0.1717 0.4995];
 
 function plotSelectivityVsKd( ax, kdVec, ...
-  jNorm, xTick, maxVal, xLabel, yLabel, wantedColors)
+  jNorm, maxVal, xLabel, yLabel, wantedColors)
 % set-up title position
 % plot it
 inds = 1:length(kdVec);
@@ -69,6 +67,10 @@ for ii = 1:numLpLc
 end
 ax = gca;
 ax.XScale = 'log';
+% build tick
+kdStart = log10( min( kdVec ) );
+kdEnd = log10( max( kdVec ) );
+xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
 ax.YLim = [0 maxVal];

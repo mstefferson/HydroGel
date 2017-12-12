@@ -1,7 +1,6 @@
 function makefigJvsT( fluxSummary )
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
-%yLab = 'Selectivity $$ S $$';
 yLab = 'Outlet flux $$ J^* $$';
 ntMax = 1000;
 fontSize = 20;
@@ -47,7 +46,12 @@ time = tScale * fluxSummary.timeVec(1:nt);
 p = plot( ah1, time, flux2plot(1:nt),'k:');
 p.LineWidth = 3;
 % set up colors
-wantedColors = getPlotLineColors( kdVec, 'log' );
+wantedColors = getPlotLineColors( kdVec, 'log', 'pmkmp');
+% manual override
+% fac = 1000;
+% colorArray = viridis( fac+1 );
+% getInds = round( linspace( 1, fac, length( kdVec ) ) );
+% wantedColors = colorArray( getInds, : );
 % Loop over plots
 for kk = 1:length(kdVec )
   flux2plot = fluxSummary.jVsT{1,1,kk} ./ fluxSummary.jDiff;
