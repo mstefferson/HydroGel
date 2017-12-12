@@ -32,7 +32,7 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 
 %Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
 % konBt, koff, Ka
-numKd = 8*7;
+numKd = 8*6;
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
 paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]}; 
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.

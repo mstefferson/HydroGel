@@ -12,7 +12,7 @@
 % 10: initParamsSvsKd vary nu
 % 11: initParamsSvsKd linear vary lplc (analytic)
 % 12: initParamsSvsKd linear vary lplc (numeric)
-% 13: initParamsJvsT  nu 0
+% 13: initParamsJvsT  nu 1
 % 14: initParamsSFromInput gorlich (numeric)
 % 15: initParamsSFromInput gorlich2 (numeric)
 % 16: initParamsSFromInput hopDataTest (numeric)
@@ -259,7 +259,7 @@ if any( resultsId == currId )
   tic
   fprintf('Starting results %d \n', currId );
   saveName = 'figSvsKdVaryLplcLinearAnalytic_data';
-  initParamsSvsKdAnalytic();
+  initParamsSvsKd_analytic();
   [linSummary.kdVec, linSummary.lc, linSummary.jNorm] = ...
     linearSelVsKD(kd_range, lc_values,0);
   savepath = [ dataPath '/' saveName saveExt];
