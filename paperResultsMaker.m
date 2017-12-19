@@ -3,7 +3,7 @@
 % 1: initParamsJvsT  nu 0
 % 2: initParamsSvsKd vary lplc
 % 3: initParamsDenProfile
-% 4: initParamsSvsNu (course and fine)
+% 4: initParamsSvsNu 
 % 5: paramInput selectivity calc
 % 6: nu vs Kd (Laura's script)
 % 7: outlet reservoir accumulation
@@ -20,6 +20,8 @@
 % 18: initParamsSFromInput hopData200 (numeric)
 % 19: initParamsSFromInput hopData500 (numeric)
 % 20: initParamsSFromInput hopData100Hop0 (numeric)
+% 21: initParamsSvsNu_linear
+%
 % Current results for paper: [1 2 3 10 11 12 13 14 15 17 18 19]
 
 function paperResultsMaker( resultsId )
@@ -102,7 +104,7 @@ if any( resultsId == currId )
   tOut = toc;
   fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 end
-% figure 4: initParamsSvsNu (course and fine)
+% figure 4: initParamsSvsNu vary kd
 currId = 4;
 if any( resultsId == currId )
   tic
@@ -415,6 +417,25 @@ if any( resultsId == currId )
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
 
+% figure 21: initParamsSvsNu_linear
+currId = 21;
+if any( resultsId == currId )
+  tic
+  fprintf('Starting results %d \n', currId );
+  paramFile = 'initParamsSvsNu_linear';
+  saveName = 'figSvsNuLinearNumeric_data';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  tOut = toc;
+  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+end
 %%%% functions %%%
 function resultsHopData( ...
   currId, plotFlag, storeFlag, dataPath, lcVal, lcStr )

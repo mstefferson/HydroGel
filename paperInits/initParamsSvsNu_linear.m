@@ -2,7 +2,7 @@
 paramMaster.trial  = 1; % trial ID
 % Turn things on
 flags.SaveMe = 1; % Save runHydrogel outputs
-flags.NLcoup = 1; % Turn on/off the nonlinear term AC
+flags.NLcoup = 0; % Turn on/off the nonlinear term AC
 flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 1;  % Turn on if diffusion depends on Bt.
