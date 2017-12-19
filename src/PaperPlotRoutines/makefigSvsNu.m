@@ -19,7 +19,7 @@ kDvec =  1 ./ fluxSummary.kinParams.kinVarInput2;
 kDvec = kdScale .* kDvec;
 paramObj = fluxSummary.paramObj;
 jMax = fluxSummary.jNorm;
-nuVec = paramObj.nu;
+nuVec = paramObj.DbParam{2};
 % get size
 numNu = length(nuVec);
 numKa = length(kDvec);

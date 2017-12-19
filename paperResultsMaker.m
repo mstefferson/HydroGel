@@ -21,6 +21,7 @@
 % 19: initParamsSFromInput hopData500 (numeric)
 % 20: initParamsSFromInput hopData100Hop0 (numeric)
 % 21: initParamsSvsNu_linear
+% 22: initParamsSvsKd vary nu
 %
 % Current results for paper: [1 2 3 10 11 12 13 14 15 17 18 19]
 
@@ -436,6 +437,26 @@ if any( resultsId == currId )
   tOut = toc;
   fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 end
+% figure 22: selectivity vs kd, vary nu linear
+currId = 22;
+if any( resultsId == currId )
+  tic
+  fprintf('Starting results %d \n', currId );
+  paramFile = 'initParamsSvsKd_nu_linear';
+  saveName = 'figSvsKdVaryNuLinear_data';
+  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  tOut = toc;
+  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+end
+
 %%%% functions %%%
 function resultsHopData( ...
   currId, plotFlag, storeFlag, dataPath, lcVal, lcStr )

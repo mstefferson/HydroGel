@@ -8,8 +8,8 @@
 % 6: outlet res accumulation
 % 7: Selectivity heatmap Kd vs Nu
 % 8: Selectivity heatmap Kd vs Lc
-% 9: S vs Kd vary  nu (course and fine)
-% 10: S vs Kd vary lplc (course and fine)
+% 9: S vs Kd vary  nu 
+% 10: S vs Kd vary lplc 
 % 11: Nu vs Kd
 % 12: linear S vs Kd (numeric)
 % 13: den Profile
@@ -17,14 +17,15 @@
 % 15: bound diff vs kd and selectivity vs kd 100
 % 16: bound diff vs kd and selectivity vs kd 200
 % 17: bound diff vs kd and selectivity vs kd 500
+% 18: S vs Nu, vary kd
+% 19: S vs Nu, vary kd linear
 %
 % Current plots for paper: [1 4 9 10 11 13 14 15 16 17]
-%
-% draft5: [1 4 11 13 14 15 16 17]
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
 if nargin == 1
   saveFlag = 0;
+  saveTag = '';
 elseif nargin == 2
   saveTag = '';
 end
@@ -50,10 +51,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 2: nu vs kd selectivity vs kd
@@ -70,10 +68,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 3: combine density profile and S vs nu
@@ -92,10 +87,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 4: S vs Kd (linear, analytic) for supplements
@@ -110,10 +102,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 5: scatter plot of param input. Not a paper fig
@@ -128,10 +117,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 6: outlet accumulation. Not a paper fig
@@ -146,10 +132,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 7: seletivity heatmap. Kd and nu
@@ -164,10 +147,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 8: seletivity heatmap. Kd and lplc
@@ -182,10 +162,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 9: selectivity vs kd, vary nu
@@ -200,10 +177,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 10: selectivity vs kd, vary lplc
@@ -218,10 +192,7 @@ if any( plotId == 10 )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 11: nu vs kd, vary lplc
@@ -236,10 +207,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 12: S vs Kd (linear, numeric) for supplements
@@ -254,10 +222,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 13: density profile
@@ -272,10 +237,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 14: selectivity vs time nu = 1
@@ -290,10 +252,7 @@ if any( plotId == currId )
   end
   % save it
   if saveFlag
-    saveName = ['paperfig' num2str(currId ) '_' saveTag];
-    savefig( gcf, saveName )
-    saveas( gcf, saveName, saveID )
-    movefile( [saveName '*'], paperSavePath )
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
 % figure 15: nu vs Kd, S vs Kd (kHop) 100
@@ -319,6 +278,31 @@ if any( plotId == currId )
     saveTag, saveID )
 end
 
+% figure 18: S vs nu, vary kD
+currId = 18;
+if any( plotId == currId )
+  data2load = [paperDataPath 'figSvsNu_data.mat'];
+  plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
+end
+% figure 19: S vs nu, vary kD
+currId = 19;
+if any( plotId == currId )
+  data2load = [paperDataPath 'figSvsNuLinearNumeric_data.mat'];
+  plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
+end
+
+%%%%%%%%% Plot functions %%%%%%%%%%%%%%
+function plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
+  if exist( data2load, 'file'  )
+    load( data2load )
+    makefigSvsNu( fluxSummary );
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
+  end
 
 function plotHopData( currId, lc, paperDataPath, ...
   saveFlag, paperSavePath, saveTag, saveID )
@@ -334,9 +318,12 @@ else
 end
 % save it
 if saveFlag
-  saveName = ['paperfig' num2str(currId ) '_' lcStr '_' saveTag];
+  saveAndMove( currId, saveTag, saveID, paperSavePath )
+end
+
+function saveAndMove( currId, saveTag, saveID, paperSavePath )
+  saveName = ['paperfig' num2str(currId ) '_' saveTag];
   savefig( gcf, saveName )
   saveas( gcf, saveName, saveID )
   movefile( [saveName '*'], paperSavePath )
-end
 

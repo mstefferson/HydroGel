@@ -24,8 +24,11 @@ kdEnd = log10( max( hoppingData.kdVecScaled ) );
 xTick = round( ...
   logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 ) );
 % set up colors
-scaleType = 'log';
-wantedColors = getPlotLineColors( hoppingData.kHopVec, scaleType );
+colorVec = 1:length(hoppingData.kHopVec);
+scaleType = 'linear';
+wantedColors = getPlotLineColors( colorVec, scaleType );
+%scaleType = 'log';
+%wantedColors = getPlotLineColors( hoppingData.kHopVec, scaleType );
 % set up nu plot
 ax1 = subplot(1,2,1);
 ax1.Position = [0.0787 0.2 0.3347 0.7335];
@@ -76,11 +79,11 @@ function makeFakePlot4Legend( ax, dataKhop, ...
   dataTether, kdVec, kHopVec, wantedColors)
 % plot it
 numkHop = length( kHopVec );
-lineWidth = 1;
+lineWidth = 2;
 lineWidthDash = 3;
 % plot tether first
 p = plot( ax, kdVec, dataTether );
-p.Color = [0,0,0];
+p.Color = wantedColors(1,:);
 p.LineStyle = ':';
 p.LineWidth = lineWidthDash;
 for ii = 1:numkHop
@@ -95,10 +98,10 @@ function plotDataVsKd( ax, dataKhop, dataKhopErrLower, dataKhopErrUpper, ...
 numkHop = length( kHopVec );
 lineWidth = 2;
 lineWidthDash = 3;
-transparentFac = 0.2;
+transparentFac = 0.1;
 % plot tether first
 p = plot( ax, kdVec, dataTether );
-p.Color = [0,0,0];
+p.Color = wantedColors(1,:);
 p.LineStyle = ':';
 p.LineWidth = lineWidthDash;
 for ii = 1:numkHop
