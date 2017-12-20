@@ -21,7 +21,7 @@
 % 19: initParamsSFromInput hopData500 (numeric)
 % 20: initParamsSFromInput hopData100Hop0 (numeric)
 % 21: initParamsSvsNu_linear
-% 22: initParamsSvsKd vary nu
+% 22: initParamsSvsKd vary nu linear
 %
 % Current results for paper: [1 2 3 10 11 12 13 14 15 17 18 19]
 

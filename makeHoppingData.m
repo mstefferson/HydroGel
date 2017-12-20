@@ -4,7 +4,7 @@ kdVec = unique( selectivity.paramLoad(:,3) );
 kHopVec = unique( selectivity.paramLoad(:,4) )';
 numKd = length(kdVec);
 numKhop = length(kHopVec);
-numData = 3; % hard code 3 type: middle, upper, lower
+numData = length( unique( selectivity.paramLoad(:,5) ) ); % hard code 3 type: middle, upper, lower
 % store data
 out.kdVec = kdVec;
 out.kHopVec = kHopVec;
@@ -14,16 +14,20 @@ dataReshapeDb = reshape( selectivity.paramLoad(:,2), [ numKd, numKhop, numData ]
 dataReshapeSel = reshape( selectivity.val, [ numKd, numKhop, numData ] );
 % calculate nu
 nuDataMid = dataReshapeDb( :, :, 1 ) ./ dataReshapeDf( :, :, 1 );
-nuDataUpper = dataReshapeDb( :, :, 2 ) ./ dataReshapeDf( :, :, 2 );
-nuDataLower = dataReshapeDb( :, :, 3 ) ./ dataReshapeDf( :, :, 3 );
 out.nuData = nuDataMid;
-out.nuErrLower = nuDataMid - nuDataLower;
-out.nuErrUpper = nuDataUpper - nuDataMid;
 % calculate selectivity
 selDataMid = dataReshapeSel(:,:,1);
-selDataUpper = dataReshapeSel(:,:,2);
-selDataLower = dataReshapeSel(:,:,3);
 out.selData = selDataMid;
-out.selErrLower = selDataMid - selDataLower;
-out.selErrUpper = selDataUpper - selDataMid;
+% errors
+if numData == 3
+  % nu error
+  nuDataUpper = dataReshapeDb( :, :, 2 ) ./ dataReshapeDf( :, :, 2 );
+  nuDataLower = dataReshapeDb( :, :, 3 ) ./ dataReshapeDf( :, :, 3 );
+  out.nuErrLower = nuDataMid - nuDataLower;
+  out.nuErrUpper = nuDataUpper - nuDataMid;
+  selDataUpper = dataReshapeSel(:,:,2);
+  selDataLower = dataReshapeSel(:,:,3);
+  out.selErrLower = selDataMid - selDataLower;
+  out.selErrUpper = selDataUpper - selDataMid;
+  end
 end
