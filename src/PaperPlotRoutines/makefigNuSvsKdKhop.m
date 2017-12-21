@@ -8,14 +8,13 @@ end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel1 = 'Bound Diffusion $$ D_B / D_F $$';
-yLabel2 = 'Selectivity';
+yLabel2 = 'Selectivity $$ S $$';
 % scale factor, limits
 maxVal = 40;
 fontSize = 20;
 % set-up figure
-fidId = randi(1000);
-fig = figure(fidId);
-clf(fidId);
+fig = figure();
+clf(fig);
 fig.WindowStyle = 'normal';
 fig.Position = [250 244 834 353];
 % make plot

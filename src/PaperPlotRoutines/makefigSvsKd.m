@@ -4,7 +4,7 @@ if nargin < 3
 end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
-yLabel = 'Selectivity';
+yLabel = 'Selectivity $$ S $$';
 % scale factor, limits
 kdScale = 1e6;
 kdMin = 1e-5;
@@ -19,9 +19,8 @@ else
 end
 fontSize = 20;
 % set-up figure
-fidId = randi(1000);
-fig = figure(fidId);
-clf(fidId);
+fig = figure();
+clf(fig);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
 fig.Position = [393 229 501 368];

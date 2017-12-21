@@ -4,9 +4,8 @@ kdScale = 1e6;
 % Some tunable parameters
 fontSize = 20;
 % set-up figure
-fidId = randi(1000);
-fig = figure(fidId);
-clf(fidId);
+fig = figure();
+clf(fig);
 fig.WindowStyle = 'normal';
 fig.Position = [64 209 560 420];
 % Plot it

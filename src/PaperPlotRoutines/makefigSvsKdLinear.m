@@ -7,15 +7,14 @@
 function makefigSvsKdLinear( linSummary, diffType )
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
-yLabel = 'Selectivity';
+yLabel = 'Selectivity $$ S $$';
 % scale factor, limits
 maxVal = 50;
 % Some tunable parameters
 fontSize = 20;
 % set-up figure
-fidId = randi(1000);
-fig = figure(fidId);
-clf(fidId);
+fig = figure();
+clf(fig);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
 fig.Position = [393 229 501 368];

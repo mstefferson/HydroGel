@@ -11,9 +11,8 @@ fontSize = 14;
 % row3: nu = 1 saturated
 subplotInds = [1 1 1; 2 1 1; 2 1 2];
 % % set-up figure
-figId = randi(1000);
-fig = figure(figId);
-clf(figId);
+fig = figure();
+clf(fig);
 fig.WindowStyle = 'normal';
 if plotSameSpeciesTogether == 1
   % set rows/cols

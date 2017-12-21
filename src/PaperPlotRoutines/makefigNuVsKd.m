@@ -11,9 +11,8 @@ xLabel = 'Dissociation constant $$ K_D  \, ( \mathrm{ \mu M } ) $$';
 yLabel = 'Bound Diffusion $$ D_B / D_F $$';
 fontSize = 20;
 % set-up figure
-fidId = randi(1000);
-fig = figure(fidId);
-clf(fidId);
+fig = figure();
+clf(fig);
 fig.WindowStyle = 'normal';
 % fig.WindowStyle = 'docked';
 fig.Position = [594 148 539 422];

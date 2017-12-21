@@ -1,31 +1,25 @@
 % Id Key
 %
-% 1: initParamsJvsT  nu 0
-% 2: initParamsSvsKd vary lplc
-% 3: initParamsDenProfile
-% 4: initParamsSvsNu 
-% 5: paramInput selectivity calc
-% 6: nu vs Kd 
-% 7: outlet reservoir accumulation
-% 8: Selectivity heatmap Kd vs Nu
-% 9: Selectivity heatmap Kd vs Lc
-% 10: initParamsSvsKd vary nu
-% 11: initParamsSvsKd linear vary lplc (analytic)
-% 12: initParamsSvsKd linear vary lplc (numeric)
-% 13: initParamsJvsT  nu 1
-% 14: initParamsSFromInput gorlich (numeric)
-% 15: initParamsSFromInput gorlich2 (numeric)
-% 16: initParamsSFromInput hopDataTest (numeric)
-% 17: initParamsSFromInput hopData100 (numeric)
-% 18: initParamsSFromInput hopData200 (numeric)
-% 19: initParamsSFromInput hopData500 (numeric)
-% 20: initParamsSFromInput hopData100Hop0 (numeric)
-% 21: initParamsSvsNu_linear
-% 22: initParamsSvsKd vary nu linear
-%
 % Current results for paper: [1 2 3 10 11 12 13 14 15 17 18 19]
+% 1: j vs t nu = 0 fig2.1
+% 2: j vs t nu = 1 fig2.2
+% 3: S vs kd vary nu fig2.3 (also possible fig S ?)
+% 4: nu vs kd vary lc fig 3.2
+% 5: S vs kd vary lc fig 3.3
+% 6: nu vs kd/S vs kd (kHop = 100) fig. 4.3
+% 7: nu vs kd/S vs kd (kHop = 200) fig. S5
+% 8: nu vs kd/S vs kd (kHop = 500) fig. S6
+% 9: S vs kd vary nu linear numeric fig S1.2
+% 10: S vs nu vary kd fig S ?
+% 11: S vs nu vary kd linear numeric fig S1.4
+% 12: density profile fig S ?
+% 13: initParamsSFromInput gorlich (numeric)
+% 14: initParamsSFromInput gorlich2 (numeric)
+%
+% Current results for paper: [1:14]
 
 function paperResultsMaker( resultsId )
+% set things up
 addpath(genpath('src'))
 addpath('paperInits/')
 % turn off  saving
@@ -54,16 +48,74 @@ if any( resultsId == currId )
   resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
-% figure 2: selectivity vs kd, vary lplc
+% figure 2: selectivity vs time, nu = 1
 currId = 2;
+if any( resultsId == currId )
+  paramFile = 'initParamsJvsTnu1';
+  saveName = 'figJvsTnu1_data';
+  resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
+end
+% figure 3: selectivity vs kd, vary nu
+currId = 3;
+if any( resultsId == currId )
+  paramFile = 'initParamsSvsKd_nu';
+  saveName = 'figSvsKdVaryNu_data';
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
+end
+% 4: nu vs kd,  vary lc Laura's script
+currId = 4;
+if any( resultsId == currId )
+  saveName = 'figNuVsKd_data';
+  resultsSvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)  
+end
+% figure 5: selectivity vs kd, vary lplc
+currId = 5;
 if any( resultsId == currId )
   paramFile = 'initParamsSvsKd_lplc';
   saveName = 'figSvsKdVaryLplc_data';
   resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
-% figure 3: density profiles
-currId = 3;
+% 6: parameter input, hopDataTest100
+currId = 6;
+if any( resultsId == currId )
+  lc = [100]; % in nm
+  lcStr = num2str( lc, '%d' );
+  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
+end
+% 7: parameter input, hopDataTest200
+currId = 7;
+if any( resultsId == currId )
+  lc = [200]; % in nm
+  lcStr = num2str( lc, '%d' );
+  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
+end
+% 8: parameter input, hopDataTest500
+currId = 8;
+if any( resultsId == currId )
+  lc = [500]; % in nm
+  lcStr = num2str( lc, '%d' );
+  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
+end
+% figure 10: selectivity vs nu, vary kd linear numeric
+currId = 10;
+if any( resultsId == currId )
+  paramFile = 'initParamsSvsNu_linear';
+  saveName = 'figSvsNuLinearNumeric_data';
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
+end
+% figure 11: selectivity vs kd, vary nu linear numeric
+currId = 11;
+if any( resultsId == currId )
+ paramFile = 'initParamsSvsKd_nu_linear';
+ saveName = 'figSvsKdVaryNuLinearNumeric_data';
+ resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
+end
+% figure 12: density profiles
+currId = 12;
 if any( resultsId == currId )
   storeFlagTemp = storeFlag;
   storeFlagTemp.storeStdy = 1;
@@ -72,50 +124,21 @@ if any( resultsId == currId )
   resultsRunODE(currId, paramFile, plotFlag, storeFlagTemp,...
     saveName, saveExt, dataPath)
 end
-% figure 4: initParamsSvsNu vary kd
-currId = 4;
+% 13: parameter input, gorlichData
+currId = 13;
 if any( resultsId == currId )
-  paramFile = 'initParamsSvsNu';
-  saveName = 'figSvsNu_data';
-  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
+  loadId = 'gorlichData';
+  resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
 end
-% 5: parameter input.
-currId = 5;
+% 14: parameter input, gorlichData2
+currId = 14;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  loadId = '20171110_param.mat';
-  fileId = 'initParamsSFromInput';
-  load( ['paperParamInput/' loadId ]);
-  tau = 0.01;
-  bt = 1e-3;
-  kon = 1e9; % unscaled
-  numRuns = size( param, 1 );
-  paramInpt = zeros( numRuns, 4 );
-  paramInpt(:,1) = param(:,1);
-  paramInpt(:,2) = kon * bt * tau;
-  paramInpt(:,3) = param(:,2) * tau;
-  paramInpt(:,4) = bt;
-  fluxSummary = fluxODEParamIn(paramInpt, fileId);
-  selectivity.val = fluxSummary.jNorm;
-  selectivity.paramLoad = param;
-  selectivity.paramInpt = paramInpt;
-  saveName = 'selectivityFromInput_data';
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  loadId = 'gorlichData2';
+  resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
 end
-% 6: nu vs kd, Laura's script
-currId = 6;
-if any( resultsId == currId )
+
+%%%% functions %%%
+function resultsSvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)
   tic
   fprintf('Starting results %d \n', currId );
   lc = [10, 30, 100, 300, 1000, 1e4]; % in nm
@@ -133,142 +156,7 @@ if any( resultsId == currId )
   movefile( fullName, dataPath );
   tOut = toc;
   fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
-end
-% 7: Reservior accumulation
-currId = 7;
-if any( resultsId == currId )
-  storeFlag.storeStdy = 1;
-  paramFile = 'initParamsOutletResAccum';
-  saveName = 'figResAccum_data';
-  resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
-  storeFlag.storeStdy = 0;
-end
-% 8: Selectivity heat map, Kd vs Nu
-currId = 8;
-if any( resultsId == currId )
-  paramFile = 'initParamsSheatmapKdNu';
-  saveName = 'figSheatmapKdNu_data';
-  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
-end
-% 9: Selectivity heat map, Kd vs lclp
-currId = 9;
-if any( resultsId == currId )
-  paramFile = 'initParamsSheatmapKdLclp';
-  saveName = 'figSheatmapKdLcLp_data';
-  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
-end
-% figure 10: selectivity vs kd, vary nu
-currId = 10;
-if any( resultsId == currId )
-  paramFile = 'initParamsSvsKd_nu';
-  saveName = 'figSvsKdVaryNu_data';
-  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
-end
-% figure 11: selectivity vs kd linear analytic, vary lplc
-currId = 11;
-if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  saveName = 'figSvsKdVaryLplcLinearAnalytic_data';
-  initParamsSvsKd_analytic();
-  [linSummary.kdVec, linSummary.nulc, linSummary.jNorm] = ...
-    linearSelVsKD(kd_range, lc_values,0);
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'linSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
-end
-% figure 12: selectivity vs kd linear numeric, vary lplc
-currId = 12;
-if any( resultsId == currId )
-  paramFile = 'initParamsSvsKd_lplc_linear';
-  saveName = 'figSvsKdVaryLplcLinearNumeric_data';
-  resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
-end
-% figure 13: selectivity vs time, nu = 1
-currId = 13;
-if any( resultsId == currId )
-  paramFile = 'initParamsJvsTnu1';
-  saveName = 'figJvsTnu1_data';
-  resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
-end
-% 14: parameter input, gorlichData
-currId = 14;
-if any( resultsId == currId )
-  loadId = 'gorlichData';
-  resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
-end
-% 15: parameter input, gorlichData2
-currId = 15;
-if any( resultsId == currId )
-  loadId = 'gorlichData2';
-  resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
-end
-% 16: parameter input, hopDataTest
-currId = 16;
-if any( resultsId == currId )
-  lc = [100]; % in nm
-  lcStr = 'Test';
-  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
-end
-% 17: parameter input, hopDataTest100
-currId = 17;
-if any( resultsId == currId )
-  lc = [100]; % in nm
-  lcStr = num2str( lc, '%d' );
-  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
-end
-% 18: parameter input, hopDataTest200
-currId = 18;
-if any( resultsId == currId )
-  lc = [200]; % in nm
-  lcStr = num2str( lc, '%d' );
-  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
-end
 
-% 19: parameter input, hopDataTest500
-currId = 19;
-if any( resultsId == currId )
-  lc = [500]; % in nm
-  lcStr = num2str( lc, '%d' );
-  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
-end
-% 20: parameter input, hopDataTest100Hop0
-currId = 20;
-if any( resultsId == currId )
-  lc = [100]; % in nm
-  lcStr = [ num2str( lc, '%d' ) 'Hop0' ];
-  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
-end
-
-% figure 21: initParamsSvsNu_linear
-currId = 21;
-if any( resultsId == currId )
-  paramFile = 'initParamsSvsNu_linear';
-  saveName = 'figSvsNuLinearNumeric_data';
-  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
-    saveName, saveExt, dataPath)
-end
-% figure 22: selectivity vs kd, vary nu linear numeric
-currId = 22;
-if any( resultsId == currId )
- paramFile = 'initParamsSvsKd_nu_linear';
- saveName = 'figSvsKdVaryNuLinearNumeric_data';
- resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
-end
-
-%%%% functions %%%
 function resultsSelFromExperiment(currId, loadId, storeFlag,...
   saveExt, dataPath)
   tic

@@ -1,17 +1,15 @@
 function makefigJvsT( fluxSummary )
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
-yLab = 'Outlet flux $$ J^* $$';
+yLab = 'Normalized outlet flux $$ J^* $$';
 ntMax = 1000;
 fontSize = 20;
 % scales
 tScale = 10; % tau = 0.01, get time in ms 
 kScale = 1e6;
 % set-up figure
-%fidId = 1;
-fidId = randi(1000);
-fig = figure(fidId);
-clf(fidId);
+fig = figure();
+clf();
 fig.WindowStyle = 'normal';
 fig.Position = [409 218 695 477];
 % Plot it
