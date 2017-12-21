@@ -1,9 +1,11 @@
-function makefigSvsKd( fluxSummary, diffType )
+function makefigSvsKd( fluxSummary, diffType, yLimMax )
+if nargin < 3
+  yLimMax = 40;
+end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel = 'Selectivity';
 % scale factor, limits
-maxVal = 40;
 kdScale = 1e6;
 kdMin = 1e-5;
 if strcmp( diffType, 'lplc' )
@@ -25,10 +27,10 @@ fig.WindowStyle = 'normal';
 fig.Position = [393 229 501 368];
 % make plot
 makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  diffType, fontSize, maxVal, xLabel, yLabel );
+  diffType, fontSize, yLimMax, xLabel, yLabel );
 
 function makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  diffType, fontSize, maxVal, xLabel, yLabel )
+  diffType, fontSize, yLimMax, xLabel, yLabel )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
@@ -47,7 +49,7 @@ elseif strcmp( diffType, 'nu' )
 end
 wantedColors = getPlotLineColors( nulplcVec, scaleType );
 % plot it non-linear
-plotSelectivityVsKd( ax, kdVec, jNorm, maxVal, ...
+plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax, ...
   xLabel, yLabel, wantedColors )
 % build legend now so lines are correctly colored
 hl = legend( legcell, 'location','best');
@@ -56,7 +58,7 @@ hl.Title.String = legTitle;
 hl.Position = [0.8121 0.2662 0.1717 0.4995];
 
 function plotSelectivityVsKd( ax, kdVec, ...
-  jNorm, maxVal, xLabel, yLabel, wantedColors)
+  jNorm, yLimMax, xLabel, yLabel, wantedColors)
 % set-up title position
 % plot it
 inds = 1:length(kdVec);
@@ -73,7 +75,7 @@ kdEnd = log10( max( kdVec ) );
 xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
-ax.YLim = [0 maxVal];
+ax.YLim = [0 yLimMax];
 axis square
 xlabel( ax, xLabel )
 ylabel( ax, yLabel )

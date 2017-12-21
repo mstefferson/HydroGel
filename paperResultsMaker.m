@@ -5,7 +5,7 @@
 % 3: initParamsDenProfile
 % 4: initParamsSvsNu 
 % 5: paramInput selectivity calc
-% 6: nu vs Kd (Laura's script)
+% 6: nu vs Kd 
 % 7: outlet reservoir accumulation
 % 8: Selectivity heatmap Kd vs Nu
 % 9: Selectivity heatmap Kd vs Lc
@@ -38,9 +38,9 @@ plotFlag.plotSteady = 0;
 plotFlag.plotVsT = 0;
 plotFlag.plotMapFluxSlope = 0;
 plotFlag.plotMapFluxTime = 0;
-% turn off store
+% turn off/on store
 storeFlag.storeStdy = 0;
-storeFlag.storeTimeDep = 0;
+storeFlag.storeTimeDep = 1;
 % turn store off/on based on run
 dataPath = 'paperData';
 if ~exist( dataPath,'dir' )
@@ -49,80 +49,36 @@ end
 % figure 1: selectivity vs time, nu = 0
 currId = 1;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  storeFlag.storeTimeDep = 1;
   paramFile = 'initParamsJvsTnu0';
   saveName = 'figJvsTnu0_data';
-  fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % figure 2: selectivity vs kd, vary lplc
 currId = 2;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSvsKd_lplc';
   saveName = 'figSvsKdVaryLplc_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % figure 3: density profiles
 currId = 3;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  storeFlag.storeStdy = 1;
+  storeFlagTemp = storeFlag;
+  storeFlagTemp.storeStdy = 1;
   paramFile = 'initParamsDenProfile';
   saveName = 'figDenProfile_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlagTemp,...
+    saveName, saveExt, dataPath)
 end
 % figure 4: initParamsSvsNu vary kd
 currId = 4;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSvsNu';
   saveName = 'figSvsNu_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % 5: parameter input.
 currId = 5;
@@ -181,80 +137,36 @@ end
 % 7: Reservior accumulation
 currId = 7;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   storeFlag.storeStdy = 1;
-  storeFlag.storeTimeDep = 1;
   paramFile = 'initParamsOutletResAccum';
   saveName = 'figResAccum_data';
-  fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
+  storeFlag.storeStdy = 0;
 end
 % 8: Selectivity heat map, Kd vs Nu
 currId = 8;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSheatmapKdNu';
   saveName = 'figSheatmapKdNu_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % 9: Selectivity heat map, Kd vs lclp
 currId = 9;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSheatmapKdLclp';
   saveName = 'figSheatmapKdLcLp_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % figure 10: selectivity vs kd, vary nu
 currId = 10;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSvsKd_nu';
   saveName = 'figSvsKdVaryNu_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % figure 11: selectivity vs kd linear analytic, vary lplc
 currId = 11;
@@ -263,7 +175,7 @@ if any( resultsId == currId )
   fprintf('Starting results %d \n', currId );
   saveName = 'figSvsKdVaryLplcLinearAnalytic_data';
   initParamsSvsKd_analytic();
-  [linSummary.kdVec, linSummary.lc, linSummary.jNorm] = ...
+  [linSummary.kdVec, linSummary.nulc, linSummary.jNorm] = ...
     linearSelVsKD(kd_range, lc_values,0);
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
@@ -279,104 +191,29 @@ end
 % figure 12: selectivity vs kd linear numeric, vary lplc
 currId = 12;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSvsKd_lplc_linear';
   saveName = 'figSvsKdVaryLplcLinearNumeric_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  % put linear data into format taken by linear plotting routine
-  kdScale = 1e6;
-  lScaleActual = 1e-7;
-  lScaleWant = 1e-9;
-  lScale = (lScaleActual / lScaleWant)^2;
-  [linSummary.kdVec, linSummary.lc, linSummary.jNorm ] = ...
-    getDataFluxSummary( fluxSummary, kdScale, lScale );  % store linear data
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
-  fprintf('Finished results %d, %f sec \n', currId, tOut);
+  resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
 end
 % figure 13: selectivity vs time, nu = 1
 currId = 13;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  storeFlag.storeTimeDep = 1;
   paramFile = 'initParamsJvsTnu1';
   saveName = 'figJvsTnu1_data';
-  fluxSummary  = fluxPDE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
 % 14: parameter input, gorlichData
 currId = 14;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
-  pathId = './paperParamInput/';
   loadId = 'gorlichData';
-  filename = [ pathId loadId ];
-  paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( storeFlag, 0, dirname,...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
-  selectivity.paramLoad = loadId;
-  selectivity.paramInput = paramFromLoad.input;
-  selectivity.paramLoad = paramFromLoad.data;
-  saveName = [ 'selectivityFromInput_' loadId '_data'];
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
 end
-
 % 15: parameter input, gorlichData2
 currId = 15;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
-  pathId = './paperParamInput/';
   loadId = 'gorlichData2';
-  filename = [ pathId loadId ];
-  paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( storeFlag, 0, dirname,...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
-  selectivity.paramLoad = loadId;
-  selectivity.paramInput = paramFromLoad.input;
-  selectivity.paramLoad = paramFromLoad.data;
-  saveName = [ 'selectivityFromInput_' loadId '_data'];
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
 end
 % 16: parameter input, hopDataTest
 currId = 16;
@@ -392,7 +229,6 @@ if any( resultsId == currId )
   lcStr = num2str( lc, '%d' );
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
-
 % 18: parameter input, hopDataTest200
 currId = 18;
 if any( resultsId == currId )
@@ -408,8 +244,6 @@ if any( resultsId == currId )
   lcStr = num2str( lc, '%d' );
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
-
-
 % 20: parameter input, hopDataTest100Hop0
 currId = 20;
 if any( resultsId == currId )
@@ -421,43 +255,101 @@ end
 % figure 21: initParamsSvsNu_linear
 currId = 21;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
   paramFile = 'initParamsSvsNu_linear';
   saveName = 'figSvsNuLinearNumeric_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
 end
-% figure 22: selectivity vs kd, vary nu linear
+% figure 22: selectivity vs kd, vary nu linear numeric
 currId = 22;
 if any( resultsId == currId )
-  tic
-  fprintf('Starting results %d \n', currId );
-  paramFile = 'initParamsSvsKd_nu_linear';
-  saveName = 'figSvsKdVaryNuLinear_data';
-  fluxSummary  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+ paramFile = 'initParamsSvsKd_nu_linear';
+ saveName = 'figSvsKdVaryNuLinearNumeric_data';
+ resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
 end
 
 %%%% functions %%%
+function resultsSelFromExperiment(currId, loadId, storeFlag,...
+  saveExt, dataPath)
+  tic
+  fprintf('Starting results %d \n', currId );
+  fileId = 'initParamsSFromInput';
+  pathId = './paperParamInput/';
+  filename = [ pathId loadId ];
+  paramFromLoad = poreExperimentParamsToInputs( filename );
+  fluxSummary = fluxODEParamIn( storeFlag, 0, [],...
+    paramFromLoad.input, fileId );
+  selectivity.val = fluxSummary.jNorm';
+  selectivity.paramLoad = loadId;
+  selectivity.paramInput = paramFromLoad.input;
+  selectivity.paramLoad = paramFromLoad.data;
+  saveName = [ 'selectivityFromInput_' loadId '_data'];
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary','selectivity' )
+  movefile( fullName, dataPath );
+  tOut = toc;
+  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+
+function resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
+  saveName, saveExt, dataPath)
+  tic
+  fprintf('Starting results %d \n', currId );
+  fluxSummary  = fluxPDE( plotFlag, storeFlag, 0, [], paramFile );
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  tOut = toc;
+  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+
+function resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+  saveName, saveExt, dataPath)
+  tic
+  fprintf('Starting results %d \n', currId );
+  fluxSummary  = fluxODE( plotFlag, storeFlag, 0, [], paramFile );
+  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary' )
+  movefile( fullName, dataPath );
+  tOut = toc;
+  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+
+function resultsSvdKdLinNumeric(currId, paramFile, saveName, dataPath,...
+    plotFlag, storeFlag )
+  tic
+  fprintf('Starting results %d \n', currId );
+  fluxSummary  = fluxODE( plotFlag, storeFlag, 0, dirname, paramFile );
+  % put linear data into format taken by linear plotting routine
+  kdScale = 1e6;
+  lScaleActual = 1e-7;
+  lScaleWant = 1e-9;
+  lScale = (lScaleActual / lScaleWant)^2;
+  [linSummary.kdVec, linSummary.nulc, linSummary.jNorm ] = ...
+    getDataFluxSummary( fluxSummary, kdScale, lScale );  % store linear data
+  savepath = [ dataPath '/' saveName saveExt];  savepath = [ dataPath '/' saveName saveExt];
+  if exist( savepath, 'file' )
+    fprintf('file exists. renaming file\n');
+    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+  end
+  fullName = [saveName saveExt];
+  save( fullName, 'fluxSummary', 'linSummary' )
+  movefile( fullName, dataPath );
+  tOut = toc;
+  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+
 function resultsHopData( ...
   currId, plotFlag, storeFlag, dataPath, lcVal, lcStr )
 tic

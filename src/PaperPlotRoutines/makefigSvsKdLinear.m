@@ -1,12 +1,10 @@
 %
 % linSummary.kd (micro molar)
-% linSummary.lc (nm)
+% linSummary.nulc nu or lc (nm)
 % linSummary.jNorm ( lc by kd )
 %
 
-function makefigSvsKdLinear( linSummary )
-% preset diff type to lplc
-diffType = 'lplc';
+function makefigSvsKdLinear( linSummary, diffType )
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel = 'Selectivity';
@@ -25,12 +23,12 @@ fig.Position = [393 229 501 368];
 makeLinPlot( linSummary,  xLabel, yLabel,...
   fontSize, maxVal, diffType );
 
-function [kdVec, lplcVec, jNorm, kdVecLin, jNormLin ] = ...
+function [kdVec, nulplcVec, jNorm, kdVecLin, jNormLin ] = ...
   getDataFluxLin( linSummary )
 % set params
 kdVec =  linSummary.kdVec; % already scaled
 jNorm = linSummary.jNorm;
-lplcVec = linSummary.lc;
+nulplcVec = linSummary.nulc;
 % make sure data is direction of increasing kd
 [kdVec, kdInds] = sort( kdVec );
 jNorm = jNorm( :, kdInds );

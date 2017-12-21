@@ -17,10 +17,13 @@
 % 15: bound diff vs kd and selectivity vs kd 100
 % 16: bound diff vs kd and selectivity vs kd 200
 % 17: bound diff vs kd and selectivity vs kd 500
-% 18: S vs Nu, vary kd
-% 19: S vs Nu, vary kd linear
+% 18: Supplement: S vs Nu, vary kd
+% 19: Supplement: S vs Nu, vary kd linear
+% 20: Supplement: S vs Kd vary  nu (override y axis limit)
+% 21: Supplement: S vs Kd vary  nu linear
 %
 % Current plots for paper: [1 4 9 10 11 13 14 15 16 17]
+% new figS1 [9 18 19 20]
 
 function paperPlotMaker( plotId, saveFlag, saveTag )
 if nargin == 1
@@ -43,16 +46,7 @@ end
 currId = 1;
 if any( plotId == currId )
   data2load = [paperDataPath 'figJvsTnu0_data.mat'];
-  if exist( data2load, 'file'  )
-    load( data2load )
-    makefigJvsT(fluxSummary );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  plotJvsT( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath) 
 end
 % figure 2: nu vs kd selectivity vs kd
 currId = 2;
@@ -90,20 +84,12 @@ if any( plotId == currId )
     saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
-% figure 4: S vs Kd (linear, analytic) for supplements
+% figure 4: S vs Kd vary lplc (linear, analytic) for supplements
 currId = 4;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryLplcLinearAnalytic_data.mat'];
-  if exist( data2load, 'file' )
-    load( data2load )
-    makefigSvsKdLinear( linSummary );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  dbtype = 'lplc';
+  plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath )
 end
 % figure 5: scatter plot of param input. Not a paper fig
 currId = 5;
@@ -139,61 +125,29 @@ end
 currId = 7;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSheatmapKdNu_data.mat'];
-  if exist( data2load, 'file' )
-    load( data2load )
-    makefigSheatmap( fluxSummary, 'nu' );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
-end
+  dbtype = 'nu';
+  plotSHeatMapKdNu( currId, data2load, dbtype, ...
+    saveFlag, paperSavePath, saveTag, saveID )
+ end
 % figure 8: seletivity heatmap. Kd and lplc
 currId = 8;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSheatmapKdLcLp_data.mat'];
-  if exist( data2load, 'file' )
-    load( data2load )
-    makefigSheatmap( fluxSummary, 'lplc' );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  dbtype = 'lplc';
+  plotSHeatMapKdNu( currId, data2load, dbtype,  ...
+    saveFlag, paperSavePath, saveTag, saveID )
 end
 % figure 9: selectivity vs kd, vary nu
 currId = 9;
 if any( plotId == currId )
-  data2load1 = [paperDataPath 'figSvsKdVaryNu_data.mat'];
-  if exist( data2load1, 'file'  )
-    load( data2load1 )
-    makefigSvsKd( fluxSummary, 'nu' );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  data2load = [paperDataPath 'figSvsKdVaryNu_data.mat'];
+  plotSvsKd( currId, data2load, 'nu', saveFlag, saveTag, saveID, paperSavePath )
 end
 % figure 10: selectivity vs kd, vary lplc
 currId = 10;
 if any( plotId == 10 )
-  data2load1 = [paperDataPath 'figSvsKdVaryLplc_data.mat'];
-  if exist( data2load1, 'file'  )
-    load( data2load1 )
-    makefigSvsKd( fluxSummary, 'lplc' );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  data2load = [paperDataPath 'figSvsKdVaryLplc_data.mat'];
+  plotSvsKd( currId, data2load, 'lplc', saveFlag, saveTag, saveID, paperSavePath )
 end
 % figure 11: nu vs kd, vary lplc
 currId = 11;
@@ -210,20 +164,13 @@ if any( plotId == currId )
     saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 end
-% figure 12: S vs Kd (linear, numeric) for supplements
+% figure 12: S vs Kd vary lplc (linear, numeric) for supplements
 currId = 12;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryLplcLinearNumeric_data.mat'];
-  if exist( data2load, 'file' )
-    load( data2load )
-    makefigSvsKdLinear( linSummary );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  dbtype = 'lplc';
+  plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, ...
+    saveID, paperSavePath )
 end
 % figure 13: density profile
 currId = 13;
@@ -244,16 +191,7 @@ end
 currId = 14;
 if any( plotId == currId )
   data2load = [paperDataPath 'figJvsTnu1_data.mat'];
-  if exist( data2load, 'file'  )
-    load( data2load )
-    makefigJvsT(fluxSummary );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
+  plotJvsT( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath) 
 end
 % figure 15: nu vs Kd, S vs Kd (kHop) 100
 currId = 15;
@@ -269,7 +207,6 @@ if any( plotId == currId )
   plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
     saveTag, saveID )
 end
-
 % figure 17: nu vs Kd, S vs Kd (kHop) 500
 currId = 17;
 if any( plotId == currId )
@@ -277,21 +214,78 @@ if any( plotId == currId )
   plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
     saveTag, saveID )
 end
-
 % figure 18: S vs nu, vary kD
 currId = 18;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsNu_data.mat'];
-  plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
+  plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID,...
+    paperSavePath )
 end
-% figure 19: S vs nu, vary kD
+% figure 19: S vs nu, vary kD linear
 currId = 19;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsNuLinearNumeric_data.mat'];
-  plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
+  plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID,...
+    paperSavePath )
+end
+% figure 20: S vs Kd vary nu numeric
+currId = 20;
+if any( plotId == currId )
+  data2load = [paperDataPath 'figSvsKdVaryNu_data.mat'];
+  dbtype = 'nu';
+  yLimOverride = 50;
+  plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, ...
+    paperSavePath, yLimOverride )
+end
+% figure 21: S vs Kd vary nu linear, numeric
+currId = 21;
+if any( plotId == currId )
+  data2load = [paperDataPath 'figSvsKdVaryNuLinearNumeric_data.mat'];
+  dbtype = 'nu';
+  plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID,...
+    paperSavePath )
 end
 
+
 %%%%%%%%% Plot functions %%%%%%%%%%%%%%
+function plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath, yLim )
+  if nargin < 8
+    yLim = 40;
+  end
+  if exist( data2load, 'file'  )
+    load( data2load )
+    makefigSvsKd( fluxSummary, dbtype, yLim );
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
+  end
+
+function plotJvsT( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath)
+  if exist( data2load, 'file'  )
+    load( data2load )
+    makefigJvsT(fluxSummary );
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
+  end
+function plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath )
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigSvsKdLinear( linSummary, dbtype );
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
+  end
+
 function plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
   if exist( data2load, 'file'  )
     load( data2load )
@@ -320,6 +314,19 @@ end
 if saveFlag
   saveAndMove( currId, saveTag, saveID, paperSavePath )
 end
+
+function plotSHeatMapKdNu( currId, data2load, dbtype, ...
+  saveFlag, paperSavePath, saveTag, saveID )
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigSheatmap( fluxSummary, dbtype );
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
+  end
 
 function saveAndMove( currId, saveTag, saveID, paperSavePath )
   saveName = ['paperfig' num2str(currId ) '_' saveTag];

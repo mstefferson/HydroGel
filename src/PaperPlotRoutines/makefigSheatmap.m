@@ -15,10 +15,12 @@ else
   error('Wrong nu str')
 end
 fontSize = 20;
+% get data
+[kdVec, nuVec, jNorm ] = getDataFluxSummary( ...
+  fluxSummary, kdScale, lScale );
 % set-up ticks
 xTick = kdScale * [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3];
 if strcmp( diffType, 'lplc' )
-  ax.YScale = 'log';
   logMax = log10( nuVec(end) );
   logMin = log10( nuVec(1) );
   logNum = logMax - logMin + 1;
@@ -26,9 +28,6 @@ if strcmp( diffType, 'lplc' )
 else
   yTick = 0:0.2:1;
 end
-% get data
-[kdVec, nuVec, jNorm ] = getDataFluxSummary( ...
-  fluxSummary, kdScale, lScale );
 %% heat map
 % set-up figure
 fidId = randi( 10000 );
@@ -56,7 +55,7 @@ ax.FontSize = fontSize;
 % make heat map
 surf( kdVec, nuVec, jNorm )
 shading interp
-fixAxis( ax, xLabel, yLabel, xTick, yTick, diffType, maxVal )
+fixAxis( ax, xLabel, yLabel, xTick, yTick,diffType, maxVal )
 %% waterfall
 % set-up figure
 fidId = randi( 10000 );
@@ -72,7 +71,7 @@ waterfall( kdVec, nuVec, jNorm )
 shading interp
 fixAxis( ax, xLabel, yLabel, xTick, yTick, diffType, maxVal )
 
-function fixAxis( ax, xLabel, yLabel, xTick, yTick,  diffType, maxVal )
+function fixAxis( ax, xLabel, yLabel, xTick, yTick,diffType, maxVal )
 xlabel(xLabel); 
 ylabel(yLabel);
 axis('square')

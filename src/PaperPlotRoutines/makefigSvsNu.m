@@ -27,6 +27,8 @@ jSelect = zeros( numNu, numKa );
 % legend set-up
 legcell = cell( length(kDvec) , 1 );
 legTitle = '$$ K_D \, ( \mathrm{ \mu M } )$$';
+% set-up colors
+wantedColors = getPlotLineColors( kDvec, 'log' );
 % build data matrix
 for ii = 1:numKa
   legcell{ii} = num2str( kDvec(ii), '%g' ) ;
@@ -36,7 +38,8 @@ for ii = 1:numKa
 end
 % plot it
 for ii = 1:numKa
-  plot( nuVec, jSelect(:,ii) )
+  p = plot( nuVec, jSelect(:,ii) );
+  p.Color = wantedColors(ii,:);
 end
 ax = gca;
 ax.XLim = [ min(nuVec) max(nuVec) ];

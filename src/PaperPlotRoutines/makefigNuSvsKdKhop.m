@@ -1,4 +1,10 @@
 function makefigNuSvsKdKhop( hoppingData )
+% turne on error bars or not based on data
+if isfield( hoppingData, 'nuErrLower' )
+  errorbarFlag = 1;
+else
+  errorbarFlag = 0;
+end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel1 = 'Bound Diffusion $$ D_B / D_F $$';
@@ -14,10 +20,10 @@ fig.WindowStyle = 'normal';
 fig.Position = [250 244 834 353];
 % make plot
 makePlotsKHop( hoppingData,...
-  fontSize, maxVal, xLabel, yLabel1, yLabel2 );
+  fontSize, maxVal, xLabel, yLabel1, yLabel2, errorbarFlag );
 
 function makePlotsKHop( hoppingData, ...
-  fontSize, maxVal, xLabel, yLabel1, yLabel2 )
+  fontSize, maxVal, xLabel, yLabel1, yLabel2, errorbarFlag )
 % set-up ticks
 kdStart = log10( min( hoppingData.kdVecScaled ) );
 kdEnd = log10( max( hoppingData.kdVecScaled ) );
@@ -27,8 +33,6 @@ xTick = round( ...
 colorVec = 1:length(hoppingData.kHopVec);
 scaleType = 'linear';
 wantedColors = getPlotLineColors( colorVec, scaleType );
-%scaleType = 'log';
-%wantedColors = getPlotLineColors( hoppingData.kHopVec, scaleType );
 % set up nu plot
 ax1 = subplot(1,2,1);
 ax1.Position = [0.0787 0.2 0.3347 0.7335];
@@ -42,9 +46,14 @@ ax1.YLim = [0 1];
 xlabel( ax1, xLabel )
 ylabel( ax1, yLabel1 )
 hold all
-plotDataVsKd( ax1, hoppingData.nuData, hoppingData.nuErrLower, ...
-  hoppingData.nuErrUpper, hoppingData.nuTether, hoppingData.kdVecScaled, ...
-  hoppingData.kHopVec, wantedColors)
+if errorbarFlag
+  plotDataVsKdErrorBar( ax1, hoppingData.nuData, hoppingData.nuErrLower, ...
+    hoppingData.nuErrUpper, hoppingData.nuTether, hoppingData.kdVecScaled, ...
+    hoppingData.kHopVec, wantedColors)
+else
+  plotDataVsKd( ax1, hoppingData.nuData, hoppingData.nuTether, ...
+    hoppingData.kdVecScaled, hoppingData.kHopVec, wantedColors)
+end
 % set up selectivity plot
 ax2 = subplot(1,2,2);
 ax2.Position = [0.4912 0.2 0.3347 0.7335];
@@ -68,9 +77,14 @@ hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
 
 % plot all the nu
-plotDataVsKd( ax2, hoppingData.selData, hoppingData.selErrLower, ...
-  hoppingData.selErrUpper, hoppingData.selTether, hoppingData.kdVecScaled, ...
-  hoppingData.kHopVec, wantedColors)
+if errorbarFlag
+  plotDataVsKdErrorBar( ax2, hoppingData.selData, hoppingData.selErrLower, ...
+    hoppingData.selErrUpper, hoppingData.selTether, hoppingData.kdVecScaled, ...
+    hoppingData.kHopVec, wantedColors)
+else
+  plotDataVsKd( ax2, hoppingData.selData, hoppingData.selTether, ...
+  hoppingData.kdVecScaled, hoppingData.kHopVec, wantedColors)
+end
 % get rid of extra data
 hl.String = legcell;
 hl.Position = [0.8195 0.2733 0.1751 0.5740];
@@ -92,8 +106,8 @@ for ii = 1:numkHop
   l.LineWidth = lineWidth;
 end
 
-function plotDataVsKd( ax, dataKhop, dataKhopErrLower, dataKhopErrUpper, ...
-  dataTether, kdVec, kHopVec, wantedColors)
+function plotDataVsKdErrorBar( ax, dataKhop, dataKhopErrLower, ...
+  dataKhopErrUpper, dataTether, kdVec, kHopVec, wantedColors)
 % plot it
 numkHop = length( kHopVec );
 lineWidth = 2;
@@ -112,6 +126,24 @@ for ii = 1:numkHop
   % update shaded value. make transparent with alpha
   p.FaceColor = wantedColors(ii,:);
   alpha( p, transparentFac)
+end
+
+function plotDataVsKd( ax, dataKhop, ...
+  dataTether, kdVec, kHopVec, wantedColors)
+% plot it
+numkHop = length( kHopVec );
+lineWidth = 2;
+lineWidthDash = 3;
+transparentFac = 0.1;
+% plot tether first
+p = plot( ax, kdVec, dataTether );
+p.Color = wantedColors(1,:);
+p.LineStyle = ':';
+p.LineWidth = lineWidthDash;
+for ii = 1:numkHop
+  [p] = plot(ax, kdVec, dataKhop(:,ii) );
+  p.Color = wantedColors(ii,:);
+  p.LineWidth = lineWidth;
 end
 
 function [ legcell, legTitle ] = buildkHopLegend( kHop )
