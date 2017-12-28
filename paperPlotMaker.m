@@ -14,8 +14,8 @@
 % 12: S vs nu vary kd linear numeric fig S1
 % 13: density profile fig S ?
 %
-% Current results for paper: [1:14]
-%
+% Current results for paper: [1:13]
+
 function paperPlotMaker( plotId, saveFlag, saveTag )
 if nargin == 1
   saveFlag = 0;

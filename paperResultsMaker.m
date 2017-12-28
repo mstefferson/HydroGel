@@ -1,6 +1,5 @@
 % Id Key
 %
-% Current results for paper: [1 2 3 10 11 12 13 14 15 17 18 19]
 % 1: j vs t nu = 0 fig2.1
 % 2: j vs t nu = 1 fig2.2
 % 3: S vs kd vary nu fig2.3 (also possible fig S ?)
