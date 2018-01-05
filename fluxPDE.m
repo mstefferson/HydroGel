@@ -171,10 +171,13 @@ AconcStdy = cell( numRuns, 1 );
 CconcStdy = cell( numRuns, 1 );
 % Run Diff first
 pVec =[0 0 0 1];
-% always set dt scale to one to prevent unnecessarily long runs
+% always set dt scale to one for diffusion to prevent unnecessarily long runs
+tfac        = 1;
 dtfac       = 1;
-dt          = dtfac *(paramObj.Lbox/(paramObj.Nx))^2; % time step
-[timeObjDiff] = TimeObjMakerRD(dt,timeObj.t_tot,timeObj.t_rec,...
+dt = dtfac * ( (paramMaster.Lbox/paramMaster.Nx)^2 / paramMaster.Da );
+t_tot   = tfac * paramMaster.Lbox^2 /  paramMaster.Da;
+t_rec = t_tot / 100;
+[timeObjDiff] = TimeObjMakerRD(dt,t_tot,t_rec,...
   timeObj.ss_epsilon);
 [recObj] = ChemDiffMain('', paramObj, timeObjDiff, flagsObj, ...
   analysisFlags, pVec);
