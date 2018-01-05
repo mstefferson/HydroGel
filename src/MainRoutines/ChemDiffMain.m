@@ -124,7 +124,7 @@ C_rec(:,1)   = v(Nx+1:2*Nx);
 j_record = 2;
 % Store the "accumulation" from the flux
 if TrackFlux
-  Flux2Res   = (v(Nx-1) - v(Nx) ) / dx;
+  Flux2Res   = paramObj.Da * (v(Nx-1) - v(Nx) ) / dx;
   FluxAccum   = 0;
   Flux2Res_rec(1) = Flux2Res;
   FluxAccum_rec(1) =  FluxAccum;

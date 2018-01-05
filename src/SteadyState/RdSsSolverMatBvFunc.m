@@ -1,8 +1,8 @@
 % homodiffsolver. Rescaled by diffusive time
 function [Ass,Css,x] = RdSsSolverMatBvFunc(...
-  konVal, koffCell, nuCell, ALval,ARval,Btval,Lboxval,BCstrVal,Nx, ...
-  nlEqn)
-global AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac nuStr nuPval
+  DaVal, konVal, koffCell, nuCell, ALval, ARval, Btval, Lboxval, BCstrVal, ...
+  Nx, nlEqn )
+global AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac nuStr nuPval Da
 
 % set BC
 BCstr = BCstrVal; % 'Dir','Vn','DirVn'
@@ -17,6 +17,7 @@ AL  = ALval;
 AR  = ARval ;
 Bt  = Btval;
 Ka  = Kon ./ Koff;
+Da = DaVal;
 
 %Spatial endpoints and grid
 xa = 0;
@@ -58,9 +59,9 @@ else %solve the coupled ODE
   % Solve it
   options = [];
   if strcmp( koffCell{1}, 'const' )
-    sol = bvp4c(@odeCoupledDiffChem,@resbcfunc,solinit,options);
+    sol = bvp5c(@odeCoupledDiffChem,@resbcfunc,solinit,options);
   elseif strcmp( koffCell{1}, 'outletboundary' )
-    sol = bvp4c(@odeCoupledDiffChemOutletBoundary,@resbcfunc,solinit,options,...
+    sol = bvp5c(@odeCoupledDiffChemOutletBoundary,@resbcfunc,solinit,options,...
       koffCell{3} );
   end
   
@@ -108,21 +109,22 @@ end
 
 % ODE subroutine
 function dydx = odeCoupledDiffChem(~, y)
-global Kon Koff Bt nuStr nuPval nlfac
+global Kon Koff Bt nuStr nuPval nlfac Da
 % get diffusion coeff
 if strcmp( nuStr, 'lplc' )
-  Dc =  boundTetherDiffCalc( nuPval, Koff, 1);
-  nu = Dc;
+  Dc =  boundTetherDiffCalc( nuPval, Koff, Da);
+  %nu = Dc;
 elseif strcmp( nuStr, 'nu' )
-  nu = nuPval;
+  %nu = nuPval;
+  Dc = nuPval * Da;
 end
 % y = [A C dA/dx dC/dx]
 %form y' = f(x,y)
 % solve for derivative
 dydx = ...
   [ y(3) ; y(4) ;
-  Kon .* ( Bt  - nlfac .* y(2) ) .* y(1) - Koff .* y(2);...
-  -1./nu .* ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
+  1 / Da * ( Kon .* ( Bt  - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ;...
+  -1 / Dc * ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
 
 function dydx = odeCoupledDiffChemOutletBoundary(x, y, koffMult)
 global Kon Koff Bt nuStr nuPval nlfac xb
