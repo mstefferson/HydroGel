@@ -23,8 +23,7 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox  = 1; % Gel length
-Nx    = 128;  % Internal gridpoints
-paramMaster.Nx    = floor(Nx*paramMaster.Lbox); % Scale by box. Careful!!!
+paramMaster.Nx    = 128; % number of grid points
 paramMaster.Lr = 10; % Reservoir length if there is one
 % diffusion coefficient
 paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
