@@ -113,9 +113,7 @@ global Kon Koff Bt nuStr nuPval nlfac Da
 % get diffusion coeff
 if strcmp( nuStr, 'lplc' )
   Dc =  boundTetherDiffCalc( nuPval, Koff, Da);
-  %nu = Dc;
 elseif strcmp( nuStr, 'nu' )
-  %nu = nuPval;
   Dc = nuPval * Da;
 end
 % y = [A C dA/dx dC/dx]
@@ -123,7 +121,7 @@ end
 % solve for derivative
 dydx = ...
   [ y(3) ; y(4) ;
-  1 / Da * ( Kon .* ( Bt  - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ;...
+  1 / Da * ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ;...
   -1 / Dc * ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
 
 function dydx = odeCoupledDiffChemOutletBoundary(x, y, koffMult)
@@ -138,13 +136,12 @@ else
 end
 % get diffusion coeff
 if strcmp( nuStr, 'lplc' )
-  Dc =  boundTetherDiffCalc( nuPval, koffTemp, 1);
-  nu = Dc;
+  Dc =  boundTetherDiffCalc( nuPval, koffTemp, Da);
 elseif strcmp( nuStr, 'nu' )
-  nu = nuPval;
+  Dc = nuPval * Da;
 end
 % solve for derivative
 dydx = ...
   [ y(3) ; y(4) ;
-  Kon * ( Bt  - nlfac .* y(2) ) * y(1) - koffTemp * y(2);...
-  -1./nu * ( Kon * ( Bt - nlfac .* y(2) ) * y(1) - koffTemp * y(2) ) ];
+  1 / Da * ( Kon * ( Bt - nlfac .* y(2) ) * y(1) - koffTemp * y(2) );...
+  -1 / Dc * ( Kon * ( Bt - nlfac .* y(2) ) * y(1) - koffTemp * y(2) ) ];
