@@ -11,11 +11,10 @@
 % 9: S vs kd vary nu linear numeric fig S1.2
 % 10: S vs nu vary kd fig S ?
 % 11: S vs nu vary kd linear numeric fig S1.4
-% 12: density profile fig S ?
-% 13: initParamsSFromInput gorlich (numeric)
-% 14: initParamsSFromInput gorlich2 (numeric)
+% 12: initParamsSFromInput gorlich (numeric)
+% 13: initParamsSFromInput gorlich2 (numeric)
 %
-% Current results for paper: [1:14]
+% Current results for paper: [1:13]
 
 function paperResultsMaker( resultsId )
 % set things up
@@ -98,39 +97,37 @@ if any( resultsId == currId )
   lcStr = num2str( lc, '%d' );
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
-% figure 10: selectivity vs nu, vary kd linear numeric
+% figure 9: selectivity vs kd, vary nu linear numeric
+currId = 9;
+if any( resultsId == currId )
+ paramFile = 'initParamsSvsKd_nu_linear';
+ saveName = 'figSvsKdVaryNuLinearNumeric_data';
+ resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
+end
+% figure 10: selectivity vs nu, vary kd
 currId = 10;
+if any( resultsId == currId )
+  paramFile = 'initParamsSvsNu';
+  saveName = 'figSvsNuLinearNumeric_data';
+  resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath)
+end
+% figure 11: selectivity vs nu, vary kd linear numeric
+currId = 11;
 if any( resultsId == currId )
   paramFile = 'initParamsSvsNu_linear';
   saveName = 'figSvsNuLinearNumeric_data';
   resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
-% figure 11: selectivity vs kd, vary nu linear numeric
-currId = 11;
-if any( resultsId == currId )
- paramFile = 'initParamsSvsKd_nu_linear';
- saveName = 'figSvsKdVaryNuLinearNumeric_data';
- resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
-end
-% figure 12: density profiles
+% 12: parameter input, gorlichData
 currId = 12;
-if any( resultsId == currId )
-  storeFlagTemp = storeFlag;
-  storeFlagTemp.storeStdy = 1;
-  paramFile = 'initParamsDenProfile';
-  saveName = 'figDenProfile_data';
-  resultsRunODE(currId, paramFile, plotFlag, storeFlagTemp,...
-    saveName, saveExt, dataPath)
-end
-% 13: parameter input, gorlichData
-currId = 13;
 if any( resultsId == currId )
   loadId = 'gorlichData';
   resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
 end
-% 14: parameter input, gorlichData2
-currId = 14;
+% 13: parameter input, gorlichData2
+currId = 13;
 if any( resultsId == currId )
   loadId = 'gorlichData2';
   resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
