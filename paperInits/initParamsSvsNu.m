@@ -30,7 +30,7 @@ paramMaster.Da = 1; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
 numNu = 80;
-paramMaster.DbParam     = {'nu', linspace(0,1,numNu)}; 
+paramMaster.DbParam     = {'nu', linspace(0,1,numNu)};
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet

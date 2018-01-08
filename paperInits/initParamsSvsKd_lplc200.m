@@ -39,7 +39,7 @@ temp = load( filename  );
 dataName = fields(temp);
 data = temp.( dataName{1} );
 kdVec = unique( data(:, 3) )';
-paramMaster.DbParam     = {'lplc', 1e-4 * [ lc ]}; 
+paramMaster.DbParam     = {'lplc', 1e-4 * [ lc ]};
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet

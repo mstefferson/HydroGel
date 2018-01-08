@@ -29,7 +29,7 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 paramMaster.Da = 1; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
-paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]}; 
+paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]};
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
