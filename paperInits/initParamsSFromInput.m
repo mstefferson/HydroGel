@@ -36,7 +36,7 @@ paramMaster.AR = 0; % concentration of outlet
 paramMaster.Bt = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 % Varying two kinetic parameters. First cell, name (str). Second, vector of values
 % options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
-kon = [1e9]; % if you want to change just kon, and not konBt, do it here
+kon = [1e7]; % if you want to change just kon, and not konBt, do it here
 konBt = buildKonBt( paramMaster.Bt, kon );
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.kinParam1 = {'konBt', [konBt]};  % vec konBt (time scale)
