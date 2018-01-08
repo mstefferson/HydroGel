@@ -155,7 +155,8 @@ for ii=1:numRuns
   koffCellTemp = koffCell{ ii };
   Kon = KonBt ./ BtFixed;
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-    Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, nlEqn );
+    Da, Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, ...
+    nlEqn );
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
   % record
