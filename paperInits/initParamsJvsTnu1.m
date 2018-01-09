@@ -39,7 +39,7 @@ paramMaster.Bt = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
 kon = 1e9; % if you want to change just kon, and not konBt, do it here
 konBt = buildKonBt( paramMaster.Bt, kon );
 paramMaster.kinParam1 = {'konBt', [konBt]};  % vec konBt (time scale)
-paramMaster.kinParam2 = {'kD', 1e-6 * [10 30 100 300 1000]};  % vec konBt (time scale)
+paramMaster.kinParam2 = {'kD', 1e-6 * [1 3 10 30 100 300 1000]};  % vec konBt (time scale)
 paramMaster.Dnl = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 
 % time

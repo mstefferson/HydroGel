@@ -20,7 +20,7 @@
 function [t_tot,Nt,t_rec,N_rec,N_count] = TimeStepRecMaker(dt,t_tot,t_rec)
 
 % Fix the recording time to be divisible by the time step
-  t_rec = floor(t_rec/dt)*dt;
+  t_rec = round(t_rec/dt)*dt;
   
   if t_rec < dt
       t_rec = dt;
@@ -28,7 +28,7 @@ function [t_tot,Nt,t_rec,N_rec,N_count] = TimeStepRecMaker(dt,t_tot,t_rec)
 
 
 % Fix the total run time to be divisible by time step 
-  t_tot = floor(t_tot/t_rec)*t_rec;
+  t_tot = round(t_tot/t_rec)*t_rec;
 
   if t_tot < t_rec
       t_tot = t_rec;
