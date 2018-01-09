@@ -1,4 +1,4 @@
-% Id Key
+
 %
 % 1: j vs t nu = 0 fig2.1
 % 2: j vs t nu = 1 fig2.2
@@ -66,7 +66,7 @@ end
 currId = 4;
 if any( resultsId == currId )
   saveName = 'figNuVsKd_data';
-  resultsSvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)  
+  resultsNuvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)  
 end
 % figure 5: selectivity vs kd, vary lplc
 currId = 5;
@@ -102,7 +102,8 @@ currId = 9;
 if any( resultsId == currId )
  paramFile = 'initParamsSvsKd_nu_linear';
  saveName = 'figSvsKdVaryNuLinearNumeric_data';
- resultsSvsKdLinNumeric(currId, paramFile, saveName, plotFlag, storeFlag )
+ resultsSvsKdLinNumeric(currId, paramFile, plotFlag, storeFlag,...
+    saveName, saveExt, dataPath )
 end
 % figure 10: selectivity vs nu, vary kd
 currId = 10;
@@ -134,14 +135,13 @@ if any( resultsId == currId )
 end
 
 %%%% functions %%%
-function resultsSvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)
+function resultsNuvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)
   tic
   fprintf('Starting results %d \n', currId );
   lc = [10, 30, 100, 300, 1000, 1e4]; % in nm
   tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
   [tetherCalc.nu, ~,tetherCalc.lplc] = makeTetherDBs(lc, tetherCalc.kd);
   tetherCalc.nu = tetherCalc.nu.';
-  saveName = 'figNuVsKd_data';
   savepath = [ dataPath '/' saveName saveExt];
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
@@ -211,11 +211,11 @@ function resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
   tOut = toc;
   fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
-function resultsSvdKdLinNumeric(currId, paramFile, saveName, dataPath,...
-    plotFlag, storeFlag )
+function resultsSvsKdLinNumeric(currId, paramFile, ...
+    plotFlag, storeFlag, saveName, saveExt, dataPath )
   tic
   fprintf('Starting results %d \n', currId );
-  fluxSummary  = fluxODE( plotFlag, storeFlag, 0, dirname, paramFile );
+  fluxSummary  = fluxODE( plotFlag, storeFlag, 0, [], paramFile );
   % put linear data into format taken by linear plotting routine
   kdScale = 1e6;
   lScaleActual = 1e-7;
@@ -223,7 +223,7 @@ function resultsSvdKdLinNumeric(currId, paramFile, saveName, dataPath,...
   lScale = (lScaleActual / lScaleWant)^2;
   [linSummary.kdVec, linSummary.nulc, linSummary.jNorm ] = ...
     getDataFluxSummary( fluxSummary, kdScale, lScale );  % store linear data
-  savepath = [ dataPath '/' saveName saveExt];  savepath = [ dataPath '/' saveName saveExt];
+  savepath = [ dataPath '/' saveName saveExt];  
   if exist( savepath, 'file' )
     fprintf('file exists. renaming file\n');
     saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
