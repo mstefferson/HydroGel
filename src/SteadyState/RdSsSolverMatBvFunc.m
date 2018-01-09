@@ -2,7 +2,8 @@
 function [Ass,Css,x] = RdSsSolverMatBvFunc(...
   DaVal, konVal, koffCell, nuCell, ALval, ARval, Btval, Lboxval, BCstrVal, ...
   Nx, nlEqn )
-global AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac nuStr nuPval Da
+global AL AR CL CR Bt Kon Koff Ka xa xb BCstr nlfac ...
+  nuStr nuPval Da koffMult
 
 % set BC
 BCstr = BCstrVal; % 'Dir','Vn','DirVn'
@@ -18,6 +19,7 @@ AR  = ARval ;
 Bt  = Btval;
 Ka  = Kon ./ Koff;
 Da = DaVal;
+koffMult = 0;
 
 %Spatial endpoints and grid
 xa = 0;
@@ -61,8 +63,8 @@ else %solve the coupled ODE
   if strcmp( koffCell{1}, 'const' )
     sol = bvp5c(@odeCoupledDiffChem,@resbcfunc,solinit,options);
   elseif strcmp( koffCell{1}, 'outletboundary' )
-    sol = bvp5c(@odeCoupledDiffChemOutletBoundary,@resbcfunc,solinit,options,...
-      koffCell{3} );
+    koffMult = koffCell{3};
+    sol = bvp5c(@odeCoupledDiffChemOutletBoundary,@resbcfunc,solinit,options);
   end
   
   % Now  get numerical value
@@ -124,12 +126,12 @@ dydx = ...
   1 / Da * ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ;...
   -1 / Dc * ( Kon .* ( Bt - nlfac .* y(2) ) .* y(1) - Koff .* y(2) ) ];
 
-function dydx = odeCoupledDiffChemOutletBoundary(x, y, koffMult)
-global Kon Koff Bt nuStr nuPval nlfac xb
+function dydx = odeCoupledDiffChemOutletBoundary(x, y)
+global Kon Koff Bt nuStr nuPval nlfac xb Da koffMult 
 % y = [A C dA/dx dC/dx]
 %form y' = f(x,y)
 % get koff value. factor of two since h(0) = 1/2
-koffTemp = Koff .* ( 1 + 2  * koffMult * heaviside( x - xb) );
+koffTemp = Koff .* ( 1 + 2  * (koffMult - 1) * heaviside( x - xb) );
 % get diffusion coeff
 if strcmp( nuStr, 'lplc' )
   Dc =  boundTetherDiffCalc( nuPval, koffTemp, Da);
