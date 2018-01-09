@@ -109,7 +109,7 @@ end
 currId = 10;
 if any( resultsId == currId )
   paramFile = 'initParamsSvsNu';
-  saveName = 'figSvsNuLinearNumeric_data';
+  saveName = 'figSvsNu_data';
   resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
