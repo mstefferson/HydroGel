@@ -9,7 +9,7 @@ yLabel = 'Selectivity $$ S $$';
 kdScale = 1e6;
 kdMin = 1e-5;
 if strcmp( diffType, 'lplc' )
-  lScaleActual = 1e-7;
+  lScaleActual = 1e-6;
   lScaleWant = 1e-9;
   lScale = (lScaleActual / lScaleWant)^2;
 elseif strcmp( diffType, 'nu' )
