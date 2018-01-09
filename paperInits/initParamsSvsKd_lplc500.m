@@ -30,7 +30,12 @@ paramMaster.Da = 1; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
 % set lc
-lc = 500;
+lc = 500; % in nm
+lp_nm = 1;
+lc_nm = lc;
+lplc_nm = lp_nm * lc_nm;
+lplc_mum = lplc_nm * (1e-3) ^ 2;
+paramMaster.DbParam     = {'lplc', lplc_mum };
 % get kdVec from hopData
 loadId = [ 'hopData' num2str( lc, '%d' ) ];
 pathId = './paperParamInput/';
@@ -39,7 +44,6 @@ temp = load( filename  );
 dataName = fields(temp);
 data = temp.( dataName{1} );
 kdVec = unique( data(:, 3) )';
-paramMaster.DbParam     = {'lplc', 1e-4 * [ lc ]};
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet

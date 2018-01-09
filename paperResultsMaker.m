@@ -66,7 +66,7 @@ end
 currId = 4;
 if any( resultsId == currId )
   saveName = 'figNuVsKd_data';
-  resultsNuvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)  
+  resultsNuvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)
 end
 % figure 5: selectivity vs kd, vary lplc
 currId = 5;
@@ -100,9 +100,9 @@ end
 % figure 9: selectivity vs kd, vary nu linear numeric
 currId = 9;
 if any( resultsId == currId )
- paramFile = 'initParamsSvsKd_nu_linear';
- saveName = 'figSvsKdVaryNuLinearNumeric_data';
- resultsSvsKdLinNumeric(currId, paramFile, plotFlag, storeFlag,...
+  paramFile = 'initParamsSvsKd_nu_linear';
+  saveName = 'figSvsKdVaryNuLinearNumeric_data';
+  resultsSvsKdLinNumeric(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath )
 end
 % figure 10: selectivity vs nu, vary kd
@@ -136,103 +136,103 @@ end
 
 %%%% functions %%%
 function resultsNuvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)
-  tic
-  fprintf('Starting results %d \n', currId );
-  lc = [10, 30, 100, 300, 1000, 1e4]; % in nm
-  tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
-  [tetherCalc.nu, ~,tetherCalc.lplc] = makeTetherDBs(lc, tetherCalc.kd);
-  tetherCalc.nu = tetherCalc.nu.';
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'tetherCalc' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+tic
+fprintf('Starting results %d \n', currId );
+lc = [10, 30, 100, 300, 1000, 1e4]; % in nm
+tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
+[tetherCalc.nu, ~,tetherCalc.lplc] = makeTetherDBs(lc, tetherCalc.kd);
+tetherCalc.nu = tetherCalc.nu.';
+savepath = [ dataPath '/' saveName saveExt];
+if exist( savepath, 'file' )
+  fprintf('file exists. renaming file\n');
+  saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+end
+fullName = [saveName saveExt];
+save( fullName, 'tetherCalc' )
+movefile( fullName, dataPath );
+tOut = toc;
+fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
 function resultsSelFromExperiment(currId, loadId, storeFlag,...
   saveExt, dataPath)
-  tic
-  fprintf('Starting results %d \n', currId );
-  fileId = 'initParamsSFromInput';
-  pathId = './paperParamInput/';
-  filename = [ pathId loadId ];
-  paramFromLoad = poreExperimentParamsToInputs( filename );
-  fluxSummary = fluxODEParamIn( storeFlag, 0, [],...
-    paramFromLoad.input, fileId );
-  selectivity.val = fluxSummary.jNorm';
-  selectivity.paramLoad = loadId;
-  selectivity.paramInput = paramFromLoad.input;
-  selectivity.paramLoad = paramFromLoad.data;
-  saveName = [ 'selectivityFromInput_' loadId '_data'];
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary','selectivity' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+tic
+fprintf('Starting results %d \n', currId );
+fileId = 'initParamsSFromInput';
+pathId = './paperParamInput/';
+filename = [ pathId loadId ];
+paramFromLoad = poreExperimentParamsToInputs( filename );
+fluxSummary = fluxODEParamIn( storeFlag, 0, [],...
+  paramFromLoad.input, fileId );
+selectivity.val = fluxSummary.jNorm';
+selectivity.paramLoad = loadId;
+selectivity.paramInput = paramFromLoad.input;
+selectivity.paramLoad = paramFromLoad.data;
+saveName = [ 'selectivityFromInput_' loadId '_data'];
+savepath = [ dataPath '/' saveName saveExt];
+if exist( savepath, 'file' )
+  fprintf('file exists. renaming file\n');
+  saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+end
+fullName = [saveName saveExt];
+save( fullName, 'fluxSummary','selectivity' )
+movefile( fullName, dataPath );
+tOut = toc;
+fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
 function resultsRunPDE(currId, paramFile, plotFlag, storeFlag,...
   saveName, saveExt, dataPath)
-  tic
-  fprintf('Starting results %d \n', currId );
-  fluxSummary  = fluxPDE( plotFlag, storeFlag, 0, [], paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+tic
+fprintf('Starting results %d \n', currId );
+fluxSummary  = fluxPDE( plotFlag, storeFlag, 0, [], paramFile );
+savepath = [ dataPath '/' saveName saveExt];
+if exist( savepath, 'file' )
+  fprintf('file exists. renaming file\n');
+  saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+end
+fullName = [saveName saveExt];
+save( fullName, 'fluxSummary' )
+movefile( fullName, dataPath );
+tOut = toc;
+fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
 function resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
   saveName, saveExt, dataPath)
-  tic
-  fprintf('Starting results %d \n', currId );
-  fluxSummary  = fluxODE( plotFlag, storeFlag, 0, [], paramFile );
-  savepath = [ dataPath '/' saveName saveExt];
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+tic
+fprintf('Starting results %d \n', currId );
+fluxSummary  = fluxODE( plotFlag, storeFlag, 0, [], paramFile );
+savepath = [ dataPath '/' saveName saveExt];
+if exist( savepath, 'file' )
+  fprintf('file exists. renaming file\n');
+  saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+end
+fullName = [saveName saveExt];
+save( fullName, 'fluxSummary' )
+movefile( fullName, dataPath );
+tOut = toc;
+fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
 function resultsSvsKdLinNumeric(currId, paramFile, ...
-    plotFlag, storeFlag, saveName, saveExt, dataPath )
-  tic
-  fprintf('Starting results %d \n', currId );
-  fluxSummary  = fluxODE( plotFlag, storeFlag, 0, [], paramFile );
-  % put linear data into format taken by linear plotting routine
-  kdScale = 1e6;
-  lScaleActual = 1e-7;
-  lScaleWant = 1e-9;
-  lScale = (lScaleActual / lScaleWant)^2;
-  [linSummary.kdVec, linSummary.nulc, linSummary.jNorm ] = ...
-    getDataFluxSummary( fluxSummary, kdScale, lScale );  % store linear data
-  savepath = [ dataPath '/' saveName saveExt];  
-  if exist( savepath, 'file' )
-    fprintf('file exists. renaming file\n');
-    saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
-  end
-  fullName = [saveName saveExt];
-  save( fullName, 'fluxSummary', 'linSummary' )
-  movefile( fullName, dataPath );
-  tOut = toc;
-  fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
+  plotFlag, storeFlag, saveName, saveExt, dataPath )
+tic
+fprintf('Starting results %d \n', currId );
+fluxSummary  = fluxODE( plotFlag, storeFlag, 0, [], paramFile );
+% put linear data into format taken by linear plotting routine
+kdScale = 1e6;
+lScaleActual = 1e-7;
+lScaleWant = 1e-9;
+lScale = (lScaleActual / lScaleWant)^2;
+[linSummary.kdVec, linSummary.nulc, linSummary.jNorm ] = ...
+  getDataFluxSummary( fluxSummary, kdScale, lScale );  % store linear data
+savepath = [ dataPath '/' saveName saveExt];
+if exist( savepath, 'file' )
+  fprintf('file exists. renaming file\n');
+  saveName = [ saveName datestr(now,'yyyymmdd_HH.MM') ];
+end
+fullName = [saveName saveExt];
+save( fullName, 'fluxSummary', 'linSummary' )
+movefile( fullName, dataPath );
+tOut = toc;
+fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
 function resultsHopData( ...
   currId, plotFlag, storeFlag, dataPath, lcVal, lcStr )
@@ -294,5 +294,5 @@ save( fullName, 'fluxSummaryInput', 'fluxSummaryRun',...
   'selectivity', 'hoppingData' )
 movefile( fullName, dataPath );
 tOut = toc;
-fprintf('Finished results %d, %f sec \n', currId, tOut);
+fprintf('Finished results %d, %f min \n', currId, tOut / 60 );
 
