@@ -23,19 +23,27 @@ analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
 paramMaster.Lbox = 0.1; % Gel length
-paramMaster.Nx = 12800; % number of grid points
+paramMaster.Nx = 2^(17); % number of grid points
 paramMaster.Lr = 10; % Reservoir length if there is one
 % diffusion coefficient
-paramMaster.Da = 1; % Diffusion of species A (unbound). Sets time scale
+paramMaster.Da = 0.12; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
-lplc_nm = [ 1e1 3e1 1e2 3e2 5e2 1e3 1e4 ];
-lplc_mum = lplc_nm * (1e-3) ^ 2;
-paramMaster.DbParam     = {'lplc', lplc_mum };
+lplcAminoAcids = [10 30 100 300];
+lcPerAmino = 0.4; % nm
+lpPerAmino = 1; % nm
+conversionFactor = 1e-6; % mum^2 / nm^2
+lplc = conversionFactor * lcPerAmino * lpPerAmino * lplcAminoAcids; % in mum^2
+paramMaster.DbParam = {'lplc', lplc };
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
-paramMaster.Bt = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
+nBinding = 200; % number of binding sites
+conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
+dPore = 0.06; % pore area in um
+% calc bt in Molar
+bt = nBinding / (pi()*(dPore/2)^2 *paramMaster.Lbox) / conversionFactor;
+paramMaster.Bt = bt;  % use calculated from number of binding sites 
 % Varying two kinetic parameters. First cell, name (str). Second, vector of values
 % options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
 kon = 1e9; % if you want to change just kon, and not konBt, do it here
