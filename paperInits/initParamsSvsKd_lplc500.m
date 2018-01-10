@@ -46,7 +46,7 @@ kdVec = unique( data(:, 3) )';
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
-nBinding = 200; % number of binding sites
+nBinding = 800; % number of binding sites
 conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
 dPore = 0.06; % pore area in um
 % calc bt in Molar
