@@ -4,12 +4,14 @@
 % linSummary.jNorm ( lc by kd )
 %
 
-function makefigSvsKdLinear( linSummary, diffType )
+function makefigSvsKdLinear( linSummary, diffType, yLimMax )
+% scale factor, limits
+if nargin < 3
+  yLimMax = [];
+end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel = 'Selectivity $$ S $$';
-% scale factor, limits
-maxVal = 50;
 % Some tunable parameters
 fontSize = 20;
 % set-up figure
@@ -20,7 +22,7 @@ fig.WindowStyle = 'normal';
 fig.Position = [393 229 501 368];
 % make subplot
 makeLinPlot( linSummary,  xLabel, yLabel,...
-  fontSize, maxVal, diffType );
+  fontSize, yLimMax, diffType );
 
 function [kdVec, nulplcVec, jNorm, kdVecLin, jNormLin ] = ...
   getDataFluxLin( linSummary )
@@ -37,7 +39,7 @@ kdVecLin = kdVec(linInd:end);
 jNormLin = jNorm(:,linInd:end);
 
 function makeLinPlot( linSummary, xLabel, yLabel,...
-  fontSize, maxVal, diffType )
+  fontSize, yLimMax, diffType )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
@@ -55,13 +57,15 @@ elseif strcmp( diffType, 'nu' )
 end
 wantedColors = getPlotLineColors( nulplcVec, scaleType );
 % plot all it linear in linear regime
-plotSelectivityVsKd( ax, kdVecLin, jNormLin, maxVal, ...
+plotSelectivityVsKd( ax, kdVecLin, jNormLin, yLimMax, ...
   1, '-', wantedColors, xLabel, yLabel )
 % plot all it linear but faded
-plotSelectivityVsKd( ax, kdVec, jNorm, maxVal, ...
+plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax, ...
   0.2, '-', wantedColors, xLabel, yLabel )
+% grab y lim max if you aren't setting
+yLimStore = ax.YLim(2);
 % plot div
-plotLinDiv( ax, kdVec )
+plotLinDiv( ax, kdVec, yLimStore )
 % build legend and clear
 [legcell,legTitle]  = buildDbLegend( nulplcVec, diffType );
 hl = legend( legcell );
@@ -69,12 +73,13 @@ hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
 hl.Position = [0.8121 0.2662 0.1717 0.4995];
 
-function plotLinDiv( ax, kdVec )
+function plotLinDiv( ax, kdVec, yLim )
 slopeBig = 1000;
 linDiv = slopeBig * ( kdVec - 1 );
 plot( ax, kdVec, linDiv, 'k:' );
+ax.YLim = [0 yLim];
 
-function plotSelectivityVsKd( ax, kdVec, jNorm, maxVal,...
+function plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax,...
   transparFac, lineStyle, wantedColors, xLabel, yLabel )
 % set-up title position
 % plot it
@@ -92,7 +97,9 @@ xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
 ax.XScale = 'log';
-ax.YLim = [0 maxVal];
+if ~isempty( yLimMax )
+  ax.YLim = [0 yLimMax];
+end
 axis square
 xlabel(ax,xLabel)
 ylabel(ax,yLabel)

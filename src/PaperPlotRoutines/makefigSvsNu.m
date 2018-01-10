@@ -1,4 +1,7 @@
-function makefigSvsNu( fluxSummary )
+function makefigSvsNu( fluxSummary, yLimMax )
+if nargin < 2
+  yLimMax = [];
+end
 % scale factor
 kdScale = 1e6;
 % Some tunable parameters
@@ -43,7 +46,9 @@ end
 ax = gca;
 ax.XLim = [ min(nuVec) max(nuVec) ];
 axis square
-ax.YLim = [0 50];
+if ~isempty( yLimMax )
+  ax.YLim = [0 yLimMax];
+end
 xlabel('Bound Diffusion $$ D_B/D_F $$')
 ylabel('Selectivity $$ S $$')
 hl = legend( legcell, 'location','best');

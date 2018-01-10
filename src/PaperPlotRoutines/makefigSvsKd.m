@@ -1,6 +1,6 @@
 function makefigSvsKd( fluxSummary, diffType, yLimMax )
 if nargin < 3
-  yLimMax = 40;
+  yLimMax = [];
 end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
@@ -74,7 +74,9 @@ kdEnd = log10( max( kdVec ) );
 xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
-ax.YLim = [0 yLimMax];
+if ~isempty( yLimMax )
+  ax.YLim = [0 yLimMax];
+end
 axis square
 xlabel( ax, xLabel )
 ylabel( ax, yLabel )

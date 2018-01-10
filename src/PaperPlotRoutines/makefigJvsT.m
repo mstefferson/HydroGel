@@ -1,8 +1,9 @@
-function makefigJvsT( fluxSummary )
+function makefigJvsT( fluxSummary, cutOffTime )
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
 yLab = 'Normalized outlet flux $$ J^* $$';
-ntMax = 1000;
+% set max nt by cuttoff time
+ntMax = find( fluxSummary.timeVec < cutOffTime, 1, 'last' );
 fontSize = 20;
 % scales
 tScale = 1e3; % time in seconds, convert to ms

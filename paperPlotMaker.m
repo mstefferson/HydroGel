@@ -33,6 +33,9 @@ if saveFlag == 1
     mkdir( paperSavePath )
   end
 end
+% set some things here. Should be [] you don't want to override
+yLimOverride = 100; % for selectivity
+yLimOverrideLin = 250; % for selectivity
 % figure 1: selectivity vs time nu = 0 fig. 2.1
 currId = 1;
 if any( plotId == currId )
@@ -50,7 +53,7 @@ currId = 3;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryNu_data.mat'];
   plotSvsKd( currId, data2load, 'nu', saveFlag, saveTag,...
-    saveID, paperSavePath )
+    saveID, paperSavePath, yLimOverride )
 end
 % figure 4: nu vs kd, vary lplc fig. 3.2
 currId = 4;
@@ -72,7 +75,7 @@ currId = 5;
 if any( plotId == 10 )
   data2load = [paperDataPath 'figSvsKdVaryLplc_data.mat'];
   plotSvsKd( currId, data2load, 'lplc', saveFlag, ...
-    saveTag, saveID, paperSavePath )
+    saveTag, saveID, paperSavePath, yLimOverride )
 end
 % figure 6: nu vs Kd, S vs Kd (kHop) 100 fig 4.3
 currId = 6;
@@ -100,7 +103,6 @@ currId = 9;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryNu_data.mat'];
   dBtype = 'nu';
-  yLimOverride = 50;
   plotSvsKd( currId, data2load, dBtype, saveFlag, saveTag, saveID, ...
     paperSavePath, yLimOverride )
 end
@@ -110,7 +112,7 @@ if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryNuLinearNumeric_data.mat'];
   dBtype = 'nu';
   plotSvsKdLinear( currId, data2load, dBtype, saveFlag, saveTag, saveID,...
-    paperSavePath )
+    paperSavePath, yLimOverrideLin)
 end
 % figure 11: S vs nu, vary kD fig S1
 currId = 11;
@@ -145,7 +147,7 @@ end
 %%%%%%%%% Plot functions %%%%%%%%%%%%%%
 function plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath, yLim )
   if nargin < 8
-    yLim = 40;
+    yLim = [];
   end
   if exist( data2load, 'file'  )
     load( data2load )
@@ -159,20 +161,10 @@ function plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperS
   end
 
 function plotJvsT( currId, data2load, saveFlag, saveTag, saveID, paperSavePath)
+  cutOffTime = 0.051; % seconds
   if exist( data2load, 'file'  )
     load( data2load )
-    makefigJvsT(fluxSummary );
-  else
-    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
-  end
-  % save it
-  if saveFlag
-    saveAndMove( currId, saveTag, saveID, paperSavePath )
-  end
-function plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath )
-  if exist( data2load, 'file' )
-    load( data2load )
-    makefigSvsKdLinear( linSummary, dbtype );
+    makefigJvsT( fluxSummary, cutOffTime );
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
@@ -181,10 +173,23 @@ function plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID, 
     saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 
-function plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath )
+function plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID, ...
+  paperSavePath, yLimOverride )
+  if exist( data2load, 'file' )
+    load( data2load )
+    makefigSvsKdLinear( linSummary, dbtype, yLimOverride );
+  else
+    fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
+  end
+  % save it
+  if saveFlag
+    saveAndMove( currId, saveTag, saveID, paperSavePath )
+  end
+
+function plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath, yLimOverride )
   if exist( data2load, 'file'  )
     load( data2load )
-    makefigSvsNu( fluxSummary );
+    makefigSvsNu( fluxSummary, yLimOverride );
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
