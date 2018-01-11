@@ -34,19 +34,22 @@ if saveFlag == 1
   end
 end
 % set some things here. Should be [] you don't want to override
-yLimOverride = 100; % for selectivity
-yLimOverrideLin = 250; % for selectivity
+yLimOverride = []; % for selectivity
+yLimOverrideLin = []; % for selectivity
+cutOffTime = Inf; % seconds
 % figure 1: selectivity vs time nu = 0 fig. 2.1
 currId = 1;
 if any( plotId == currId )
   data2load = [paperDataPath 'figJvsTnu0_data.mat'];
-  plotJvsT( currId, data2load, saveFlag, saveTag, saveID, paperSavePath) 
+  plotJvsT( currId, data2load, saveFlag, saveTag, saveID, ...
+    paperSavePath, cutOffTime) 
 end
 % figure 2: selectivity vs time nu = 1 fig. 2.2
 currId = 2;
 if any( plotId == currId )
   data2load = [paperDataPath 'figJvsTnu1_data.mat'];
-  plotJvsT( currId, data2load, saveFlag, saveTag, saveID, paperSavePath) 
+  plotJvsT( currId, data2load, saveFlag, saveTag, saveID,...
+    paperSavePath, cutOffTime) 
 end
 % figure 3: selectivity vs kd, vary nu fig 2.3
 currId = 3;
@@ -72,10 +75,20 @@ if any( plotId == currId )
 end
 % figure 5: selectivity vs kd, vary lplc fig 3.3
 currId = 5;
-if any( plotId == 10 )
+if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryLplc_data.mat'];
+  nulplcFile4Color = [paperDataPath 'figNuVsKd_data.mat'];
+  load( nulplcFile4Color );
+  nulplcColor{1} = tetherCalc.lplc;
+  nulplcColor{2} = 'log';
+  wantedColors = ...
+    getPlotLineColors( nulplcColor{1}, 'log', 'pmkmp' );
+  if 0
+    wantedColors = flipud(wantedColors);
+  end
+  wantedColors = wantedColors(1:4,:);
   plotSvsKd( currId, data2load, 'lplc', saveFlag, ...
-    saveTag, saveID, paperSavePath, yLimOverride )
+    saveTag, saveID, paperSavePath, yLimOverride, wantedColors)
 end
 % figure 6: nu vs Kd, S vs Kd (kHop) 100 fig 4.3
 currId = 6;
@@ -119,7 +132,7 @@ currId = 11;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsNu_data.mat'];
   plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID,...
-    paperSavePath )
+    paperSavePath, yLimOverride )
 end
 % figure 12: S vs nu, vary kD linear fig S1
 currId = 12;
@@ -145,13 +158,21 @@ if any( plotId == currId )
 end
 
 %%%%%%%%% Plot functions %%%%%%%%%%%%%%
-function plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperSavePath, yLim )
+function plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, ...
+  paperSavePath, yLim, wantedColors )
   if nargin < 8
     yLim = [];
+    wantedColors = [];
+  elseif nargin < 9
+    wantedColors = [];
   end
   if exist( data2load, 'file'  )
     load( data2load )
-    makefigSvsKd( fluxSummary, dbtype, yLim );
+    if isempty( wantedColors )
+      makefigSvsKd( fluxSummary, dbtype, yLim );
+    else
+      makefigSvsKd( fluxSummary, dbtype, yLim, wantedColors );
+    end
   else
     fprintf('No data to run for fig %d. Run paperResultsMaker\n', currId);
   end
@@ -160,8 +181,8 @@ function plotSvsKd( currId, data2load, dbtype, saveFlag, saveTag, saveID, paperS
     saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 
-function plotJvsT( currId, data2load, saveFlag, saveTag, saveID, paperSavePath)
-  cutOffTime = 0.051; % seconds
+function plotJvsT( currId, data2load, saveFlag, saveTag, saveID, ...
+  paperSavePath, cutOffTime)
   if exist( data2load, 'file'  )
     load( data2load )
     makefigJvsT( fluxSummary, cutOffTime );
@@ -186,7 +207,8 @@ function plotSvsKdLinear( currId, data2load, dbtype, saveFlag, saveTag, saveID, 
     saveAndMove( currId, saveTag, saveID, paperSavePath )
   end
 
-function plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID, paperSavePath, yLimOverride )
+function plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID,...
+  paperSavePath, yLimOverride )
   if exist( data2load, 'file'  )
     load( data2load )
     makefigSvsNu( fluxSummary, yLimOverride );

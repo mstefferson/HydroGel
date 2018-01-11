@@ -55,7 +55,7 @@ if strcmp( diffType, 'lplc' )
 elseif strcmp( diffType, 'nu' )
   scaleType = 'linear';
 end
-wantedColors = getPlotLineColors( nulplcVec, scaleType );
+wantedColors = getPlotLineColors( nulplcVec, scaleType, 'pmkmp' );
 % plot all it linear in linear regime
 plotSelectivityVsKd( ax, kdVecLin, jNormLin, yLimMax, ...
   1, '-', wantedColors, xLabel, yLabel )

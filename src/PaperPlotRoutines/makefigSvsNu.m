@@ -30,7 +30,7 @@ jSelect = zeros( numNu, numKa );
 legcell = cell( length(kDvec) , 1 );
 legTitle = '$$ K_D \, ( \mathrm{ \mu M } )$$';
 % set-up colors
-wantedColors = getPlotLineColors( kDvec, 'log' );
+wantedColors = getPlotLineColors( kDvec, 'log', 'pmkmp' );
 % build data matrix
 for ii = 1:numKa
   legcell{ii} = num2str( kDvec(ii), '%g' ) ;

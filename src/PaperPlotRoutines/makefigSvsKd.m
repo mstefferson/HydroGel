@@ -1,13 +1,15 @@
-function makefigSvsKd( fluxSummary, diffType, yLimMax )
+function makefigSvsKd( fluxSummary, diffType, yLimMax, wantedColorsOverride )
 if nargin < 3
   yLimMax = [];
+  wantedColorsOverride = [];
+elseif nargin < 4
+  wantedColorsOverride = [];
 end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel = 'Selectivity $$ S $$';
 % scale factor, limits
 kdScale = 1e6;
-kdMin = 1e-5;
 if strcmp( diffType, 'lplc' )
   lScaleActual = 1e-6;
   lScaleWant = 1e-9;
@@ -26,10 +28,10 @@ fig.WindowStyle = 'normal';
 fig.Position = [393 229 501 368];
 % make plot
 makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  diffType, fontSize, yLimMax, xLabel, yLabel );
+  diffType, fontSize, yLimMax, xLabel, yLabel, wantedColorsOverride );
 
 function makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  diffType, fontSize, yLimMax, xLabel, yLabel )
+  diffType, fontSize, yLimMax, xLabel, yLabel, wantedColorsOverride )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
@@ -46,7 +48,11 @@ if strcmp( diffType, 'lplc' )
 elseif strcmp( diffType, 'nu' )
   scaleType = 'linear';
 end
-wantedColors = getPlotLineColors( nulplcVec, scaleType );
+if isempty( wantedColorsOverride )
+  wantedColors = getPlotLineColors( nulplcVec, scaleType, 'pmkmp' );
+else
+  wantedColors = wantedColorsOverride;
+end
 % plot it non-linear
 plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax, ...
   xLabel, yLabel, wantedColors )

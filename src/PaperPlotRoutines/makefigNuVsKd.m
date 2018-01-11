@@ -59,7 +59,11 @@ axis square
 hold all
 % set up colors
 scaleType = 'log';
-wantedColors = getPlotLineColors( lplc, scaleType );
+wantedColors = getPlotLineColors( lplc, scaleType, 'pmkmp' );
+if 0
+  wantedColors = flipud( wantedColors );
+end
+
 % Plot linear next on subplot 1
 plotNuVsKd( ah1, kdVec, lplc, nu, wantedColors )
 % build legend
