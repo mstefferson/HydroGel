@@ -138,7 +138,8 @@ end
 function resultsNuvsKdVaryLpLcAnalytic(currId, saveName, saveExt, dataPath)
 tic
 fprintf('Starting results %d \n', currId );
-lc = [4, 12, 40, 120, 1e3]; % in nm
+%lc = [4, 12, 40, 120, 1e3]; % in nm
+lc = [4, 12, 40, 120, 1200]; % in nm
 tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
 [tetherCalc.nu, ~,tetherCalc.lplc] = makeTetherDBs(lc, tetherCalc.kd);
 tetherCalc.nu = tetherCalc.nu.';

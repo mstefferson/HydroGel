@@ -115,7 +115,6 @@ flagsObj = flags;
 [timeObj] = TimeObjMakerRD(timeMaster.dt,timeMaster.t_tot,...
   timeMaster.t_rec,timeMaster.ss_epsilon);
 % Fix N if it's too low and make sure Bt isn't a vec
-if ( paramObj.Nx > 256 ); paramObj.Nx = 128; end
 % Code can only handle one value of Bt currently
 if length( paramObj.Bt ) > 1
   paramObj.Bt = paramObj.Bt(1);
