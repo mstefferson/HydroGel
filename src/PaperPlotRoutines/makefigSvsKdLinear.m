@@ -74,7 +74,7 @@ hl.Title.String = legTitle;
 hl.Position = [0.8121 0.2662 0.1717 0.4995];
 
 function plotLinDiv( ax, kdVec, yLim )
-slopeBig = 1000;
+slopeBig = 100000;
 linDiv = slopeBig * ( kdVec - 1 );
 plot( ax, kdVec, linDiv, 'k:' );
 ax.YLim = [0 yLim];

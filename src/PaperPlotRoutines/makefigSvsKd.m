@@ -60,7 +60,11 @@ plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax, ...
 hl = legend( legcell, 'location','best');
 hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
-hl.Position = [0.8121 0.2662 0.1717 0.4995];
+if length( nulplcVec ) > 4
+  hl.Position = [0.8121 0.2662 0.1717 0.4995];
+else
+  hl.Position = [0.8301 0.4043 0.1357 0.3193];
+end
 
 function plotSelectivityVsKd( ax, kdVec, ...
   jNorm, yLimMax, xLabel, yLabel, wantedColors)
