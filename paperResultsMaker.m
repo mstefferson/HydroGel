@@ -5,14 +5,15 @@
 % 3: S vs kd vary nu fig2.3 (also possible fig S ?)
 % 4: nu vs kd vary lc fig 3.2
 % 5: S vs kd vary lc fig 3.3
-% 6: nu vs kd/S vs kd (kHop = 100) fig. 4.3
-% 7: nu vs kd/S vs kd (kHop = 200) fig. S5
-% 8: nu vs kd/S vs kd (kHop = 500) fig. S6
-% 9: S vs kd vary nu linear numeric fig S1.2
-% 10: S vs nu vary kd fig S ?
-% 11: S vs nu vary kd linear numeric fig S1.4
-% 12: initParamsSFromInput gorlich (numeric)
-% 13: initParamsSFromInput gorlich2 (numeric)
+% 6: nu vs kd/S vs kd (kHop = 4) fig. 4.3
+% 7: nu vs kd/S vs kd (kHop = 12) fig. S5
+% 8: nu vs kd/S vs kd (kHop = 40) fig. S6
+% 9: nu vs kd/S vs kd (kHop = 120) fig. S6
+% 10: S vs kd vary nu linear numeric fig S1.2
+% 11: S vs nu vary kd fig S ?
+% 12: S vs nu vary kd linear numeric fig S1.4
+% 13: initParamsSFromInput gorlich (numeric)
+% 14: initParamsSFromInput gorlich2 (numeric)
 %
 % Current results for paper: [1:13]
 
@@ -76,59 +77,66 @@ if any( resultsId == currId )
   resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
-% 6: parameter input, hopDataTest100
+% 6: parameter input, hopDataTest4
 currId = 6;
 if any( resultsId == currId )
-  lc = [100]; % in nm
+  lc = [4]; % in nm
   lcStr = num2str( lc, '%d' );
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
-% 7: parameter input, hopDataTest200
+% 7: parameter input, hopDataTest12
 currId = 7;
 if any( resultsId == currId )
-  lc = [200]; % in nm
+  lc = [12]; % in nm
   lcStr = num2str( lc, '%d' );
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
-% 8: parameter input, hopDataTest500
+% 8: parameter input, hopDataTest40
 currId = 8;
 if any( resultsId == currId )
-  lc = [500]; % in nm
+  lc = [40]; % in nm
   lcStr = num2str( lc, '%d' );
   resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
 end
-% figure 9: selectivity vs kd, vary nu linear numeric
+% 9: parameter input, hopDataTest120
 currId = 9;
+if any( resultsId == currId )
+  lc = [120]; % in nm
+  lcStr = num2str( lc, '%d' );
+  resultsHopData( currId, plotFlag, storeFlag, dataPath, lc, lcStr )
+end
+% figure 10: selectivity vs kd, vary nu linear numeric
+currId = 10;
 if any( resultsId == currId )
   paramFile = 'initParamsSvsKd_nu_linear';
   saveName = 'figSvsKdVaryNuLinearNumeric_data';
   resultsSvsKdLinNumeric(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath )
 end
-% figure 10: selectivity vs nu, vary kd
-currId = 10;
+% figure 11: selectivity vs nu, vary kd
+currId = 11;
 if any( resultsId == currId )
   paramFile = 'initParamsSvsNu';
   saveName = 'figSvsNu_data';
   resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
-% figure 11: selectivity vs nu, vary kd linear numeric
-currId = 11;
+% figure 12: selectivity vs nu, vary kd linear numeric
+currId = 12;
 if any( resultsId == currId )
   paramFile = 'initParamsSvsNu_linear';
   saveName = 'figSvsNuLinearNumeric_data';
   resultsRunODE(currId, paramFile, plotFlag, storeFlag,...
     saveName, saveExt, dataPath)
 end
-% 12: parameter input, gorlichData
-currId = 12;
+% 13: parameter input, gorlichData
+currId = 13;
 if any( resultsId == currId )
   loadId = 'gorlichData';
   resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
 end
-% 13: parameter input, gorlichData2
-currId = 13;
+% 14: parameter input, gorlichData2
+currId = 14;
 if any( resultsId == currId )
   loadId = 'gorlichData2';
   resultsSelFromExperiment(currId, loadId, storeFlag, saveExt, dataPath)
