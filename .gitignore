@@ -32,3 +32,4 @@ runfiles/
 
 # Params files
 initParams.m
+initPaperResults.m

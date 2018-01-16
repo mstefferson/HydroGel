@@ -19,7 +19,7 @@ if ~exist('./runfiles','dir'); mkdir('runfiles'); end
 Time = datestr(now);
 currentdir=pwd;
 fprintf('In dir %s\n',currentdir);
-fprintf('Starting RunHydroGel: %s\n', Time)
+fprintf('Starting runHydroGel: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
 if exist( 'initParams.m','file')
