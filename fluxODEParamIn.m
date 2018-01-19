@@ -57,8 +57,8 @@ end
 storeStdy = storeFlag.storeStdy;
 % Add paths and output dir
 addpath( genpath('./src') );
-if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
-if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end;
+if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end
+if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end
 % print start time
 Time = datestr(now);
 fprintf('Starting fluxODE: %s\n', Time)
@@ -67,7 +67,7 @@ fprintf('Initiating parameters\n');
 if exist( paramFile,'file')
   fprintf('Init file: %s\n', paramFile);
   run( paramFile );
-elseif exists( 'initParams.m', file')
+elseif exist( 'initParams.m', 'file')
   fprintf('Could not find init file: %s. Running initParams\n', ...
     paramFile);
   run( 'initParams.m');
@@ -93,6 +93,7 @@ pfixedStr = '$$ B_t $$';
 paramNuLlp  = kinParams.nuLlp;
 paramKonBt  = kinParams.konBt;
 paramKoffInds = kinParams.koffInds;
+paramBt = kinParams.Bt;
 % warn about low N
 numRuns = kinParams.numRuns;
 if paramObj.Nx < 1000
@@ -136,8 +137,6 @@ else
 end
 % set bound diffusion or not
 nuCell = cell(1, numRuns);
-% set bound diffusion or not
-nuCell = cell(1, numRuns);
 for ii = 1:numRuns
   nuCell{ii} = { paramObj.DbParam{1}, paramNuLlp(ii) };
 end
@@ -146,16 +145,15 @@ koffCell = cell( 1, numRuns );
 for ii = 1:numRuns
   koffCell{ii} = paramObj.koffObj.InfoCell{ paramKoffInds(ii) };
 end
-
-% parfor (ii=1:numRuns, numWorkers)
-for ii=1:numRuns
+parfor (ii=1:numRuns, numWorkers)
   % set params
   nuCellTemp = nuCell{ii};
   KonBt  = paramKonBt(ii);
+  btTemp = paramBt(ii);
   koffCellTemp = koffCell{ ii };
-  Kon = KonBt ./ BtFixed;
+  Kon = KonBt ./ btTemp;
   [AnlOde,CnlOde,~] = RdSsSolverMatBvFunc(...
-    Da, Kon, koffCellTemp, nuCellTemp, AL, AR, BtFixed, Lbox, BCstr, Nx, ...
+    Da, Kon, koffCellTemp, nuCellTemp, AL, AR, btTemp, Lbox, BCstr, Nx, ...
     nlEqn );
   % calc flux
   flux   = - Da * ( AnlOde(end) - AnlOde(end-1) ) / dx;
@@ -169,11 +167,6 @@ for ii=1:numRuns
   end  
   jMax(ii) = flux;
 end
-
-% reshape to more intutive size---> Mat( p1, p2, p3, : )
-numP1 = kinParams.numP1;
-numP2 = kinParams.numP2;
-numP3 = kinParams.numP3;
 % Get flux diff and normalize it
 jDiff = Da * ( AL - AR ) / Lbox;
 jNorm = jMax ./  jDiff;

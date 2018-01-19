@@ -148,8 +148,14 @@ tic
 fprintf('Starting results %d \n', currId );
 %lc = [4, 12, 40, 120, 1e3]; % in nm
 lc = [4, 12, 40, 120, 1200]; % in nm
+lcMu = lc * 1e-3;
+dA = 0.12;
+kon = 1e9; % (per Molar sec)
+lp = 1e-3; % mum
+tetherCalc.lplc = lcMu .* lp;
 tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
-[tetherCalc.nu, ~,tetherCalc.lplc] = makeTetherDBs(lc, tetherCalc.kd);
+[tetherCalc.nu] = ...
+  makeTetherDbs(tetherCalc.lplc, tetherCalc.kd, kon, dA);
 tetherCalc.nu = tetherCalc.nu.';
 savepath = [ dataPath '/' saveName saveExt];
 if exist( savepath, 'file' )
@@ -254,17 +260,20 @@ saveExt = '.mat';
 lc = lcVal; % in nm
 storeFlag.storeStdy = 0;
 % names
-paramLoadFile = [ 'initParamsSFromInput'   ];
+paramLoadFile = [ 'initParamsHopData' ];
 pathId = './paperParamInput/';
 loadId = ['hopData' lcStr];
 paramFile = [ 'initParamsSvsKd_lplc' lcStr ];
 % Run param inputs
 fprintf('Running %s\n', loadId );
 filename = [ pathId loadId ];
-paramFromLoad = poreExperimentParamsToInputs( filename );
+% getting parameter
+[lbox, bt, lScale] = getParamsHopDataInput();
+fprintf('For scaling parameters: lBox = %g (um) bt = %g (M)\n', lbox, bt)
+paramFromLoad = hopParamsToInput( filename, lbox, lScale, bt );
 fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
   paramFromLoad.input, paramLoadFile );
-fprintf('Finished paramInput\n')
+fprintf('Finished selectivity calct\n')
 selectivity.loadName = loadId;
 selectivity.val = fluxSummaryInput.jNorm';
 selectivity.paramLoad = loadId;
@@ -275,8 +284,14 @@ selectivity.lc = lc;
 hoppingData = makeHoppingData(selectivity);
 hoppingData.lc = lc;
 % calculate diffusion coeffici
-[hoppingData.nuTether, ~, ~] =...
-  makeTetherDBs(lc, hoppingData.kdVec);
+run( paramFile )
+dA = paramMaster.Da;
+kon = 1e9; % (per Molar sec)
+% For inputs, use (mum) for length
+lcMu = lc * 1e-3;
+lp = 1e-3; % mum
+lclp = lcMu .* lp;
+[hoppingData.nuTether, ~] = makeTetherDbs(lclp, hoppingData.kdVec, kon, dA);
 fprintf('Finished calculating bound diffusion\n')
 % store file names
 hoppingData.loadId = loadId;

@@ -5,12 +5,13 @@
 % 3: S vs kd vary nu fig2.3
 % 4: nu vs kd vary lc fig 3.2
 % 5: S vs kd vary lc fig 3.3
-% 6: nu vs kd/S vs kd (kHop = 100) fig. 4.3
-% 7: nu vs kd/S vs kd (kHop = 200) fig. S5
-% 8: nu vs kd/S vs kd (kHop = 500) fig. S6
-% 9: S vs kd vary nu linear numeric fig S1
-% 10: S vs nu vary kd fig S1
-% 11: S vs nu vary kd linear numeric fig S1
+% 6: nu vs kd/S vs kd (kHop = 4) fig. 4.3
+% 7: nu vs kd/S vs kd (kHop = 12) fig. S5
+% 8: nu vs kd/S vs kd (kHop = 40) fig. S6
+% 9: nu vs kd/S vs kd (kHop = 120) fig. S6
+% 10: S vs kd vary nu linear numeric fig S1
+% 11: S vs nu vary kd fig S1
+% 12: S vs nu vary kd linear numeric fig S1
 %
 % Current results for paper: [1:13]
 
@@ -34,6 +35,7 @@ end
 % set some things here. Should be [] you don't want to override
 yLimOverride = [250]; % for selectivity
 yLimOverrideLin = [350]; % for selectivity
+yLimOverrideHop = [];
 cutOffTime = Inf; % seconds
 % figure 1: selectivity vs time nu = 0 fig. 2.1
 currId = 1;
@@ -85,44 +87,51 @@ if any( plotId == currId )
   plotSvsKd( currId, data2load, 'lplc', saveFlag, ...
     saveTag, saveID, paperSavePath, yLimOverride, wantedColors)
 end
-% figure 6: nu vs Kd, S vs Kd (kHop) 100 fig 4.3
+% figure 6: nu vs Kd, S vs Kd (kHop) 4 fig 4.3
 currId = 6;
 if any( plotId == currId )
-  lc = 100;
+  lc = 4;
   plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
-    saveTag, saveID )
+    saveTag, saveID, yLimOverrideHop )
 end
-% figure 7: nu vs Kd, S vs Kd (kHop) 200 fig S5
+% figure 7: nu vs Kd, S vs Kd (kHop) 12 fig S5
 currId = 7;
 if any( plotId == currId )
-  lc = 200;
+  lc = 12;
   plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
-    saveTag, saveID )
+    saveTag, saveID, yLimOverrideHop  )
 end
-% figure 8: nu vs Kd, S vs Kd (kHop) 500 fig S6
+% figure 8: nu vs Kd, S vs Kd (kHop) 40 fig S6
 currId = 8;
 if any( plotId == currId )
-  lc = 500;
+  lc = 40;
   plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
-    saveTag, saveID )
+    saveTag, saveID, yLimOverrideHop  )
 end
-% figure 9: S vs Kd vary nu linear, numeric fig S1
-currId = 9;
+% figure 8: nu vs Kd, S vs Kd (kHop) 120 fig S6
+currId = 8;
+if any( plotId == currId )
+  lc = 120;
+  plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
+    saveTag, saveID, yLimOverrideHop  )
+end
+% figure 10: S vs Kd vary nu linear, numeric fig S1
+currId = 10;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsKdVaryNuLinearNumeric_data.mat'];
   dBtype = 'nu';
   plotSvsKdLinear( currId, data2load, dBtype, saveFlag, saveTag, saveID,...
     paperSavePath, yLimOverrideLin)
 end
-% figure 10: S vs nu, vary kD fig S1
-currId = 10;
+% figure 11: S vs nu, vary kD fig S1
+currId = 11;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsNu_data.mat'];
   plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID,...
     paperSavePath, yLimOverrideLin )
 end
-% figure 11: S vs nu, vary kD linear fig S1
-currId = 11;
+% figure 12: S vs nu, vary kD linear fig S1
+currId = 12;
 if any( plotId == currId )
   data2load = [paperDataPath 'figSvsNuLinearNumeric_data.mat'];
   plotSvsNuVaryKd( currId, data2load, saveFlag, saveTag, saveID,...
@@ -192,7 +201,7 @@ else
 end
 
 function plotHopData( currId, lc, paperDataPath, ...
-  saveFlag, paperSavePath, saveTag, saveID )
+  saveFlag, paperSavePath, saveTag, saveID, yLimOverride )
 lcStr = num2str( lc, '%d' ) ;
 hoppingFileId = [ 'hopData' lcStr];
 hoppingFile = [ 'hoppingData_' hoppingFileId '_data.mat' ];
@@ -200,7 +209,7 @@ data2load = [paperDataPath hoppingFile];
 saveTag = [ lcStr '_' saveTag ];
 if exist( data2load, 'file'  )
   load( data2load )
-  makefigNuSvsKdKhop( hoppingData );
+  makefigNuSvsKdKhop( hoppingData, yLimOverride );
   % save it
   if saveFlag
     saveAndMove( currId, saveTag, saveID, paperSavePath )
