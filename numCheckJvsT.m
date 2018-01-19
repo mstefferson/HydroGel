@@ -1,16 +1,12 @@
 % check nu = 0
-nu1Max = 120;
-plotTogether = 0;
-saveMe = 0;
+function numCheckJvsT( plotTogether, saveMe )
+nu1Max = 150;
 plotId = [1, 2];
 fileId =  { ...
-  [1, 2, 3], ...
-  [1, 2, 3] };
-fileId =  { ...
   [1, 2], ...
-  [1, 2, 3] };
+  [1, 2, 3, 4 ] };
 plotTitle = {'nu = 0', 'nu = 1'};
-nId = [128, 256, 512; 256, 512, 1024];
+nId = [128, 256, 512, 1024; 256, 512, 1024, 2048];
 masterfile = {'figJvsTnu0_data','figJvsTnu1_data'};
 mypath = 'paperData/';
 % store the data
