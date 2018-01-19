@@ -3,9 +3,7 @@
 function makefigNuVsKd( kdVec, lplcVec, nu )
 %scales
 kdScale = 1e6;
-lScaleActual = 1e-7;
-lScaleWant = 1e-9;
-lScale = (lScaleActual / lScaleWant)^2;
+lScale = 1e6; %mu to nm
 % label
 xLabel = 'Dissociation constant $$ K_D  \, ( \mathrm{ \mu M } ) $$';
 yLabel = 'Bound Diffusion $$ D_B / D_F $$';
@@ -76,6 +74,6 @@ function plotNuVsKd( ax, kdVec, lplc, nu, wantedColors)
 inds = 1:length(kdVec);
 numLpLc = length( lplc );
 for ii = 1:numLpLc
-  p = plot( ax, kdVec(inds), nu(ii,:) );
+  p = plot( ax, kdVec(inds), nu(:,ii) );
   p.Color = wantedColors(ii,:);
 end

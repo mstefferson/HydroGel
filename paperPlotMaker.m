@@ -35,7 +35,7 @@ end
 % set some things here. Should be [] you don't want to override
 yLimOverride = [250]; % for selectivity
 yLimOverrideLin = [350]; % for selectivity
-yLimOverrideHop = [300]; 
+yLimOverrideHop = [];
 cutOffTime = Inf; % seconds
 % figure 1: selectivity vs time nu = 0 fig. 2.1
 currId = 1;

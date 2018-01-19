@@ -10,7 +10,7 @@
 % paramInput(:,4) = bt
 % 
 %
-function [param] = hopParamsToInput( filename, lbox, bt )
+function [param] = hopParamsToInput( filename, lbox, lScale, bt )
 % set fix parameter
 konUnscaled = 1e9; % molar^(-1), s^(-1)
 % load data from unknown variable name
@@ -18,7 +18,10 @@ temp = load( filename );
 dataName = fields(temp);
 data = temp.( dataName{1} );
 % calculate time scale
-tau = lbox^2 ./ data(:,1);
+% turn Da to muM
+fprintf('Converting meters to microns in Da\n')
+dA = data(:,1) * lScale^2;
+tau = lbox^2 ./ dA;
 % scale kon by timescale
 kon = konUnscaled * tau;
 % build data
