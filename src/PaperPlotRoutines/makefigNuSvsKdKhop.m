@@ -1,4 +1,7 @@
-function makefigNuSvsKdKhop( hoppingData )
+function makefigNuSvsKdKhop( hoppingData, yLimMax )
+if nargin < 2
+  yLimMax = [];
+end
 % turne on error bars or not based on data
 if isfield( hoppingData, 'nuErrLower' )
   errorbarFlag = 1;
@@ -10,7 +13,6 @@ xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel1 = 'Bound Diffusion $$ D_B / D_F $$';
 yLabel2 = 'Selectivity $$ S $$';
 % scale factor, limits
-maxVal = 40;
 fontSize = 20;
 % set-up figure
 fig = figure();
@@ -19,10 +21,10 @@ fig.WindowStyle = 'normal';
 fig.Position = [250 244 834 353];
 % make plot
 makePlotsKHop( hoppingData,...
-  fontSize, maxVal, xLabel, yLabel1, yLabel2, errorbarFlag );
+  fontSize, yLimMax, xLabel, yLabel1, yLabel2, errorbarFlag );
 
 function makePlotsKHop( hoppingData, ...
-  fontSize, maxVal, xLabel, yLabel1, yLabel2, errorbarFlag )
+  fontSize, yLimMax, xLabel, yLabel1, yLabel2, errorbarFlag )
 % set-up ticks
 kdStart = log10( min( hoppingData.kdVecScaled ) );
 kdEnd = log10( max( hoppingData.kdVecScaled ) );
@@ -62,7 +64,9 @@ axis square
 ax2.XScale = 'log';
 ax2.XLim = [ min(xTick) max(xTick) ];
 ax2.XTick = xTick;
-ax2.YLim = [0 maxVal];
+if ~isempty( yLimMax )
+  ax2.YLim = [0 yLimMax];
+end
 xlabel( ax2, xLabel )
 ylabel( ax2, yLabel2 )
 hold all
