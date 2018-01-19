@@ -57,8 +57,8 @@ end
 storeStdy = storeFlag.storeStdy;
 % Add paths and output dir
 addpath( genpath('./src') );
-if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end;
-if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end;
+if ~exist('./steadyfiles','dir'); mkdir('steadyfiles'); end
+if ~exist('./steadyfiles/ODE','dir'); mkdir('steadyfiles/ODE'); end
 % print start time
 Time = datestr(now);
 fprintf('Starting fluxODE: %s\n', Time)
@@ -67,7 +67,7 @@ fprintf('Initiating parameters\n');
 if exist( paramFile,'file')
   fprintf('Init file: %s\n', paramFile);
   run( paramFile );
-elseif exists( 'initParams.m', file')
+elseif exist( 'initParams.m', 'file')
   fprintf('Could not find init file: %s. Running initParams\n', ...
     paramFile);
   run( 'initParams.m');

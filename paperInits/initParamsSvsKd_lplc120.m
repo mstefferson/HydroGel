@@ -46,11 +46,13 @@ kdVec = unique( data(:, 3) )';
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
+% calculate bt (use microns!)
 nBinding = 800; % number of binding sites
+lBox = 0.1; % microns
 conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
 dPore = 0.06; % pore area in um
 % calc bt in Molar
-bt = nBinding / (pi()*(dPore/2)^2 *paramMaster.Lbox) / conversionFactor;
+bt = nBinding / (pi()*(dPore/2)^2 * lBox) / conversionFactor;
 paramMaster.Bt = bt;  % use calculated from number of binding sites 
 % Varying two kinetic parameters. First cell, name (str). Second, vector of values
 % options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}

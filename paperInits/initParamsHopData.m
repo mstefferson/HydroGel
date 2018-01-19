@@ -1,3 +1,6 @@
+% Use this for hop runs. Everything should be scaled
+%
+%
 %  Parameter file
 paramMaster.trial  = 1; % trial ID
 % Turn things on
@@ -22,29 +25,29 @@ analysisFlags.ShowRunTime            = 1;  % Display run time
 analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
-paramMaster.Lbox = 0.1; % Gel length
+paramMaster.Lbox = 1; % Using inputs, we scale everything
 paramMaster.Nx = 2^(17); % number of grid points
 paramMaster.Lr = 10; % Reservoir length if there is one
 % diffusion coefficient
-paramMaster.Da = 0.12; % Diffusion of species A (unbound). Sets time scale
+paramMaster.Da = 1; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
 paramMaster.DbParam     = {'nu', 1};
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
+% calculate bt (use microns!)
 nBinding = 800; % number of binding sites
+lBox = 0.1; % microns
 conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
 dPore = 0.06; % pore area in um
 % calc bt in Molar
-bt = nBinding / (pi()*(dPore/2)^2 *paramMaster.Lbox) / conversionFactor;
+bt = nBinding / (pi()*(dPore/2)^2 *lBox) / conversionFactor;
 paramMaster.Bt = bt;  % use calculated from number of binding sites 
 % Varying two kinetic parameters. First cell, name (str). Second, vector of values
 % options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
-kon = 1e9; % if you want to change just kon, and not konBt, do it here
-konBt = buildKonBt( paramMaster.Bt, kon );
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-paramMaster.kinParam1 = {'konBt', [konBt]};  % vec konBt (time scale)
+paramMaster.kinParam1 = {'konBt', []};  % vec konBt (time scale)
 paramMaster.kinParam2 = {'kA', []};
 paramMaster.Dnl = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 

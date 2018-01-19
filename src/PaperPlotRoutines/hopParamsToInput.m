@@ -10,7 +10,7 @@
 % paramInput(:,4) = bt
 % 
 %
-function [param] = poreExperimentParamsToInputs( filename, lbox, bt )
+function [param] = hopParamsToInput( filename, lbox, bt )
 % set fix parameter
 konUnscaled = 1e9; % molar^(-1), s^(-1)
 % load data from unknown variable name

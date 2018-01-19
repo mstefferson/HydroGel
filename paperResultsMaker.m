@@ -254,14 +254,17 @@ saveExt = '.mat';
 lc = lcVal; % in nm
 storeFlag.storeStdy = 0;
 % names
-paramLoadFile = [ 'initParamsSFromInput'   ];
+paramLoadFile = [ 'initParamsHopData'   ];
 pathId = './paperParamInput/';
 loadId = ['hopData' lcStr];
 paramFile = [ 'initParamsSvsKd_lplc' lcStr ];
 % Run param inputs
 fprintf('Running %s\n', loadId );
 filename = [ pathId loadId ];
-paramFromLoad = poreExperimentParamsToInputs( filename );
+% getting parameter
+[lbox, bt] = getParamsHopDataInput();
+fprintf('For scaling parameters: lBox = %g (m) bt = %g\n', lbox, bt)
+paramFromLoad = hopParamsToInput( filename, lbox, bt );
 fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
   paramFromLoad.input, paramLoadFile );
 fprintf('Finished paramInput\n')
