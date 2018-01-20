@@ -1,5 +1,5 @@
 % Input parameters for poreExperiment, use physical lengths here 
-function [lbox, bt, lScale] = getParamsHopDataInput()
+function [lbox, bt, lScale] = getParamsInput()
 lbox = 1e-1; % mum
 nBinding = 800; % number of binding sites
 conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
