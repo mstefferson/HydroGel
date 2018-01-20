@@ -172,12 +172,15 @@ function resultsSelFromExperiment(currId, loadId, storeFlag,...
   saveExt, dataPath)
 tic
 fprintf('Starting results %d \n', currId );
-fileId = 'initParamsSFromInput';
+paramLoadFile = [ 'initParamsInput'];
 pathId = './paperParamInput/';
-filename = [ pathId loadId ];
-paramFromLoad = poreExperimentParamsToInputs( filename );
+filename = [pathId loadId];
+% getting parameter
+[lbox, bt, lScale] = getParamsInput();
+fprintf('For scaling parameters: lBox = %g (um) bt = %g (M)\n', lbox, bt)
+paramFromLoad = hopParamsToInput( filename, lbox, lScale, bt );
 fluxSummary = fluxODEParamIn( storeFlag, 0, [],...
-  paramFromLoad.input, fileId );
+  paramFromLoad.input, paramLoadFile );
 selectivity.val = fluxSummary.jNorm';
 selectivity.paramLoad = loadId;
 selectivity.paramInput = paramFromLoad.input;
@@ -260,7 +263,7 @@ saveExt = '.mat';
 lc = lcVal; % in nm
 storeFlag.storeStdy = 0;
 % names
-paramLoadFile = [ 'initParamsHopData' ];
+paramLoadFile = [ 'initParamsInput' ];
 pathId = './paperParamInput/';
 loadId = ['hopData' lcStr];
 paramFile = [ 'initParamsSvsKd_lplc' lcStr ];
@@ -268,7 +271,7 @@ paramFile = [ 'initParamsSvsKd_lplc' lcStr ];
 fprintf('Running %s\n', loadId );
 filename = [ pathId loadId ];
 % getting parameter
-[lbox, bt, lScale] = getParamsHopDataInput();
+[lbox, bt, lScale] = getParamsInput();
 fprintf('For scaling parameters: lBox = %g (um) bt = %g (M)\n', lbox, bt)
 paramFromLoad = hopParamsToInput( filename, lbox, lScale, bt );
 fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
