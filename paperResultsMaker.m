@@ -263,20 +263,19 @@ saveExt = '.mat';
 lc = lcVal; % in nm
 storeFlag.storeStdy = 0;
 % names
-paramLoadFile = [ 'initParamsInput' ];
-pathId = './paperParamInput/';
+paramFileInput = [ 'initParamsInput' ];
+loadPathId = './paperParamInput/';
 loadId = ['hopData' lcStr];
-paramFile = [ 'initParamsSvsKd_lplc' lcStr ];
+paramFileRun = [ 'initParamsSvsKd_lplc' lcStr ];
 % Run param inputs
-fprintf('Running %s\n', loadId );
-filename = [ pathId loadId ];
+loadname = [ loadPathId loadId ];
+fprintf('Running %s from param load %s\n', paramFileInput, loadname );
 % getting parameter
 [lbox, bt, lScale] = getParamsInput();
-fprintf('For scaling parameters: lBox = %g (um) bt = %g (M)\n', lbox, bt)
-paramFromLoad = hopParamsToInput( filename, lbox, lScale, bt );
+paramFromLoad = hopParamsToInput( loadname, lbox, lScale, bt );
 fluxSummaryInput = fluxODEParamIn( storeFlag, 0, dirname,...
-  paramFromLoad.input, paramLoadFile );
-fprintf('Finished selectivity calct\n')
+  paramFromLoad.input, paramFileInput );
+fprintf('Finished selectivity calc for input params\n')
 selectivity.loadName = loadId;
 selectivity.val = fluxSummaryInput.jNorm';
 selectivity.paramLoad = loadId;
@@ -284,28 +283,33 @@ selectivity.paramInput = paramFromLoad.input;
 selectivity.paramLoad = paramFromLoad.data;
 selectivity.lc = lc;
 % put it in a from that useable for plotting
+fprintf('Storing selectivity data in hoppingData\n')
 hoppingData = makeHoppingData(selectivity);
+fprintf('Finished storing selectivity data in hoppingData\n')
 hoppingData.lc = lc;
+hoppingData.loadId = loadId;
+hoppingData.paramLoadFile = paramFileInput;
 % calculate diffusion coeffici
-run( paramFile )
+run( paramFileRun )
 dA = paramMaster.Da;
 kon = 1e9; % (per Molar sec)
 % For inputs, use (mum) for length
 lcMu = lc * 1e-3;
 lp = 1e-3; % mum
 lclp = lcMu .* lp;
+fprintf('Calculating bound diffusion\n')
 [hoppingData.nuTether, ~] = makeTetherDbs(lclp, hoppingData.kdVec, kon, dA);
 fprintf('Finished calculating bound diffusion\n')
 % store file names
-hoppingData.loadId = loadId;
-hoppingData.paramLoadFile = paramLoadFile;
-hoppingData.paramFile = paramFile;
-fluxSummaryRun  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFile );
+fprintf('Starting fluxODE (tether)\n')
+fluxSummaryRun  = fluxODE( plotFlag, storeFlag, saveMe, dirname, paramFileRun );
 fprintf('Finished fluxODE (tether)\n')
 kdScale = 1e6;
 lScaleActual = 1e-7;
 lScaleWant = 1e-9;
 lScale = (lScaleActual / lScaleWant)^2;
+% store things
+hoppingData.paramFile = paramFileRun;
 hoppingData.lcUnscaled = fluxSummaryRun.kinParams.p1Vec;
 [hoppingData.kdVecScaled, hoppingData.lcScaled, hoppingData.selTether] = ...
   getDataFluxSummary( fluxSummaryRun, kdScale, lScale );  % get data
