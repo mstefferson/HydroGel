@@ -1,4 +1,3 @@
-
 %
 % 1: j vs t nu = 0 fig2.1
 % 2: j vs t nu = 1 fig2.2
@@ -155,7 +154,7 @@ lp = 1e-3; % mum
 tetherCalc.lplc = lcMu .* lp;
 tetherCalc.kd = 1e-6 * logspace( -2, 3 ); % in molar
 [tetherCalc.nu] = ...
-  makeTetherDbs(tetherCalc.lplc, tetherCalc.kd, kon, dA);
+  calcTetherDb(tetherCalc.lplc, tetherCalc.kd, kon, dA);
 tetherCalc.nu = tetherCalc.nu.';
 savepath = [ dataPath '/' saveName saveExt];
 if exist( savepath, 'file' )
@@ -298,7 +297,7 @@ lcMu = lc * 1e-3;
 lp = 1e-3; % mum
 lclp = lcMu .* lp;
 fprintf('Calculating bound diffusion\n')
-[hoppingData.nuTether, ~] = makeTetherDbs(lclp, hoppingData.kdVec, kon, dA);
+[hoppingData.nuTether, ~] = calcTetherDb(lclp, hoppingData.kdVec, kon, dA);
 fprintf('Finished calculating bound diffusion\n')
 % store file names
 fprintf('Starting fluxODE (tether)\n')

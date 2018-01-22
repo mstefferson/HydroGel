@@ -6,6 +6,7 @@
 
 # Run for 24 hours:
 #SBATCH --time=23:59:59
+# SBATCH --time=167:59:59
 
 # Select one nodes and processors
 
@@ -19,6 +20,7 @@
 
 # Select the janus-short QOS (comperable to a queue)
 #SBATCH -p short
+# SBATCH -p long
 
 # email
 #SBATCH --mail-type=END
@@ -34,10 +36,10 @@ echo "Submit dir: ${SLURM_SUBMIT_DIR}"
 echo "Job name: ${SLURM_JOB_NAME}" 
 echo "Running ${SLURM_NNODES} nodes. ${SLURM_NTASKS_PER_NODE} tasks per node. ${SLURM_CPUS_PER_TASK} processors per task"
 echo "In dir `pwd`"
-touch jobRunning.txt
+# touch jobRunning.txt
 # Run matlab program
 matlab -nodesktop -nosplash \
   -r  "try, submitPaperResults, catch, exit(1), end, exit(0);"
 echo "Finished. Matlab exit code: $?" 
-mv jobRunning.txt jobFinished.txt
+# mv jobRunning.txt jobFinished.txt
 echo "End time: `date`"
