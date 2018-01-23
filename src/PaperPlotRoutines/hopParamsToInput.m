@@ -24,10 +24,14 @@ dA = data(:,1) * lScale^2;
 tau = lbox^2 ./ dA;
 % scale kon by timescale
 kon = konUnscaled * tau;
+% check if bt is set
+if size( data, 2 ) > 3
+  bt = data(:,4);
+end
 % build data
 paramInput = zeros( size( data, 1 ), 4 );
 paramInput(:,1) = data(:,2) ./ data(:,1); % nu
-paramInput(:,2) = kon * bt; % nu
+paramInput(:,2) = kon .* bt; % nu
 paramInput(:,3) = data(:,3) .* kon; % nu
 paramInput(:,4) = bt; % nu
 % store

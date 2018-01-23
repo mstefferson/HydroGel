@@ -86,9 +86,6 @@ try
     paramObj.Bt = paramObj.Bt(1);
   end
   % set-up params
-  pfixed = paramObj.Bt;
-  BtFixed = paramObj.Bt;
-  pfixedStr = '$$ B_t $$';
   [paramObj, kinParams] = paramLoadMaster( paramObj, paramInput );
   % Run the loops
   paramNuLlp  = kinParams.nuLlp;
@@ -101,14 +98,12 @@ try
     fprintf('Warning, very low number of grid points\n')
   end
   % save names
-  saveStrFM = 'flxss'; %flux map
-  saveStrSS = 'profileSS'; % steady state
   saveStrMat = 'FluxAtSS.mat'; % matlab files
   if saveMe; dirname = [dirname '_nl' num2str( flagsObj.NLcoup )]; end
   % Specify necessary parameters for parfor
   nlEqn = flags.NLcoup;
   Da = paramObj.Da; AL = paramObj.AL; AR = paramObj.AR;
-  Bt = paramObj.Bt; Nx = paramObj.Nx; Lbox = paramObj.Lbox;
+  Nx = paramObj.Nx; Lbox = paramObj.Lbox;
   if strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
     BCstr = 'DirVn';
   elseif strcmp( paramObj.A_BC,'Dir' ) && strcmp( paramObj.C_BC, 'Vn' )
@@ -128,7 +123,6 @@ try
   x = linspace(0, Lbox, Nx) ;
   dx  = x(2) - x(1);
   if numRuns > 1 && flags.ParforFlag
-    recObj = 0;
     parobj = gcp;
     numWorkers = parobj.NumWorkers;
     fprintf('I have hired %d workers\n',parobj.NumWorkers);

@@ -11,8 +11,8 @@
 % 10: S vs kd vary nu linear numeric fig S1.2
 % 11: S vs nu vary kd fig S ?
 % 12: S vs nu vary kd linear numeric fig S1.4
-% 13: initParamsSFromInput gorlich (numeric)
-% 14: initParamsSFromInput gorlich2 (numeric)
+% 13: initParamsSFromInput gorlich (numeric): constant Bt
+% 14: initParamsSFromInput gorlich2 (numeric): varying Bt
 %
 % Current results for paper: [1:13]
 
