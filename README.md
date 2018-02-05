@@ -1,42 +1,105 @@
-### Run  Instructions ###
-1) If initParams is not in working dir, run copy parameters: cpParams
-
+# Run  Instructions 
+I will use ':>' to denote running a (bash) script from terminal and '>>' to denote running a matlab program (in matlab command line). Here are the steps:
+## Executing a single run (time depenents PDE)
+1) If initParams is not in working dir, run copy parameters: cpParams. Parameters can be in physical or scaled units, but be consistent!
+``` 
+    >> cpParams
+```
+or
+``` 
+    :> ./cpParams
+```
 2) Edit parameters in initParams. And save
 
-3.1) Run the code: runHydrogel in matlab
-
-3.2) Run ./submitHgLocal (need to make sure matlab binary is in path)
-
+3) Run the code: 
+  * Run it in MATLAB
+```
+>> runHydrogel
+```
+  *  Or submit a local job 
+``` 
+:> ./submitHgLocal
+```
+  *  Or submit a job to a cluster (slurm). This may need to be edited as mine is currently set-up to run on CU biogrontiers cluster fiji
+``` 
+:> sbatch --jobname=a_job_name fijiSlurmRunHydrogel.pbs
+```
 
 4) Outputs placed in a directory in ./runfiles
 
-## WD Function Description ##
+## Calculating selectivity (PDE/ODE)
 
-initParams: (parameter file) Set parameters for runHydroGel and fluxPlusPDE
+Example runs are included in the comments of fluxODE, fluxPDE, fluxParamIn
 
-runHydrogel: (executeable) runs temporal evolution of PDE. 
+## Calculating paper results 
 
-fluxODE: (function) finds the flux at steady state using and ODE solver. Uses initParams.
+There are two wrappers that generate the data (calls fluxODE/fluxPDE/fluxODEParamIn) and make the plots (calls plot routines) for the paper. Each result has it's own paramInput file located in ./paperInits. Both functions require a vector input denotating which results/plots to want to generate and make.  See the comments for more info. To make the results with key value 1, 2, 3:
+```
+>> paperResultsMaker([1:3])
+```
+Then to make the corresponding plots
+```
+>> paperPlotMaker([1:3])
+```
+### On fiji
+Make sure there is a file called 'initPaperResults' that has a variable with the runs you want. This file will not be tracked.
+```
+:> sbatch --jobname=a_job_name fijiSlurmPaerResults.sh
+```
 
-fluxPlusPDE: (function) finds flux at steady state, slope dj/dt at half max flux, and time
+# WD Function Description #
+
+initParams.m: (parameter file) Set parameters for runHydrogel, fluxPDE, fluxODE
+
+runHydrogel.m: (executeable) runs temporal evolution of PDE. 
+
+fluxODE.m: (function) finds the flux at steady state using and ODE solver. Uses initParams.
+
+fluxPDE.m: (function) finds flux at steady state, slope dj/dt at half max flux, and time
   till half max slope by solving PDE. Uses initParams.
 
-cmprSteadySolvers: (executeable) compares steady state solutions of various methods, ODE
-  solvers, PDE solvers, linear vs non-linear, etc
+fluxODEParamIN.m: (function) finds the flux at steady state using and ODE solver. Uses initParams and parameter inputs
 
-cpParams: (executeable) copies master parameter file to initParams in WD
+cpParams.m: (executeable) copies master parameter file to initParams in WD
 
-cleanme: (executeable) destroys all txt, fig, jpg, avi files in WD
+cleanme.m: (executeable) destroys all txt, fig, jpg, avi files in WD
 
-nonDimParamCalc: (function) calculate scaled parameters from physical parameters
+nonDimParamCalc.m: (function) calculate scaled parameters from physical parameters
 
-## Pando runs ##
+paperPlotMaker.m: (function) generate figures for the paper
 
-To run runHydrogel on pando (currently using Torque)
+paperResultsMaker.m: (function) generate figures for the paper
 
-For get mail:
-qsub -N jobname hgMailPando.pbs
+fijiSlurmPaperResults.sh: SLURM job submission script for paperResultsMaker
 
-For no mail:
-qsub -N jobname hgPando.pbs
+fijiSlurmRunHydrogel.sh: SLURM job submission script for runHydrogel
+
+submitHydrogel: (executeable) wrapper for runHydrogel
+
+submitPaperResults: (executeable) wrapper to paperResultsMaker
+
+# Branch info
+
+## master
+Up-to-date with all paper plot routines for inital paper submission.
+
+## paper_figs
+Feature branch for making the paper figures
+
+## submit_paper
+Just a copy of paper_figs for the inital and final paper submission (makes it easy to quickly find important copies. Currently, it just has the initial submisssion as we are waiting for referee replies.
+
+# Directory info
+* src/: src code
+* runfiles/: Where runHydrogel output files go
+
+* steadyfiles/: Where fluxODE/fluxPDE output files go
+
+* paperData/: Where paperResultsMaker output files go
+
+* paperInits/: Initparam files for paperResultsMaker
+
+* paperParamInput/: Initparam files for paperResultsMaker
+
+* paperFigs/: Where paperPlotMaker output files go
 
