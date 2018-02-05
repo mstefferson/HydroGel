@@ -2,7 +2,7 @@
 paramMaster.trial  = 1; % trial ID
 % Turn things on
 flags.SaveMe = 1; % Save runHydrogel outputs
-flags.NLcoup = 0; % Turn on/off the nonlinear term AC
+flags.NLcoup = 1; % Turn on/off the nonlinear term AC
 flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
 flags.BtDepDiff = 1;  % Turn on if diffusion depends on Bt.
@@ -29,7 +29,20 @@ paramMaster.Lr = 10; % Reservoir length if there is one
 paramMaster.Da = 0.12; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
-paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]};
+% set lc
+lc = 40; % in nm
+lpPerAmino = 1; % nm
+conversionFactor = 1e-6; % mum^2 / nm^2
+lplc = conversionFactor * lc * lpPerAmino; % in mum^2
+paramMaster.DbParam     = {'lplc', lplc };
+% get kdVec from hopData
+loadId = [ 'hopData' num2str( lc, '%d' ) ];
+pathId = './paperParamInput/';
+filename = [ pathId loadId ];
+temp = load( filename  );
+dataName = fields(temp);
+data = temp.( dataName{1} );
+kdVec = unique( data(:, 3) )';
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
@@ -45,12 +58,9 @@ paramMaster.Bt = bt;  % use calculated from number of binding sites
 % options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
 kon = 1e9; % if you want to change just kon, and not konBt, do it here
 konBt = buildKonBt( paramMaster.Bt, kon );
-kDpowerStart = -8;
-kDpowerEnd = -3;
-numKd = 8 * (kDpowerEnd - kDpowerStart + 1);
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
 paramMaster.kinParam1 = {'konBt', [konBt]};  % vec konBt (time scale)
-paramMaster.kinParam2 = {'kD', logspace(kDpowerStart, kDpowerEnd, numKd )};
+paramMaster.kinParam2 = {'kD', kdVec};
 paramMaster.Dnl = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 
 % time

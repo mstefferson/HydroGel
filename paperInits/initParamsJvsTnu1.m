@@ -22,37 +22,46 @@ analysisFlags.ShowRunTime            = 1;  % Display run time
 analysisFlags.TrackProgress          = 0;  % Track run progress
 
 %Spatial grid
-paramMaster.Lbox  = 1; % Gel length
-Nx = 128;  % Internal gridpoints
-paramMaster.Nx    = floor(Nx*paramMaster.Lbox); % Scale by box. Careful!!!
+paramMaster.Lbox = 0.1; % Gel length
+paramMaster.Nx = 4096; % number of grid points
 paramMaster.Lr = 10; % Reservoir length if there is one
-
-%Non Dimensional and Concentration. Code will only vary 2/3 of kinetic parameters
-% konBt, koff, Ka
-paramMaster.Da     = 1; % Diffusion of species A (unbound). Sets time scale
-paramMaster.DbParam     = {'nu', [1]}; 
-% Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-paramMaster.kinParam1 = {'konBt', [1e4]};  % vec konBt (time scale)
+% diffusion coefficient
+paramMaster.Da = 0.12; % Diffusion of species A (unbound). Sets time scale
+% bound diffusion, either {'nu',[]},{'lplc',[]}
+% nu: actual value, lplc: bound tethered model
+paramMaster.DbParam = {'nu', [1]};
+% concentrations
+paramMaster.AL = 1e-6;  % concentration of inlet
+paramMaster.AR = 0; % concentration of outlet
+% calculate bt (use microns!)
+nBinding = 800; % number of binding sites
+lBox = 0.1; % microns
+conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
+dPore = 0.06; % pore area in um
+% calc bt in Molar
+bt = nBinding / (pi()*(dPore/2)^2 * lBox) / conversionFactor;
+paramMaster.Bt = bt;  % use calculated from number of binding sites 
+% Varying two kinetic parameters. First cell, name (str). Second, vector of values
+% options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
+kon = 1e9; % if you want to change just kon, and not konBt, do it here
+konBt = buildKonBt( paramMaster.Bt, kon );
+paramMaster.kinParam1 = {'konBt', [konBt]};  % vec konBt (time scale)
 paramMaster.kinParam2 = {'kD', 1e-6 * [1 3 10 30 100 300 1000]};  % vec konBt (time scale)
-%paramMaster.kinParam2 = {'kD', [1e-7 3e-7 1e-6 3e-6 1e-5 3e-4]};  % vec konBt (time scale)
-paramMaster.Bt     = [1e-3];  % vec molar (old: 1e-2) (new: 1e-3)
-paramMaster.Dnl    = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
-paramMaster.AL     = 1e-6;  % concentration of inlet
-paramMaster.AR     = 0; % concentration of outlet
+paramMaster.Dnl = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 
 % time
-tfac        = 1; % run time factor in relation to box diffusion time
-dtfac       = 1; % dt factor in relation to VN stability condition
+tfac = 1; % run time factor in relation to box diffusion time
+dtfac = 1; % dt factor in relation to VN stability condition
 timeMaster.dt = dtfac * ( (paramMaster.Lbox/paramMaster.Nx)^2 / paramMaster.Da ); % time step
-timeMaster.t_tot   = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
-timeMaster.t_rec   = timeMaster.t_tot / 100;  % time interval for recording dynamics
+timeMaster.t_tot = tfac * paramMaster.Lbox^2 /  paramMaster.Da;  % total time
+timeMaster.t_rec = timeMaster.t_tot / 100;  % time interval for recording dynamics
 timeMaster.ss_epsilon = 1e-6;  % steady state condition
 timeMaster.NumPlots = 10; % For the accumulation plot subroutine
 
 % koff vary
 % {'const'}  or {}
 % {'outletboundary', multVal}
-koffVary = {'outletboundary', 2};
+koffVary = {};
 
 % Binding flag 0: constant. 1: Square blurr
 paramMaster.alpha  = 0.1;  % length scale (frac of box) where binding sites change
@@ -74,3 +83,11 @@ end
 % 'Mx': Fixed Concenctration on left and no flux right
 paramMaster.A_BC = 'Dir';
 paramMaster.C_BC = 'Vn';
+
+function konBt = buildKonBt( kon, bt )
+if isempty(kon)
+  konBt = [];
+else
+  konBt = reshape( bt' * kon, [1 length(kon) * length( bt ) ] );
+end
+end

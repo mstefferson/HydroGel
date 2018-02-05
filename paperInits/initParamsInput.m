@@ -1,16 +1,19 @@
+% Use this for hop runs. Everything should be scaled
+%
+%
 %  Parameter file
 paramMaster.trial  = 1; % trial ID
 % Turn things on
 flags.SaveMe = 1; % Save runHydrogel outputs
-flags.NLcoup = 0; % Turn on/off the nonlinear term AC
+flags.NLcoup = 1; % Turn on/off the nonlinear term AC
 flags.ChemOnEndPts = 1; % Have chemistry on the endpoints
 flags.BindSiteDistFlag = 0; % flag turn on spatially varying binding sites
-flags.BtDepDiff = 1;  % Turn on if diffusion depends on Bt.
-flags.BreakAtSteady = 1; % Save runHydrogel outputs
+flags.BtDepDiff = 0;  % Turn on if diffusion depends on Bt.
+flags.BreakAtSteady = 0; % Save runHydrogel outputs
 flags.ParforFlag = 1; % Turn on/off Parfor
 
 % "Analysis" subroutines
-analysisFlags.QuickMovie             = 1;  % Time evolv. Movie
+analysisFlags.QuickMovie             = 0;  % Time evolv. Movie
 analysisFlags.TrackAccumFlux         = 1;  % Track the flux into outlet
 analysisFlags.PlotAccumFlux          = 1;  % Plot flux vs time
 analysisFlags.PlotMeLastConc         = 1;  % Concentration at end time
@@ -22,14 +25,14 @@ analysisFlags.ShowRunTime            = 1;  % Display run time
 analysisFlags.TrackProgress          = 1;  % Track run progress
 
 %Spatial grid
-paramMaster.Lbox = 0.1; % Gel length
+paramMaster.Lbox = 1; % Using inputs, we scale everything
 paramMaster.Nx = 2^(17); % number of grid points
 paramMaster.Lr = 10; % Reservoir length if there is one
 % diffusion coefficient
-paramMaster.Da = 0.12; % Diffusion of species A (unbound). Sets time scale
+paramMaster.Da = 1; % Diffusion of species A (unbound). Sets time scale
 % bound diffusion, either {'nu',[]},{'lplc',[]}
 % nu: actual value, lplc: bound tethered model
-paramMaster.DbParam     = {'nu', [ 0 0.0625 0.125 0.25 0.5 0.75 1]};
+paramMaster.DbParam     = {'nu', 1};
 % concentrations
 paramMaster.AL = 1e-6;  % concentration of inlet
 paramMaster.AR = 0; % concentration of outlet
@@ -39,18 +42,13 @@ lBox = 0.1; % microns
 conversionFactor = (6.022e8); % [ (Liter * #) / (mol * mum^3)
 dPore = 0.06; % pore area in um
 % calc bt in Molar
-bt = nBinding / (pi()*(dPore/2)^2 * lBox) / conversionFactor;
+bt = nBinding / (pi()*(dPore/2)^2 *lBox) / conversionFactor;
 paramMaster.Bt = bt;  % use calculated from number of binding sites 
 % Varying two kinetic parameters. First cell, name (str). Second, vector of values
 % options: {'konBt',[...]}, {'koff',[...]}, {'kD',[...]}, {'kA',[...]}
-kon = 1e9; % if you want to change just kon, and not konBt, do it here
-konBt = buildKonBt( paramMaster.Bt, kon );
-kDpowerStart = -8;
-kDpowerEnd = -3;
-numKd = 8 * (kDpowerEnd - kDpowerStart + 1);
 % Varying only 2 of konbt, koff, Ka. Leave third blank []. e.g.
-paramMaster.kinParam1 = {'konBt', [konBt]};  % vec konBt (time scale)
-paramMaster.kinParam2 = {'kD', logspace(kDpowerStart, kDpowerEnd, numKd )};
+paramMaster.kinParam1 = {'konBt', []};  % vec konBt (time scale)
+paramMaster.kinParam2 = {'kA', []};
 paramMaster.Dnl = 1; % Dsat/DA. Dnl = 1: (constant D); Dnl > 1 : D([A])
 
 % time
@@ -66,7 +64,6 @@ timeMaster.NumPlots = 10; % For the accumulation plot subroutine
 % {'const'}  or {}
 % {'outletboundary', multVal}
 koffVary = {};
-
 % Binding flag 0: constant. 1: Square blurr
 paramMaster.alpha  = 0.1;  % length scale (frac of box) where binding sites change
 % Turn on if diffusion depends on Bt. If Bt varies spatially,

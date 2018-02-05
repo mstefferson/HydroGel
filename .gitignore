@@ -32,3 +32,12 @@ runfiles/
 
 # Params files
 initParams.m
+initPaperResults.m
+
+# keep track of important data
+!paperParamInput/hopData4.mat
+!paperParamInput/hopData12.mat
+!paperParamInput/hopData40.mat
+!paperParamInput/hopData120.mat
+!paperParamInput/gorlichData.mat
+!paperParamInput/gorlichData2.mat

@@ -1,11 +1,12 @@
-function makefigJvsT( fluxSummary )
+function makefigJvsT( fluxSummary, cutOffTime )
 % Some tunable parameters
 xLab = 'Time $$ t \, (ms) $$';
 yLab = 'Normalized outlet flux $$ J^* $$';
-ntMax = 1000;
+% set max nt by cuttoff time
+ntMax = find( fluxSummary.timeVec < cutOffTime, 1, 'last' );
 fontSize = 20;
 % scales
-tScale = 10; % tau = 0.01, get time in ms 
+tScale = 1e3; % time in seconds, convert to ms
 kScale = 1e6;
 % set-up figure
 fig = figure();
@@ -45,11 +46,6 @@ p = plot( ah1, time, flux2plot(1:nt),'k:');
 p.LineWidth = 3;
 % set up colors
 wantedColors = getPlotLineColors( kdVec, 'log', 'pmkmp');
-% manual override
-% fac = 1000;
-% colorArray = viridis( fac+1 );
-% getInds = round( linspace( 1, fac, length( kdVec ) ) );
-% wantedColors = colorArray( getInds, : );
 % Loop over plots
 for kk = 1:length(kdVec )
   flux2plot = fluxSummary.jVsT{1,1,kk} ./ fluxSummary.jDiff;

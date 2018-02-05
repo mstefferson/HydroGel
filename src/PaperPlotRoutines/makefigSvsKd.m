@@ -1,15 +1,17 @@
-function makefigSvsKd( fluxSummary, diffType, yLimMax )
+function makefigSvsKd( fluxSummary, diffType, yLimMax, wantedColorsOverride )
 if nargin < 3
-  yLimMax = 40;
+  yLimMax = [];
+  wantedColorsOverride = [];
+elseif nargin < 4
+  wantedColorsOverride = [];
 end
 % labels
 xLabel = 'Dissociation constant $$ K_D \, ( \mathrm{ \mu M } )$$';
 yLabel = 'Selectivity $$ S $$';
 % scale factor, limits
 kdScale = 1e6;
-kdMin = 1e-5;
 if strcmp( diffType, 'lplc' )
-  lScaleActual = 1e-7;
+  lScaleActual = 1e-6;
   lScaleWant = 1e-9;
   lScale = (lScaleActual / lScaleWant)^2;
 elseif strcmp( diffType, 'nu' )
@@ -26,10 +28,10 @@ fig.WindowStyle = 'normal';
 fig.Position = [393 229 501 368];
 % make plot
 makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  diffType, fontSize, yLimMax, xLabel, yLabel );
+  diffType, fontSize, yLimMax, xLabel, yLabel, wantedColorsOverride );
 
 function makeSelectivityPlot( fluxSummary, kdScale, lScale, ...
-  diffType, fontSize, yLimMax, xLabel, yLabel )
+  diffType, fontSize, yLimMax, xLabel, yLabel, wantedColorsOverride )
 % Plot it non-linear
 ax = gca;
 ax.FontSize = fontSize;
@@ -46,7 +48,11 @@ if strcmp( diffType, 'lplc' )
 elseif strcmp( diffType, 'nu' )
   scaleType = 'linear';
 end
-wantedColors = getPlotLineColors( nulplcVec, scaleType );
+if isempty( wantedColorsOverride )
+  wantedColors = getPlotLineColors( nulplcVec, scaleType, 'pmkmp' );
+else
+  wantedColors = wantedColorsOverride;
+end
 % plot it non-linear
 plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax, ...
   xLabel, yLabel, wantedColors )
@@ -54,7 +60,11 @@ plotSelectivityVsKd( ax, kdVec, jNorm, yLimMax, ...
 hl = legend( legcell, 'location','best');
 hl.Interpreter = 'latex';
 hl.Title.String = legTitle;
-hl.Position = [0.8121 0.2662 0.1717 0.4995];
+if length( nulplcVec ) > 4
+  hl.Position = [0.8121 0.2662 0.1717 0.4995];
+else
+  hl.Position = [0.8301 0.4043 0.1357 0.3193];
+end
 
 function plotSelectivityVsKd( ax, kdVec, ...
   jNorm, yLimMax, xLabel, yLabel, wantedColors)
@@ -74,7 +84,9 @@ kdEnd = log10( max( kdVec ) );
 xTick = logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 );
 ax.XLim = [ min(xTick) max(xTick) ];
 ax.XTick = xTick;
-ax.YLim = [0 yLimMax];
+if ~isempty( yLimMax )
+  ax.YLim = [0 yLimMax];
+end
 axis square
 xlabel( ax, xLabel )
 ylabel( ax, yLabel )

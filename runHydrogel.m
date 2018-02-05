@@ -19,7 +19,7 @@ if ~exist('./runfiles','dir'); mkdir('runfiles'); end
 Time = datestr(now);
 currentdir=pwd;
 fprintf('In dir %s\n',currentdir);
-fprintf('Starting RunHydroGel: %s\n', Time)
+fprintf('Starting runHydroGel: %s\n', Time)
 % Initparams
 fprintf('Initiating parameters\n');
 if exist( 'initParams.m','file')
@@ -35,8 +35,6 @@ flagsObj = flags;
 % Build timeObj
 [timeObj] = TimeObjMakerRD(timeObj.dt,timeObj.t_tot,...
   timeObj.t_rec,timeObj.ss_epsilon);
-% if Nx is too large, reset to something reasonable
-if paramObj.Nx > 256; paramObj.Nx = 128; end
 % set-up params
 [paramObj, kinParams] = paramInputMaster( paramObj, koffVary );
 % Turn off graphics in flag is zero
