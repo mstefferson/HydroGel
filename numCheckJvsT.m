@@ -1,12 +1,13 @@
+
 % check nu = 0
 function numCheckJvsT( plotTogether, saveMe )
 nu1Max = 150;
 plotId = [1, 2];
 fileId =  { ...
   [1, 2], ...
-  [1, 2, 3, 4 ] };
+  [1, 2, 3, 4, 5 ] };
 plotTitle = {'nu = 0', 'nu = 1'};
-nId = [128, 256, 512, 1024; 256, 512, 1024, 2048];
+nId = { [128, 256, 512], [256, 512, 1024, 2048, 4096]};
 masterfile = {'figJvsTnu0_data','figJvsTnu1_data'};
 mypath = 'paperData/';
 % store the data
@@ -27,7 +28,7 @@ for ii = 1:length(masterfile)
   end
   dataStore{ii} = cell( numfigsTemp, 1 );
   for jj = 1:numfigsTemp
-    myfile = [ masterfileTemp num2str(nId(ii,jj),'%d')];
+    myfile = [ masterfileTemp num2str(nId{ii}(jj),'%d')];
     copyfile( [mypath myfile '.mat'], [mypath masterfileTemp '.mat'] )
     paperPlotMaker( plotId(ii) )
     fig = gcf;
@@ -84,15 +85,28 @@ end % ii loop
 resid = cell( 1, 2);
 residNorm = cell( 1, 2);
 for ii = 1:length( resid )
+  figure()
   numDelta = length( dataStore{ii} )-1;
-  resid{ii} = cell( numDelta, 1 );
-  residNorm{ii} = cell( numDelta, 1 );
+  %resid{ii} = cell( numDelta, 1 );
+  resid{ii} = zeros( numDelta,1 );
+  %residNorm{ii} = cell( numDelta, 1 );
+  residNorm{ii} = zeros( numDelta,1);
   dataLargeN = dataStore{ii}{end};
+  inds2check = dataLargeN > 0;
+  nPoints = length(dataLargeN(inds2check));
   for jj = 1:numDelta
-    resid{ii}{jj} = sum( (dataLargeN - dataStore{ii}{jj}) .^ 2, 2 );
-    residNorm{ii}{jj} = sum( ( (dataLargeN - dataStore{ii}{jj}) .^ 2 ) ./ ...
-    dataLargeN, 2 );
-   fprintf('%s N=%d: res = %f\n', masterfile{ii}, ...
-    nId(ii,jj), max( resid{ii}{jj} )  )
+    resid{ii}(jj) = sum( ...
+      (dataLargeN(inds2check) - dataStore{ii}{jj}(inds2check)) .^ 2 );
+    residNorm{ii}(jj) = sum( ( ...
+      (dataLargeN(inds2check) - dataStore{ii}{jj}(inds2check)) .^ 2 ) ./ ...
+    ( dataLargeN(inds2check) .* nPoints ) );
+    fprintf('%s N=%d: res = %f resNorm = %f\n', masterfile{ii}, ...
+    nId{ii}(jj), resid{ii}(jj), residNorm{ii}(jj) )
   end
+  subplot( 1, 2, 1 )
+  plot( nId{ii}(1:end-1), residNorm{ii} )
+  title( ['residuals ' num2str(ii-1) ] )
+  subplot( 1, 2, 2 )
+  loglog( nId{ii}(1:end-1), residNorm{ii} )
+  title( ['residuals ' num2str(ii-1) ] )
 end

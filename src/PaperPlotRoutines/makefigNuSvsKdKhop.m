@@ -31,9 +31,9 @@ kdEnd = log10( max( hoppingData.kdVecScaled ) );
 xTick = round( ...
   logspace( kdStart, kdEnd, (kdEnd - kdStart ) + 1 ) );
 % set up colors
-colorVec = 1:length(hoppingData.kHopVec);
+colorVec = (1:length(hoppingData.kHopVec))-1;
 scaleType = 'linear';
-wantedColors = getPlotLineColors( colorVec, scaleType );
+wantedColors = getPlotLineColors( colorVec, scaleType, 'pmkmp' );
 % set up nu plot
 ax1 = subplot(1,2,1);
 ax1.Position = [0.0787 0.2 0.3347 0.7335];

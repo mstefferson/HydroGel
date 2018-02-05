@@ -9,6 +9,9 @@ if strcmp( colorScheme, 'viridis' )
   colorArray = viridis( fac+1 );
 elseif strcmp( colorScheme, 'pmkmp' )
   colorArray = pmkmp( fac+1 );
+else
+  fprintf('Do no recognize color scheme. Setting to viridis\n')
+  colorArray = viridis( fac+1 );
 end
 % get size
 lengthPv = length( plotVec );

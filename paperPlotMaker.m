@@ -35,7 +35,7 @@ end
 % set some things here. Should be [] you don't want to override
 yLimOverride = [250]; % for selectivity
 yLimOverrideLin = [350]; % for selectivity
-yLimOverrideHop = [];
+yLimOverrideHop = [250];
 cutOffTime = Inf; % seconds
 % figure 1: selectivity vs time nu = 0 fig. 2.1
 currId = 1;
@@ -109,7 +109,7 @@ if any( plotId == currId )
     saveTag, saveID, yLimOverrideHop  )
 end
 % figure 8: nu vs Kd, S vs Kd (kHop) 120 fig S6
-currId = 8;
+currId = 9;
 if any( plotId == currId )
   lc = 120;
   plotHopData( currId, lc, paperDataPath, saveFlag, paperSavePath,...
