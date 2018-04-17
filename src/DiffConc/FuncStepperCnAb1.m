@@ -4,7 +4,7 @@
 % ODE: 
 % dv/dt = Lop v + NL
 % v_{n+1} = v_{n} + ...
-%     (1 - dt / 2* Lop) ^(-1) * ( (1 - dt / 2* Lop) * v_{n} + dt * NL_{n} )
+%     (1 - dt / 2* Lop) ^(-1) * ( (1 + dt / 2* Lop) * v_{n} + dt * NL_{n} )
 % or
 % v_{n+1} = v_{n} + ...
 %     ML^(-1) * ( MR * v_{n} + dt * NL_{n} )
