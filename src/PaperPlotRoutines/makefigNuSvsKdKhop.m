@@ -33,7 +33,8 @@ xTick = round( ...
 % set up colors
 colorVec = (1:length(hoppingData.kHopVec))-1;
 scaleType = 'linear';
-wantedColors = getPlotLineColors( colorVec, scaleType, 'pmkmp' );
+colormapName = 'plasma';
+wantedColors = getPlotLineColors( colorVec, scaleType, colormapName );
 % set up nu plot
 ax1 = subplot(1,2,1);
 ax1.Position = [0.0787 0.2 0.3347 0.7335];

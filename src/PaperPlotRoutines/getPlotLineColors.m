@@ -9,6 +9,12 @@ if strcmp( colorScheme, 'viridis' )
   colorArray = viridis( fac+1 );
 elseif strcmp( colorScheme, 'pmkmp' )
   colorArray = pmkmp( fac+1 );
+elseif strcmp( colorScheme, 'inferno' )
+  colorArray = inferno( fac+1 );
+elseif strcmp( colorScheme, 'magma' )
+  colorArray = magma( fac+1 );
+elseif strcmp( colorScheme, 'plasma' )
+  colorArray = plasma( fac+1 );
 else
   fprintf('Do no recognize color scheme. Setting to viridis\n')
   colorArray = viridis( fac+1 );
